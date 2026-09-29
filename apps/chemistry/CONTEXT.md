@@ -351,3 +351,38 @@ _Avoid_: Midpoint, buffer point
 **Marked point**:
 The equivalence or half-equivalence point drawn as a dot, alone or with dashed lines to both axes, with a label, a blank line for students, or nothing.
 _Avoid_: Marker, annotation
+
+### Heating and cooling curves
+
+**Heating curve** / **Cooling curve**:
+A graph of a substance's temperature in °C (up the side) as it is heated or cooled steadily, against the time or the heat added or removed (along the bottom). Each phase warms or cools in a sloped segment; each phase change is a flat plateau. A cooling curve is the same segments run from the hot end. The generator is Heating and Cooling Curve. The grid, axes and titles are the same as a titration curve's, from `$shared/graph`, except that the axes always run along the grid's left and bottom edges, so temperatures below 0 °C don't move the time axis up into the graph.
+_Avoid_: Phase change graph, temperature graph (both fine in search keywords), phase diagram (a different figure)
+
+**Segment**:
+One piece of a curve: a phase warming or cooling (solid, liquid, gas), or a plateau (melting or boiling heating, freezing or condensing cooling). A curve has only the segments its starting and ending temperatures pass through, and includes a plateau it starts or ends right at, so ice at 0 °C begins by melting.
+_Avoid_: Section, part, step
+
+**Plateau**:
+A flat segment at the melting (freezing) or boiling point, where both phases are present and the temperature doesn't change.
+_Avoid_: Flat part, phase change line
+
+**A substance**:
+The first way to give a curve: the mass, specific heats of each phase, enthalpies of fusion and vaporization and the molar mass, so each segment takes q = m·c·ΔT or q = n·ΔH and the curve is to scale. With time along the x-axis, a steady rate of heat in kJ per minute turns heat into time. Filling in water uses OpenStax Chemistry 2e's values: 2.09, 4.18 and 1.86 J/(g·°C), 6.01 and 40.67 kJ/mol, 18.02 g/mol. The heat each segment takes is listed under the fields, for an answer key.
+_Avoid_: Properties mode, calculated
+
+**Segment lengths**:
+The second way to give a curve: how long each segment runs along the x-axis, for the simple worksheet curve drawn to no particular scale. Switching to it from a substance copies that curve's lengths (to 3 significant figures).
+_Avoid_: Manual mode, schematic
+
+**Supercooling**:
+On a cooling curve that freezes, the liquid cooling past its freezing point by the degrees the teacher types before it starts to freeze, then warming back up to the freezing point. The dip takes the start of the freezing plateau, so the rest of the curve doesn't move.
+_Avoid_: Undercooling
+
+**Corner letter**:
+A, B, C… at the start of the curve and the end of each segment, for questions like "What is happening between B and C?". It goes outside the turn the curve makes there, or the nearest clear spot.
+_Avoid_: Point label, marker
+
+**Segment label**:
+A segment's state written beside it (Solid, Liquid, Gas; a plateau as Solid + liquid or Liquid + gas, or as the change: Melting, Boiling, Freezing, Condensing), or a blank line for students. Each goes in the first spot near its segment that's clear of the curve, the dashed lines and the other labels.
+_Avoid_: Annotation, caption
+

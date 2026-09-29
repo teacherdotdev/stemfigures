@@ -1,8 +1,8 @@
 // A graph's grid and axes as the teacher sets them: each axis's range (kept as
 // the text typed, "-2" or "2pi"), how often it's numbered, its label and end
 // caps, the titles, and minor gridlines. The coordinate grid (Math) and the
-// titration curve (Chemistry) both draw on this grid; layoutGrid() in grid.ts
-// lays it out and Grid.svelte draws it.
+// titration and heating and cooling curves (Chemistry) draw on this grid;
+// layoutGrid() in grid.ts lays it out and Grid.svelte draws it.
 
 import { CAPS, type Cap } from './caps'
 import { niceText, numberingOf, type Numbering } from './numbering'

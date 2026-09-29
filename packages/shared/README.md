@@ -10,10 +10,10 @@ Components and helpers used by more than one STEM Figures site, imported as
 | `Modal`                                                                                     | math, chemistry, physics, biology, engineering |
 | `LabelField`                                                                                | math, chemistry, biology, engineering     |
 | `GeneratorPage`, `generatorState`, and through them `FigureCanvas`, `Presets`, `presetStore`, `history`, `exporting` | math, chemistry, physics |
-| `labelSize`                                                                                 | math, chemistry (Titration Curve)         |
-| `graph/`: `Grid`, `grid`, `axes`, `AxisSettings`, `TitleSettings`, `GridlineSettings`       | math (Coordinate Grid), chemistry (Titration Curve) |
-| `graph/`: `numbering`, `caps`, `CapPicker`, `colors`                                        | math, chemistry (Titration Curve)         |
-| `Section`                                                                                   | math, physics (Spring Scale), chemistry (Titration Curve) |
+| `labelSize`                                                                                 | math, chemistry (Titration Curve, Heating and Cooling Curve) |
+| `graph/`: `Grid`, `grid`, `axes`, `AxisSettings`, `TitleSettings`, `GridlineSettings`       | math (Coordinate Grid), chemistry (Titration Curve, Heating and Cooling Curve) |
+| `graph/`: `numbering`, `caps`, `CapPicker`, `colors`                                        | math, chemistry (Titration Curve, Heating and Cooling Curve) |
+| `Section`                                                                                   | math, physics (Spring Scale), chemistry (Titration Curve, Heating and Cooling Curve) |
 | `HelpTip`                                                                                   | math                                      |
 | `FigureFrame`, `figureAlign`, `settings`, `figureText`, `FigureTextSettings`                | physics (Spring Scale), math (Length Reading) |
 | `Magnifier`, `MagnifierSettings`, `magnify`                                                 | physics (Spring Scale), math (Length Reading) |
@@ -59,12 +59,13 @@ presets as a third argument, for a site whose teachers already have them
 saved under other names (Math and Physics do).
 
 `graph/` is a graph on a square grid, the one Math's Coordinate Grid and
-Chemistry's Titration Curve both draw on. `axes` holds its settings: each
+Chemistry's Titration Curve and Heating and Cooling Curve draw on. `axes` holds its settings: each
 axis's range as typed (read by `readAxes` with the site's number reader, since
 Math's are typed in Caret and can be 3π/2), numbering, labels, end caps,
 titles and minor gridlines, plus `gridFields` for a generator using
 `defineSettings`. `layoutGrid` lays the grid out and gives `px`, which places
-a point of the graph on the drawing; `Grid.svelte` draws it with the
+a point of the graph on the drawing (its axes cross at 0 when 0 is on the
+grid, unless it's given `{ edges: true }`, as for temperatures below 0 °C); `Grid.svelte` draws it with the
 generator's own marks as its children. `AxisSettings`, `TitleSettings` and
 `GridlineSettings` are its settings groups; `AxisSettings` takes a `field` for
 the range boxes (a plain text box unless given) and children for fields of the
