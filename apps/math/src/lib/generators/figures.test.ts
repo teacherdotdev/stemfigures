@@ -17,6 +17,8 @@ import { readQuadrilateral } from '$lib/shapes/quadrilateral/settings.js'
 import { family as kite } from './kite/family.js'
 import { family as parallelogram } from './parallelogram/family.js'
 import { family as rectangle } from './rectangle/family.js'
+import { buildLines } from './parallel-lines/layout.js'
+import * as parallel from './parallel-lines/settings.js'
 import { buildPolygon } from './regular-polygon/layout.js'
 import * as polygon from './regular-polygon/settings.js'
 import { family as trapezoid } from './trapezoid/family.js'
@@ -144,6 +146,17 @@ const POLYGON = [
   'size=x',
 ]
 
+const PARALLEL = [
+  '',
+  'angle=90',
+  'angle=40&a1Label=measure&a2Label=measure&a5Text=x&a6Text=3x%2B5&arcs=1&a3Arcs=2&a7Arcs=2',
+  'parallel=0&tilt=-12&a2Shade=1&a6Shade=1&arrows=0',
+  'second=1&angle2=115&shift=-1.5&crossPoints=1&rayPoints=1&pointNames=A%20B%20C%20D',
+  'names=0&ends=0&arrows=3&rotate=30&labelSize=large',
+  'moved=angleB%3A4%2C-6%3BlineA%3A0%2C3&a4Label=none&a8Label=none',
+  'angle=5',
+]
+
 const data = (...rows: string[]) => rows.map((r) => `data=${encodeURIComponent(r)}`).join('&')
 
 const BOX = [
@@ -229,6 +242,15 @@ describe('regular polygon', () => {
     const read = polygon.readPolygon(s)
     const figure = read.polygon ? buildPolygon(s, read.polygon) : null
     expect({ query: polygon.settingsToQuery(s), read, figure }).toMatchSnapshot()
+  })
+})
+
+describe('parallel lines and a transversal', () => {
+  test.each(PARALLEL)('%s', (q) => {
+    const s = parallel.settingsFromParams(params(q))
+    const read = parallel.readLines(s)
+    const figure = read.lines ? buildLines(s, read.lines) : null
+    expect({ query: parallel.settingsToQuery(s), read, figure }).toMatchSnapshot()
   })
 })
 

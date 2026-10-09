@@ -125,6 +125,22 @@ export const MATH: CatalogEntry[] = [
     ],
   },
   {
+    id: 'parallel-lines',
+    site: 'math',
+    name: 'Parallel Lines and Transversal Generator',
+    path: '/parallel-lines',
+    blurb: 'Parallel lines cut by a transversal, with the eight angles numbered or measured.',
+    description:
+      'Make a printable diagram of parallel lines cut by a transversal for your class. Set one angle and the rest are worked out, number the angles or label them with measures or expressions like 3x + 5, shade an angle pair, add a second transversal or make the lines not parallel, then copy it into a worksheet or test.',
+    keywords: [
+      'parallel lines', 'transversal', 'transversals', 'parallel lines cut by a transversal', 'angle pairs', 'angle relationships',
+      'alternate interior angles', 'alternate exterior angles', 'corresponding angles', 'same side interior angles',
+      'consecutive interior angles', 'co-interior angles', 'same side exterior angles', 'vertical angles', 'linear pair',
+      'supplementary angles', 'missing angles', 'angles', 'lines', 'non-parallel lines', 'perpendicular', 'parallel arrows',
+      'proving lines parallel', 'geometry', 'diagram', 'labels', 'printable',
+    ],
+  },
+  {
     id: 'prism',
     site: 'math',
     name: 'Prism Generator',

@@ -212,6 +212,32 @@ _Avoid_: Inradius, height
 The line from a regular polygon's center to a vertex, and its length; together, the **radii**. The generator draws one to the bottom right vertex, so with the apothem it makes the right triangle used for area.
 _Avoid_: Circumradius
 
+### Parallel lines and transversals
+
+**Parallel Lines and Transversal**:
+A figure of two lines cut by one or two transversals, with the angles where they cross numbered, measured or labeled for students. The two lines are parallel unless the teacher gives the second a tilt. Its generator is the Parallel Lines and Transversal Generator. It isn't a **Shape**: its lines run on past the figure, with no corners.
+_Avoid_: Transversal diagram, angle pairs diagram (fine as search words)
+
+**Transversal**:
+A line that crosses both lines, each at its own point. A figure has one, named t, and can have a second, named s. Two transversals never cross a line at the same point.
+_Avoid_: Cutting line, secant
+
+**Crossing**:
+Where a transversal meets one of the lines, making four angles around it. It can be shown as a point and named.
+_Avoid_: Intersection (fine in teaching), vertex, corner
+
+**Angle number**:
+The number that names an angle by where it sits: 1 to 4 around the first transversal's crossing with the first line, top left, top right, bottom left, bottom right, then 5 to 8 the same way at its crossing with the second line; 9 to 16 for a second transversal. An angle's number is its label until the teacher changes it, so it can be retyped as x or 3x + 5 or swapped for the angle's measure; the number still names the angle in the settings panel.
+_Avoid_: Angle name, angle label (its label can be something else)
+
+**Tilt**:
+How far the second line turns from the first, in degrees, when the lines aren't parallel.
+_Avoid_: Lean (that's an oblique 3D shape's slide), slope, skew
+
+**Shading**:
+A light color filling one angle near its crossing, so the teacher can point at an angle pair ("what is the relationship between the shaded angles?"). It's set per angle and never follows from the measures.
+_Avoid_: Highlight, fill, color (alone)
+
 ### Data displays
 
 **Data set**:
