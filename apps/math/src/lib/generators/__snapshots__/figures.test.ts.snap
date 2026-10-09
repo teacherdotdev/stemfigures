@@ -25352,6 +25352,72 @@ exports[`parallel lines and a transversal >  1`] = `
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          173.3153829077499,
+          89.99999999999999,
+        ],
+        "key": "p1.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          126.68461709225005,
+          189.99999999999997,
+        ],
+        "key": "p2.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          38.129384239704976,
+          89.99999999999999,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          272.1293842397049,
+          89.99999999999999,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          27.87061576029501,
+          189.99999999999997,
+        ],
+        "key": "p2:start",
+        "line": "p2",
+      },
+      {
+        "at": [
+          261.870615760295,
+          189.99999999999997,
+        ],
+        "key": "p2:end",
+        "line": "p2",
+      },
+      {
+        "at": [
+          93.94981948976914,
+          260.2,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          206.0501805102308,
+          19.799999999999955,
+        ],
+        "key": "t1:end",
+        "line": "t1",
+      },
+    ],
     "squares": [],
   },
   "problems": {},
@@ -26005,6 +26071,72 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
       {
         "d": "M126.7,190 L143.6,153.7 A40,40 0 0 1 166.7,190 Z",
         "fill": "#bfdbfe",
+      },
+    ],
+    "spots": [
+      {
+        "at": [
+          173.3153829077499,
+          89.99999999999999,
+        ],
+        "key": "p1.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          126.68461709225005,
+          189.99999999999997,
+        ],
+        "key": "p2.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          38.129384239704976,
+          89.99999999999999,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          272.1293842397049,
+          89.99999999999999,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          27.87061576029501,
+          189.99999999999997,
+        ],
+        "key": "p2:start",
+        "line": "p2",
+      },
+      {
+        "at": [
+          261.870615760295,
+          189.99999999999997,
+        ],
+        "key": "p2:end",
+        "line": "p2",
+      },
+      {
+        "at": [
+          93.94981948976914,
+          260.2,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          206.0501805102308,
+          19.799999999999955,
+        ],
+        "key": "t1:end",
+        "line": "t1",
       },
     ],
     "squares": [],
@@ -27142,6 +27274,136 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          119.95350820765091,
+          66.31578947368422,
+        ],
+        "key": "p1.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          267.3219292602825,
+          66.31578947368422,
+        ],
+        "key": "p1.t2",
+        "line": null,
+      },
+      {
+        "at": [
+          93.13464884066755,
+          140,
+        ],
+        "key": "p2.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          294.14078862726586,
+          140,
+        ],
+        "key": "p2.t2",
+        "line": null,
+      },
+      {
+        "at": [
+          66.31578947368422,
+          213.6842105263158,
+        ],
+        "key": "p3.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          320.95964799424917,
+          213.6842105263158,
+        ],
+        "key": "p3.t2",
+        "line": null,
+      },
+      {
+        "at": [
+          26.3897718056832,
+          66.31578947368422,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          360.8856656622502,
+          66.31578947368422,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          20.48962274494686,
+          140,
+        ],
+        "key": "p2:start",
+        "line": "p2",
+      },
+      {
+        "at": [
+          366.7858147229865,
+          140,
+        ],
+        "key": "p2:end",
+        "line": "p2",
+      },
+      {
+        "at": [
+          14.589473684210528,
+          213.6842105263158,
+        ],
+        "key": "p3:start",
+        "line": "p3",
+      },
+      {
+        "at": [
+          372.6859637837228,
+          213.6842105263158,
+        ],
+        "key": "p3:end",
+        "line": "p3",
+      },
+      {
+        "at": [
+          47.488950198061914,
+          265.41052631578947,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          138.7803474832732,
+          14.589473684210532,
+        ],
+        "key": "t1:end",
+        "line": "t1",
+      },
+      {
+        "at": [
+          339.7864872698715,
+          265.41052631578947,
+        ],
+        "key": "t2:start",
+        "line": "t2",
+      },
+      {
+        "at": [
+          248.4950899846602,
+          14.589473684210532,
+        ],
+        "key": "t2:end",
+        "line": "t2",
+      },
+    ],
     "squares": [],
   },
   "problems": {},
@@ -27767,6 +28029,80 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          101.7680595519112,
+          140,
+        ],
+        "key": "p1.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          209.46036724421887,
+          140,
+        ],
+        "key": "p1.t2",
+        "line": null,
+      },
+      {
+        "at": [
+          221.30886352501187,
+          114.59081772820761,
+        ],
+        "key": "t1.t2",
+        "line": null,
+      },
+      {
+        "at": [
+          22.38897310142046,
+          140,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          298.0812807937282,
+          140,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          22.388973101420458,
+          156.87254568442376,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          300.6879499755026,
+          97.71827204378386,
+        ],
+        "key": "t1:end",
+        "line": "t1",
+      },
+      {
+        "at": [
+          158.539570973693,
+          249.2,
+        ],
+        "key": "t2:start",
+        "line": "t2",
+      },
+      {
+        "at": [
+          262.98783269651915,
+          25.209979900205667,
+        ],
+        "key": "t2:end",
+        "line": "t2",
+      },
+    ],
     "squares": [],
   },
   "problems": {},
@@ -27896,6 +28232,24 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D5%7Cpos%3D
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          48.4,
+          0,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          391.6,
+          0,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+    ],
     "squares": [],
   },
   "problems": {
@@ -28382,6 +28736,64 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          161.53846153846155,
+          140,
+        ],
+        "key": "p1.t1.t2",
+        "line": null,
+      },
+      {
+        "at": [
+          35.53846153846154,
+          140,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          287.53846153846155,
+          140,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          98.49181214295439,
+          249.20000000000002,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          224.58511093396868,
+          30.80000000000001,
+        ],
+        "key": "t1:end",
+        "line": "t1",
+      },
+      {
+        "at": [
+          224.58511093396862,
+          249.20000000000002,
+        ],
+        "key": "t2:start",
+        "line": "t2",
+      },
+      {
+        "at": [
+          98.49181214295442,
+          30.80000000000001,
+        ],
+        "key": "t2:end",
+        "line": "t2",
+      },
+    ],
     "squares": [],
   },
   "problems": {},
@@ -28697,6 +29109,48 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          161.53846153846155,
+          140,
+        ],
+        "key": "p1.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          35.53846153846154,
+          140,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          287.53846153846155,
+          140,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          161.53846153846155,
+          249.2,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          161.53846153846155,
+          30.80000000000001,
+        ],
+        "key": "t1:end",
+        "line": "t1",
+      },
+    ],
     "squares": [],
   },
   "problems": {},
@@ -28704,7 +29158,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
 }
 `;
 
-exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%3Dm%7CstartCap%3Dnone%7CendCap%3Dnone%7CstartPoint%3DA%7CendPoint%3DB&p=p2%7Cname%3Dn%7Cstyle%3Ddashed%7CendCap%3Dline&t=t1%7Cname%3Dt%7Cangle%3D65%7Cpos%3D0%7CstartCap%3Dcircle 1`] = `
+exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%3Dm%7CstartCap%3Dnone%7CendCap%3Dnone&p=p2%7Cname%3Dn%7Cstyle%3Ddashed%7CendCap%3Dline&t=t1%7Cname%3Dt%7Cangle%3D65%7Cpos%3D0%7CstartCap%3Dcircle&pt=p1%3Astart%7Cname%3DA&pt=p1%3Aend%7Cname%3DB 1`] = `
 {
   "figure": {
     "angles": [
@@ -28917,12 +29371,12 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
         280,
       ],
       [
-        47.79332795969682,
-        141.24505427414107,
+        30.041520431809435,
+        151.49406512896925,
       ],
       [
-        201.43064996246528,
-        52.542505058269484,
+        214.40630683513155,
+        45.05100606992339,
       ],
     ],
     "frame": {
@@ -29088,15 +29542,15 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           ],
           "w": 17.9634,
         },
-        "cx": 59.64020527137457,
-        "cy": 161.76444768900194,
+        "cx": 41.88839774348718,
+        "cy": 172.0134585438301,
         "offset": [
           0,
           0,
         ],
-        "part": "end:p1:0",
-        "x": 50.658505271374565,
-        "y": 168.82044768900195,
+        "part": "pt:p1:start",
+        "x": 32.906697743487186,
+        "y": 179.0694585438301,
       },
       {
         "across": [
@@ -29122,15 +29576,15 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           ],
           "w": 17.9634,
         },
-        "cx": 213.27752727414304,
-        "cy": 73.06189847313034,
+        "cx": 226.2531841468093,
+        "cy": 65.57039948478425,
         "offset": [
           0,
           0,
         ],
-        "part": "end:p1:1",
-        "x": 204.29582727414305,
-        "y": 80.11789847313034,
+        "part": "pt:p1:end",
+        "x": 217.2714841468093,
+        "y": 72.62639948478424,
       },
     ],
     "openHeads": [
@@ -29221,10 +29675,76 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
       },
     ],
     "shades": [],
+    "spots": [
+      {
+        "at": [
+          136.55236559913376,
+          90.00000000000001,
+        ],
+        "key": "p1.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          145.30123195172615,
+          190.00000000000003,
+        ],
+        "key": "p2.t1",
+        "line": null,
+      },
+      {
+        "at": [
+          30.041520431809435,
+          151.49406512896925,
+        ],
+        "key": "p1:start",
+        "line": "p1",
+      },
+      {
+        "at": [
+          214.40630683513155,
+          45.05100606992339,
+        ],
+        "key": "p1:end",
+        "line": "p1",
+      },
+      {
+        "at": [
+          67.44729071572837,
+          234.94899393007663,
+        ],
+        "key": "p2:start",
+        "line": "p2",
+      },
+      {
+        "at": [
+          251.81207711905049,
+          128.50593487103077,
+        ],
+        "key": "p2:end",
+        "line": "p2",
+      },
+      {
+        "at": [
+          151.44293613124603,
+          260.2,
+        ],
+        "key": "t1:start",
+        "line": "t1",
+      },
+      {
+        "at": [
+          130.41066141961392,
+          19.80000000000001,
+        ],
+        "key": "t1:end",
+        "line": "t1",
+      },
+    ],
     "squares": [],
   },
   "problems": {},
-  "query": "turn=30&labelSize=large&p=p1%7Cname%3Dm%7CstartCap%3Dnone%7CendCap%3Dnone%7CstartPoint%3DA%7CendPoint%3DB&p=p2%7Cname%3Dn%7CendCap%3Dline%7Cstyle%3Ddashed&t=t1%7Cname%3Dt%7CstartCap%3Dcircle%7Cangle%3D65%7Cpos%3D0",
+  "query": "turn=30&labelSize=large&p=p1%7Cname%3Dm%7CstartCap%3Dnone%7CendCap%3Dnone&p=p2%7Cname%3Dn%7CendCap%3Dline%7Cstyle%3Ddashed&t=t1%7Cname%3Dt%7CstartCap%3Dcircle%7Cangle%3D65%7Cpos%3D0&pt=p1%3Astart%7Cname%3DA&pt=p1%3Aend%7Cname%3DB",
 }
 `;
 

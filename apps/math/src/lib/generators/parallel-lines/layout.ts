@@ -21,8 +21,8 @@ import { ANGLE_DEFAULTS, SHADES, angleKey, readAngle, type LineBase, type LineSt
 
 export type Vec = [number, number]
 export type { PlacedLabel }
-/** Something on the figure the teacher can point at: an angle, a line or a crossing, by its key or id. */
-export type Part = { kind: 'angle' | 'line'; key: string }
+/** Something on the figure the teacher can point at: an angle, a line or a place for a point, by its key or id. */
+export type Part = { kind: 'angle' | 'line' | 'point'; key: string }
 
 const BASE_FS = 20 // label font size, at medium labels
 const BASE_NAME_FS = 21
@@ -313,26 +313,31 @@ export function buildLines(s: Settings) {
     }
   }
 
-  // Named points near each end of a line, between its outermost crossing and its end.
+  // Where a point can go near each end of a line: between its outermost
+  // crossing and its end, nearer the end, clear of the parallel arrows
+  // halfway along. Each one is drawn and named once it's turned on.
+  const endSpots: { key: string; at: Vec; line: string }[] = []
   for (const g of segments) {
-    const line = byId.get(g.id)!.line
     const { d, along, length } = crossingsOn(g)
     const first = along.length ? Math.min(...along) : length / 2
     const last = along.length ? Math.max(...along) : length / 2
     const near = [
-      { name: line.startPoint, t: first * 0.35 },
-      { name: line.endPoint, t: length - (length - last) * 0.35 },
+      { key: `${g.id}:start`, t: first * 0.22 },
+      { key: `${g.id}:end`, t: length - (length - last) * 0.22 },
     ]
-    near.forEach(({ name, t }, i) => {
-      if (!name.trim()) return
+    for (const { key, t } of near) {
       const p = add(g.from, mul(d, t))
+      endSpots.push({ key, at: p, line: g.id })
+      if (!(key in s.points)) continue
       dots.push(p)
-      const box = layoutMath(name.trim(), NAME_FS)!
+      const name = s.points[key].trim()
+      const box = name ? layoutMath(name, NAME_FS) : null
+      if (!box) continue
       const n = perp(d)
       const spots = [n, mul(n, -1)].map((out) => ({ at: add(p, mul(out, 8 + reach(box, out))), out }))
       const spot = spots.find((sp) => !overlaps(box, sp.at)) ?? spots[0]
-      place(`end:${g.id}:${i}`, box, spot.at, spot.out)
-    })
+      place(`pt:${key}`, box, spot.at, spot.out)
+    }
   }
 
   // The frame holds the lines, their arrowheads and every label.
@@ -357,5 +362,7 @@ export function buildLines(s: Settings) {
     labels,
     angles,
     crossings: crossings.map((c) => ({ key: c.key, at: c.v, ids: c.ids })),
+    /** Every place a point can go, shown or not: each crossing, then near each end of each line. */
+    spots: [...crossings.map((c) => ({ key: c.key, at: c.v, line: null as string | null })), ...endSpots],
   }
 }

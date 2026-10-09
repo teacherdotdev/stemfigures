@@ -70,7 +70,7 @@
     if (!popup) return
     const { kind, key } = popup.part
     const there =
-      kind === 'line' ? !!lineOf(key) : drawing.angles.some((a) => a.key === key)
+      kind === 'line' ? !!lineOf(key) : kind === 'angle' ? drawing.angles.some((a) => a.key === key) : drawing.spots.some((p) => p.key === key)
     if (!there) close()
   })
 
@@ -93,9 +93,16 @@
     if (popup?.part.key === id) close()
   }
 
-  function toggleCrossingPoint(key: string, on: boolean) {
+  function togglePoint(key: string, on: boolean) {
     if (on) s.points[key] = ''
     else delete s.points[key]
+  }
+  /** What a point's popup is about: where lines cross, or near which end of which line. */
+  function pointTitle(key: string) {
+    const [id, end] = key.split(':')
+    if (!end) return `Where ${idsIn(key).map(nameOf).join(', ')} cross`
+    const ends = ENDS_NAMES(id)
+    return `Near the ${(end === 'start' ? ends.start : ends.end).toLowerCase()} end of ${nameOf(id)}`
   }
 
   const figureSummary = $derived(
@@ -178,7 +185,7 @@
         <HelpTip id="parallel-tip" label="How the figure works">
           The parallel lines run across the page, evenly spaced. Each transversal crosses them at the angle you give: the
           angle above the top line, to the right of the transversal. Click any angle or line on the figure to label or
-          style it; an angle's popup can also put a named point where its lines cross.
+          style it. Click where lines cross, or near the end of a line, to put a named point there.
         </HelpTip>
       </div>
       {#each s.parallels as line (line.id)}{@render lineRow(line, 'p')}{/each}
@@ -189,7 +196,7 @@
       <p class="hint">Each angle is above {nameOf(clean.parallels[0].id)}, to the right of the transversal. Drag the ∠ to change it.</p>
       {#each s.transversals as line (line.id)}{@render lineRow(line, 't')}{/each}
       <button type="button" class="btn-ghost add" disabled={s.transversals.length >= MAX_LINES} onclick={addTransversal}><Plus size={16} /> Add transversal</button>
-      <p class="hint on-figure">On the figure, click an angle or a line to label or style it.</p>
+      <p class="hint on-figure">On the figure, click an angle or a line to label or style it, or where lines cross or near a line's end to add a point.</p>
     </section>
   {/snippet}
 
@@ -225,7 +232,6 @@
       {@const a = s.angles[key]}
       {@const [r1, r2] = key.split('~')}
       {@const right = popupAngle.right}
-      {@const crossing = popupAngle.crossing}
       <div class="pop-head">
         <span>Angle between {nameOf(r1.slice(0, -1))} and {nameOf(r2.slice(0, -1))}</span>
         <span class="measure">{popupAngle.ghost.text}</span>
@@ -261,12 +267,14 @@
           {/each}
         </div>
       </div>
+    {:else if popup.part.kind === 'point'}
+      <div class="pop-head"><span>{pointTitle(key)}</span></div>
       <label class="check point">
-        <input type="checkbox" checked={crossing in s.points} onchange={(e) => toggleCrossingPoint(crossing, e.currentTarget.checked)} />
-        <span>A point where the lines cross</span>
+        <input type="checkbox" checked={key in s.points} onchange={(e) => togglePoint(key, e.currentTarget.checked)} />
+        <span>Show a point here</span>
       </label>
-      {#if crossing in s.points}
-        <label class="group"><span class="name">Its name</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[crossing]} /></label>
+      {#if key in s.points}
+        <label class="group"><span class="name">Its name</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[key]} /></label>
       {/if}
     {:else if popup.part.kind === 'line' && popupLine}
       {@const line = popupLine}
@@ -292,10 +300,6 @@
         </div>
       </div>
       <LineStylePicker id="pop-style" bind:value={line.style} />
-      <div class="two">
-        <label class="group"><span class="name">Point near {ends.start.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="A" bind:value={line.startPoint} /></label>
-        <label class="group"><span class="name">Point near {ends.end.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="B" bind:value={line.endPoint} /></label>
-      </div>
       <button type="button" class="btn-ghost delete" disabled={line.id.startsWith('p') && s.parallels.length <= 1} onclick={() => removeLine(line.id)}>Delete this line</button>
     {/if}
   </Popover>
@@ -332,7 +336,6 @@
   .group { display: flex; flex-direction: column; gap: 0.35rem; }
   .group .name { width: auto; height: auto; font-family: inherit; font-style: normal; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
   .segmented button { flex: 1; display: inline-grid; place-items: center; padding: 0.3rem 0.4rem; }
-  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
   .caps { display: flex; gap: 0.5rem; }
   .sides { font-weight: 400; }
   .check.point { margin: 0; }

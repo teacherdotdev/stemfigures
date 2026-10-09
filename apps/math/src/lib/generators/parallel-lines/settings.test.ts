@@ -15,13 +15,15 @@ describe('the page address', () => {
   test('a link comes back the same', () => {
     const q = new URLSearchParams([
       ['turn', '20'],
-      ['p', 'p1|name=l|arrows=2|startPoint=A'],
+      ['p', 'p1|name=l|arrows=2'],
       ['p', 'p3|name=k|startCap=none|endCap=circle|style=dashed'],
       ['t', 't1|name=t|angle=50|pos=0'],
       ['t', 't4|name=s|angle=3x|pos=-1.25'],
       ['a', 'p1+~t1+|label=measure|shade=1'],
       ['a', 'p3-~t4-|label=text|text=3x%2B5|mark=2'],
       ['pt', 'p1.t1|name=B'],
+      ['pt', 'p1:start|name=A'],
+      ['pt', 't4:end'],
     ]).toString()
     expect(settingsToQuery(params(q))).toBe(q)
   })
@@ -115,6 +117,15 @@ describe('the angles on the figure', () => {
     const leaning = buildLines(params('a=p1%2B~t1%2B|mark=right'))
     expect([leaning.squares.length, leaning.arcs.length]).toEqual([0, 1])
     expect(buildLines(params('t=t1|angle=90|pos=0&p=p1&p=p2')).squares).toHaveLength(0)
+  })
+
+  test('a point can go at every crossing and near each end of every line, and shows once it’s turned on', () => {
+    const blank = buildLines(params(''))
+    expect(blank.spots.map((p) => p.key)).toEqual(['p1.t1', 'p2.t1', 'p1:start', 'p1:end', 'p2:start', 'p2:end', 't1:start', 't1:end'])
+    expect(blank.dots).toHaveLength(0)
+    const named = buildLines(params('pt=p1.t1|name=A&pt=t1:end|name=B&pt=p2:start'))
+    expect(named.dots).toHaveLength(3)
+    expect(named.labels.filter((l) => l.part.startsWith('pt:')).map((l) => l.part)).toEqual(['pt:p1.t1', 'pt:t1:end'])
   })
 
   test('each end of a line finishes as it’s set', () => {

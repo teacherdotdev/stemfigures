@@ -231,7 +231,11 @@ Where any two of the figure's lines meet: a transversal and a parallel line, or 
 _Avoid_: Intersection (fine in teaching), vertex, corner
 
 **Angle** (in this figure):
-The space between two neighboring rays at a crossing, named by the two lines and its side, so it keeps its label while the lines move and gets it back if its crossing comes back. Its label is nothing, its measure or text the teacher types, and starts as nothing. Its mark is nothing, one to three congruence arcs, or, at a 90° angle, a right-angle square; giving it a label gives it one arc (or the square) unless the teacher takes it off. It can also be shaded. It's edited by clicking it on the figure, which can also put a named point where its lines cross.
+The space between two neighboring rays at a crossing, named by the two lines and its side, so it keeps its label while the lines move and gets it back if its crossing comes back. Its label is nothing, its measure or text the teacher types, and starts as nothing. Its mark is nothing, one to three congruence arcs, or, at a 90° angle, a right-angle square; giving it a label gives it one arc (or the square) unless the teacher takes it off. It can also be shaded. It's edited by clicking it on the figure.
+
+**Point** (in this figure):
+A dot with an optional name, such as A, that lets angles and lines be named by points (∠ABC, line AB). It goes where lines cross, or near either end of a line, between its last crossing and its end; none shows until the teacher clicks the place on the figure and turns it on.
+_Avoid_: Vertex name (that's a shape's corner), point label (that's a coordinate grid's), dot
 _Avoid_: Angle number (angles aren't numbered unless the teacher types the numbers)
 
 **Shading**:

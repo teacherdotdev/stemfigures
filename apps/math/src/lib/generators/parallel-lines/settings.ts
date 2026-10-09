@@ -12,11 +12,12 @@
 // An angle is named by the two rays around it, each a line's id and which way
 // along it: "+" runs right along a parallel line and up along a transversal,
 // "-" the other way. "p1+~t1+" is the angle above the top line, right of the
-// first transversal. A crossing is named by its lines: "p1.t1".
+// first transversal. A point is either where lines cross, named by its lines
+// ("p1.t1"), or near one end of a line ("p1:start", "t1:end").
 //
 // In the page address each line is one value, like t=t1|name=t|angle=65|pos=0,
-// each labeled angle one too, like a=p1+~t1+|label=measure, and each named
-// point pt=p1.t1|name=A.
+// each labeled angle one too, like a=p1+~t1+|label=measure, and each point
+// pt=p1.t1|name=A.
 
 import { parseNumber } from '$lib/shared/math.js'
 import { cleanLabelSize, type LabelSize } from '$shared/labelSize'
@@ -50,8 +51,8 @@ export const MAX_LINES = 6
 export const MIN_ANGLE = 10
 export const MAX_ANGLE = 170
 
-/** What every line has: its name, how its two ends finish, parallel arrows, line style, and named points near its two ends. */
-export type LineBase = { id: string; name: string; startCap: Cap; endCap: Cap; arrows: number; style: LineStyle; startPoint: string; endPoint: string }
+/** What every line has: its name, how its two ends finish, parallel arrows and line style. */
+export type LineBase = { id: string; name: string; startCap: Cap; endCap: Cap; arrows: number; style: LineStyle }
 export type Parallel = LineBase
 /** A transversal: its angle with the parallel lines, as typed, and where it crosses the top one, in gaps between the lines. */
 export type Transversal = LineBase & { angle: string; pos: number }
@@ -73,7 +74,7 @@ export type Settings = {
   labelSize: LabelSize
 }
 
-const LINE_DEFAULTS = { startCap: 'triangle' as Cap, endCap: 'triangle' as Cap, arrows: 0, style: 'solid' as LineStyle, startPoint: '', endPoint: '' }
+const LINE_DEFAULTS = { startCap: 'triangle' as Cap, endCap: 'triangle' as Cap, arrows: 0, style: 'solid' as LineStyle }
 export const ANGLE_DEFAULTS: AngleStyle = { label: 'none', text: '', mark: 'none', shade: 0 }
 
 /** Names for new lines, in order. */
@@ -106,8 +107,6 @@ function cleanLine(r: any, prefix: 'p' | 't'): LineBase {
     endCap: oneOf(Object.keys(CAPS) as Cap[], r?.endCap, 'triangle'),
     arrows: oneOf(COUNTS, num(r?.arrows, 0), 0),
     style: oneOf(Object.keys(LINE_STYLES) as LineStyle[], r?.style, 'solid'),
-    startPoint: cleanName(r?.startPoint),
-    endPoint: cleanName(r?.endPoint),
   }
 }
 
@@ -125,7 +124,10 @@ function withIds<T extends LineBase>(lines: T[], prefix: string): T[] {
 /** The next free id for a new line. */
 export const nextId = (lines: LineBase[], prefix: 'p' | 't') => `${prefix}${1 + Math.max(0, ...lines.map((l) => Number(l.id.slice(1)) || 0))}`
 
-/** The line ids an angle's or a crossing's key is made from. */
+/** A point's key: where lines cross ("p1.t1"), or near one end of a line ("p1:start", "t1:end"). */
+const POINT_KEY = /^([pt]\d+(\.[pt]\d+)+|[pt]\d+:(start|end))$/
+
+/** The line ids an angle's or a point's key is made from. */
 export const idsIn = (key: string): string[] => key.match(/[pt]\d+/g) ?? []
 
 /** Tidy raw values (from a form, a link or a stored preset) into usable settings. */
@@ -149,7 +151,7 @@ export function cleanSettings(s: RawSettings): Settings {
   }
   // Only what belongs to lines that are still there, and isn't the default.
   const ids = new Set([...out.parallels, ...out.transversals].map((l) => l.id))
-  const known = (key: string) => idsIn(key).length >= 2 && idsIn(key).every((id) => ids.has(id))
+  const known = (key: string) => idsIn(key).length >= 1 && idsIn(key).every((id) => ids.has(id))
   for (const [key, a] of Object.entries((s.angles ?? {}) as Record<string, any>)) {
     if (!/^[pt]\d+[+-]~[pt]\d+[+-]$/.test(key) || !known(key)) continue
     const style: AngleStyle = {
@@ -161,7 +163,7 @@ export function cleanSettings(s: RawSettings): Settings {
     if (style.label !== 'none' || style.mark !== 'none' || style.shade || style.text) out.angles[key] = style
   }
   for (const [key, name] of Object.entries((s.points ?? {}) as Record<string, any>)) {
-    if (/^[pt]\d+(\.[pt]\d+)+$/.test(key) && known(key)) out.points[key] = cleanName(name)
+    if (POINT_KEY.test(key) && known(key)) out.points[key] = cleanName(name)
   }
   return out
 }
@@ -188,7 +190,7 @@ function splitParts(value: string): [string, Record<string, string>] {
   return [first, values]
 }
 
-const lineValues = (l: LineBase) => ({ name: l.name, startCap: l.startCap, endCap: l.endCap, arrows: l.arrows, style: l.style, startPoint: l.startPoint, endPoint: l.endPoint })
+const lineValues = (l: LineBase) => ({ name: l.name, startCap: l.startCap, endCap: l.endCap, arrows: l.arrows, style: l.style })
 // A line's name, angle and place are always written, so a blank one isn't mistaken for the default.
 const ALWAYS = { name: null, angle: null, pos: null }
 

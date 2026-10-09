@@ -1,9 +1,11 @@
 <script lang="ts">
   // What the teacher can point at on the figure, drawn over LinesFigure.svelte
   // in an SVG of its own so nothing here reaches a copy or an export. A mouse
-  // hovering an angle or a line lights it ghost blue; clicking or tapping one
-  // calls onpick with where to open its popup. Near a crossing the angles
-  // win, even right on a line; a line is picked farther out. `ghost` is an
+  // hovering an angle, a line or a place for a point lights it ghost blue;
+  // clicking or tapping one calls onpick with where to open its popup. A
+  // point's place (each crossing, and near each end of each line) wins over
+  // all; near a crossing the angles win, even right on a line; a line is
+  // picked farther out. `ghost` is an
   // angle shown with its measure (the one a transversal's value sets, while
   // it's being changed), and `selected` the part whose popup is open.
   import type { LinesLayout, Part, Vec } from './layout.js'
@@ -60,6 +62,12 @@
         <line x1={g.from[0]} y1={g.from[1]} x2={g.to[0]} y2={g.to[1]} stroke={BLUE} stroke-opacity="0.3" stroke-width="9" stroke-linecap="round" />
       {/if}
     {/each}
+    {#each figure.spots as p (p.key)}
+      {#if lit({ kind: 'point', key: p.key })}
+        <circle cx={p.at[0]} cy={p.at[1]} r="7" fill={BLUE} fill-opacity="0.25" />
+        <circle cx={p.at[0]} cy={p.at[1]} r="3.5" fill={BLUE} />
+      {/if}
+    {/each}
   </g>
 
   <!-- What can be pointed at: angles over lines, so near a crossing the angle wins, even right on a line -->
@@ -78,6 +86,16 @@
       d={a.wedge} fill="transparent" class="hit" role="button" tabindex="0" aria-label="Angle of {Math.round(a.measure)}°"
       onclick={() => pick(part, a.anchor)}
       onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, a.anchor)}
+    />
+  {/each}
+  <!-- Places for points, over everything: each crossing, and near each end of each line -->
+  {#each figure.spots as p (p.key)}
+    {@const part = { kind: 'point', key: p.key } as Part}
+    <circle
+      cx={p.at[0]} cy={p.at[1]} r="8" fill="transparent" class="hit" role="button" tabindex="0"
+      aria-label={p.line ? 'Point near the end of a line' : 'Point where lines cross'}
+      onclick={() => pick(part, p.at)}
+      onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, p.at)}
     />
   {/each}
 </svg>

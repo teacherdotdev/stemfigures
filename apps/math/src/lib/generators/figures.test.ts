@@ -155,7 +155,7 @@ const PARALLEL = [
   lines(['p', 'p1|name=m'], ['t', 't1|name=n|angle=12|pos=0'], ['t', 't2|name=t|angle=65|pos=1'], ['a', 'p1+~t2+|label=measure']),
   lines(['p', 'p1|name=m|arrows=2'], ['p', 'p2|name=n|arrows=2'], ['p', 'p3|name=o|arrows=2'], ['t', 't1|name=t|angle=70|pos=0'], ['t', 't2|name=s|angle=110|pos=2']),
   lines(['t', 't1|name=t|angle=60|pos=0'], ['t', 't2|name=s|angle=120|pos=0'], ['pt', 'p1.t1.t2|name=A'], ['pt', 'p2.t1|name=B'], ['pt', 'p2.t2|name=C']),
-  lines(['turn', '30'], ['labelSize', 'large'], ['p', 'p1|name=m|startCap=none|endCap=none|startPoint=A|endPoint=B'], ['p', 'p2|name=n|style=dashed|endCap=line'], ['t', 't1|name=t|angle=65|pos=0|startCap=circle']),
+  lines(['turn', '30'], ['labelSize', 'large'], ['p', 'p1|name=m|startCap=none|endCap=none'], ['p', 'p2|name=n|style=dashed|endCap=line'], ['t', 't1|name=t|angle=65|pos=0|startCap=circle'], ['pt', 'p1:start|name=A'], ['pt', 'p1:end|name=B']),
   lines(['t', 't1|name=t|angle=5|pos=0']),
 ]
 
