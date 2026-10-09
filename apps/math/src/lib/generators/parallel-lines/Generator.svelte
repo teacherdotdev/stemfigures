@@ -94,13 +94,16 @@
   }
 
   function togglePoint(key: string, on: boolean) {
-    if (on) s.points[key] = ''
-    else delete s.points[key]
+    if (on && !(key in s.points)) s.points[key] = ''
+    else if (!on) delete s.points[key]
   }
   /** What a point's popup is about: where lines cross, or near which end of which line. */
   function pointTitle(key: string) {
     const [id, end] = key.split(':')
-    if (!end) return `Where ${idsIn(key).map(nameOf).join(', ')} cross`
+    if (!end) {
+      const names = idsIn(key).map(nameOf)
+      return `Where ${names.length > 2 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names.join(' and ')} cross`
+    }
     const ends = ENDS_NAMES(id)
     return `Near the ${(end === 'start' ? ends.start : ends.end).toLowerCase()} end of ${nameOf(id)}`
   }
@@ -269,12 +272,16 @@
       </div>
     {:else if popup.part.kind === 'point'}
       <div class="pop-head"><span>{pointTitle(key)}</span></div>
-      <label class="check point">
-        <input type="checkbox" checked={key in s.points} onchange={(e) => togglePoint(key, e.currentTarget.checked)} />
-        <span>Show a point here</span>
-      </label>
-      {#if key in s.points}
-        <label class="group"><span class="name">Its name</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[key]} /></label>
+      {@const shown = key in s.points}
+      <div class="group">
+        <span class="name" id="pop-point">Point</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="pop-point">
+          <button type="button" role="radio" aria-checked={!shown} class:on={!shown} aria-label="No point" title="No point" onclick={() => togglePoint(key, false)}><X size={15} /></button>
+          <button type="button" role="radio" aria-checked={shown} class:on={shown} onclick={() => togglePoint(key, true)}>Show</button>
+        </div>
+      </div>
+      {#if shown}
+        <label class="group"><span class="name">Label</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[key]} /></label>
       {/if}
     {:else if popup.part.kind === 'line' && popupLine}
       {@const line = popupLine}
@@ -323,8 +330,6 @@
   .help.problem { color: var(--red); font-weight: 600; }
   .hint { font-weight: 400; color: var(--muted); font-size: 0.84rem; margin: 0; }
 
-  .check { display: flex; align-items: flex-start; gap: 0.5rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.75rem; cursor: pointer; }
-  .check input { width: 1.05rem; height: 1.05rem; margin: 0.08rem 0 0; accent-color: var(--blue); flex: none; }
   .field { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.75rem; }
   .turn { max-width: 9rem; }
 
@@ -338,7 +343,6 @@
   .segmented button { flex: 1; display: inline-grid; place-items: center; padding: 0.3rem 0.4rem; }
   .caps { display: flex; gap: 0.5rem; }
   .sides { font-weight: 400; }
-  .check.point { margin: 0; }
   .swatches { display: flex; gap: 0.4rem; }
   .swatch { width: 2rem; height: 2rem; display: grid; place-items: center; border: 1.5px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0; }
   .swatch.on { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-soft); }
