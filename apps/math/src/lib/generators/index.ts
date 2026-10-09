@@ -14,6 +14,7 @@ import KitePreview from './kite/Preview.svelte'
 import LengthReadingPreview from './length-reading/Preview.svelte'
 import MappingDiagramPreview from './mapping-diagram/Preview.svelte'
 import NumberLinePreview from './number-line/Preview.svelte'
+import ParallelLinesPreview from './parallel-lines/Preview.svelte'
 import ParallelogramPreview from './parallelogram/Preview.svelte'
 import PrismPreview from './prism/Preview.svelte'
 import PyramidPreview from './pyramid/Preview.svelte'
@@ -33,6 +34,7 @@ export const PREVIEWS: Record<string, Component> = {
   'trapezoid': TrapezoidPreview,
   'kite': KitePreview,
   'regular-polygon': RegularPolygonPreview,
+  'parallel-lines': ParallelLinesPreview,
   'prism': PrismPreview,
   'cylinder': CylinderPreview,
   'pyramid': PyramidPreview,

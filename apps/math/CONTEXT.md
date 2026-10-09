@@ -47,7 +47,7 @@ The short name at an axis's arrow tip, such as x or y.
 _Avoid_: Axis title, variable
 
 **End cap**:
-How one end of an axis finishes: a triangle arrow, a line arrow, a circle or nothing.
+How one end of an axis finishes: a triangle arrow, a line arrow, a circle or nothing. Each end of a line in a Parallel Lines and Transversal has one too, where the circle is a dot marking where a ray or segment stops.
 _Avoid_: Arrow (alone), arrowhead, tip
 
 **Preset**:
@@ -211,6 +211,36 @@ _Avoid_: Inradius, height
 **Radius**:
 The line from a regular polygon's center to a vertex, and its length; together, the **radii**. The generator draws one to the bottom right vertex, so with the apothem it makes the right triangle used for area.
 _Avoid_: Circumradius
+
+### Parallel lines and transversals
+
+**Parallel Lines and Transversal**:
+A figure of parallel lines cut by transversals, with the angles where they cross labeled for students. Its generator is the Parallel Lines and Transversal Generator. It isn't a **Shape**: its lines run on past the figure, with no corners.
+_Avoid_: Transversal diagram, angle pairs diagram (fine as search words)
+
+**Parallel line**:
+One of the figure's lines that all run the same way, evenly spaced; a figure has one or more, named m, n… They have no angle of their own: the figure is turned as a whole.
+_Avoid_: Base line, horizontal line
+
+**Transversal**:
+Any line in the figure that isn't one of the parallel lines, set by its angle with them: the angle above the top parallel line, to the right of the transversal. A figure has any number, named t, s…, placed apart along the lines. Two lines that aren't parallel, cut by a third, are drawn as one parallel line and two transversals.
+_Avoid_: Cutting line, secant, non-parallel line
+
+**Crossing**:
+Where any two of the figure's lines meet: a transversal and a parallel line, or two transversals. The rays out from it split the space around it into angles, four where two lines cross.
+_Avoid_: Intersection (fine in teaching), vertex, corner
+
+**Angle** (in this figure):
+The space between two neighboring rays at a crossing, named by the two lines and its side, so it keeps its label while the lines move and gets it back if its crossing comes back. Its label is nothing, its measure or text the teacher types, and starts as nothing. Its mark is nothing, one to three congruence arcs, or, at a 90° angle, a right-angle square; giving it a label gives it one arc (or the square) unless the teacher takes it off. It can also be shaded. It's edited by clicking it on the figure.
+
+**Point** (in this figure):
+A dot with an optional name, such as A, that lets angles and lines be named by points (∠ABC, line AB). It goes where lines cross, or near either end of a line, between its last crossing and its end; none shows until the teacher clicks the place on the figure and turns it on.
+_Avoid_: Vertex name (that's a shape's corner), point label (that's a coordinate grid's), dot
+_Avoid_: Angle number (angles aren't numbered unless the teacher types the numbers)
+
+**Shading**:
+A light color filling one angle near its crossing, so the teacher can point at an angle pair ("what is the relationship between the shaded angles?"). It's set per angle and never follows from the measures.
+_Avoid_: Highlight, fill, color (alone)
 
 ### Data displays
 
