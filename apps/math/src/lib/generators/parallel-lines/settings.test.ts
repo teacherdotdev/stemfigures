@@ -16,11 +16,11 @@ describe('the page address', () => {
     const q = new URLSearchParams([
       ['turn', '20'],
       ['p', 'p1|name=l|arrows=2|startPoint=A'],
-      ['p', 'p3|name=k|ends=none|style=dashed'],
+      ['p', 'p3|name=k|startCap=none|endCap=circle|style=dashed'],
       ['t', 't1|name=t|angle=50|pos=0'],
       ['t', 't4|name=s|angle=3x|pos=-1.25'],
       ['a', 'p1+~t1+|label=measure|shade=1'],
-      ['a', 'p3-~t4-|label=text|text=3x%2B5|arcs=2'],
+      ['a', 'p3-~t4-|label=text|text=3x%2B5|mark=2'],
       ['pt', 'p1.t1|name=B'],
     ]).toString()
     expect(settingsToQuery(params(q))).toBe(q)
@@ -101,6 +101,25 @@ describe('the angles on the figure', () => {
   test('a crossing far off the band is left off', () => {
     const fig = buildLines(params('p=p1&p=p2&t=t1|angle=60|pos=0&t=t2|angle=62|pos=0.5'))
     expect(fig.crossings.map((c) => c.key)).not.toContain('t1.t2')
+  })
+
+  test('an angle gets only the mark it’s set to: a label alone adds no arc', () => {
+    const fig = (q: string) => buildLines(params(q))
+    expect(fig('a=p1%2B~t1%2B|label=measure').arcs).toHaveLength(0)
+    expect(fig('a=p1%2B~t1%2B|mark=3').arcs).toHaveLength(3)
+  })
+
+  test('a right-angle square only at a right angle; elsewhere it shows as one arc', () => {
+    const right = buildLines(params('t=t1|angle=90|pos=0&p=p1&p=p2&a=p1%2B~t1%2B|mark=right'))
+    expect([right.squares.length, right.arcs.length, right.angles.find((a) => a.key === 'p1+~t1+')!.right]).toEqual([1, 0, true])
+    const leaning = buildLines(params('a=p1%2B~t1%2B|mark=right'))
+    expect([leaning.squares.length, leaning.arcs.length]).toEqual([0, 1])
+    expect(buildLines(params('t=t1|angle=90|pos=0&p=p1&p=p2')).squares).toHaveLength(0)
+  })
+
+  test('each end of a line finishes as it’s set', () => {
+    const fig = buildLines(params('p=p1|startCap=line|endCap=circle&p=p2|startCap=none|endCap=none&t=t1|angle=65|pos=0'))
+    expect([fig.heads.length, fig.openHeads.length, fig.dots.length]).toEqual([2, 1, 1])
   })
 
   test('a measure label is the angle as drawn, and an unlabeled angle has no label', () => {

@@ -2,7 +2,7 @@
   // The Parallel Lines and Transversal Generator: a card of parallel lines and
   // a card of transversals on the left, each line a row like the Coordinate
   // Grid's equations, and the figure on the right, where every angle, line
-  // and crossing can be clicked to label or style it. Transversals slide
+  // can be clicked to label or style it. Transversals slide
   // along the lines when dragged on the figure. Settings are mirrored into
   // the page address so a bookmark or shared link brings back exactly this
   // figure, and the server renders that same figure on first load.
@@ -22,10 +22,11 @@
   import Popover from './Popover.svelte'
   import ScrubAngle from './ScrubAngle.svelte'
   import {
-    ANGLE_DEFAULTS, ENDS, MAX_ANGLE, MAX_LINES, MIN_ANGLE, SHADES,
+    ANGLE_DEFAULTS, MAX_ANGLE, MAX_LINES, MIN_ANGLE, SHADES,
     cleanSettings, freePos, freshName, idsIn, newParallel, newTransversal, nextId, setAngleKey, settingsFromParams, settingsToQuery,
-    type LineBase, type RawSettings,
+    type AngleStyle, type LineBase, type Mark, type RawSettings,
   } from './settings.js'
+  import CapPicker from './CapPicker.svelte'
 
   const gen = generatorState(
     { tidy: (s) => cleanSettings(s as RawSettings), fromParams: settingsFromParams, toQuery: settingsToQuery, keyOf: settingsToQuery },
@@ -72,7 +73,7 @@
     if (!popup) return
     const { kind, key } = popup.part
     const there =
-      kind === 'line' ? !!lineOf(key) : kind === 'angle' ? drawing.angles.some((a) => a.key === key) : drawing.crossings.some((c) => c.key === key)
+      kind === 'line' ? !!lineOf(key) : drawing.angles.some((a) => a.key === key)
     if (!there && !drag) close()
   })
 
@@ -120,12 +121,19 @@
   }
 
   const figureSummary = $derived(
-    [clean.turn ? `turned ${clean.turn}°` : 'lines across the page', clean.square ? 'right-angle squares' : '', `measures to ${ROUND_NAMES[clean.round]}`]
+    [clean.turn ? `turned ${clean.turn}°` : 'lines across the page', `measures to ${ROUND_NAMES[clean.round]}`]
       .filter(Boolean)
       .join(' · '),
   )
-  const ENDS_NAMES = (id: string) =>
-    id.startsWith('p') ? { both: 'Both', none: 'None', left: 'Left', right: 'Right' } : { both: 'Both', none: 'None', left: 'Bottom', right: 'Top' }
+  /** What a line's two ends are called: left and right, or bottom and top for a transversal. */
+  const ENDS_NAMES = (id: string) => (id.startsWith('p') ? { start: 'Left', end: 'Right' } : { start: 'Bottom', end: 'Top' })
+
+  const MARK_NAMES: Record<Mark, string> = { none: 'None', '1': 'One arc', '2': 'Two arcs', '3': 'Three arcs', right: 'Right-angle square' }
+  /** Choosing a label gives an unmarked angle its usual mark, shown in the popup so it can be taken off. */
+  function setLabel(a: AngleStyle, label: AngleStyle['label'], right: boolean) {
+    a.label = label
+    if (label !== 'none' && a.mark === 'none') a.mark = right ? 'right' : '1'
+  }
 
   let svg = $state<SVGSVGElement>()
   // The turn as typed, kept apart from the setting so a half-typed "−" isn't undone; undo and presets still show through.
@@ -139,6 +147,23 @@
     untrack(() => Number(turnText) !== t && (turnText = String(t)))
   })
 </script>
+
+{#snippet markIcon(m: Mark)}
+  <!-- An angle with its mark as the figure draws it: nested arcs, or a square at a right angle. -->
+  <svg viewBox="0 0 26 18" width="26" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    {#if m === 'right'}
+      <path d="M5,16 L24,16 M5,16 L5,1" stroke-width="1.3" />
+      <path d="M5,9 L12,9 L12,16" />
+    {:else}
+      <path d="M3,16 L25,16 M3,16 L20,2" stroke-width="1.3" />
+      {#each Array(m === 'none' ? 0 : Number(m)) as _, i}
+        {@const r = 8 + i * 3.4}
+        <path d="M{3 + r},16 A{r},{r} 0 0 0 {3 + r * 0.772},{16 - r * 0.636}" />
+      {/each}
+      {#if m === 'none'}<line x1="9" y1="5" x2="17" y2="13" stroke-width="1.3" opacity="0.5" />{/if}
+    {/if}
+  </svg>
+{/snippet}
 
 {#snippet lineRow(line: LineBase, kind: 'p' | 't')}
   {@const t = kind === 't' ? s.transversals.find((x) => x.id === line.id) : undefined}
@@ -175,7 +200,8 @@
         <HelpTip id="parallel-tip" label="How the figure works">
           The parallel lines run across the page, evenly spaced. Each transversal crosses them at the angle you give: the
           angle above the top line, to the right of the transversal. Drag a transversal on the figure to slide it along;
-          it snaps to meet another one on a line. Click any angle, line or crossing on the figure to label or style it.
+          it snaps to meet another one on a line. Click any angle or line on the figure to label or style it; an angle's
+          popup can also put a named point where its lines cross.
         </HelpTip>
       </div>
       {#each s.parallels as line (line.id)}{@render lineRow(line, 'p')}{/each}
@@ -186,7 +212,7 @@
       <p class="hint">Each angle is above {nameOf(clean.parallels[0].id)}, to the right of the transversal. Drag the ∠ to change it.</p>
       {#each s.transversals as line (line.id)}{@render lineRow(line, 't')}{/each}
       <button type="button" class="btn-ghost add" disabled={s.transversals.length >= MAX_LINES} onclick={addTransversal}><Plus size={16} /> Add transversal</button>
-      <p class="hint on-figure">On the figure, click an angle, line or crossing to label it, and drag a transversal to slide it.</p>
+      <p class="hint on-figure">On the figure, click an angle or a line to label it, and drag a transversal to slide it.</p>
     </section>
   {/snippet}
 
@@ -196,10 +222,6 @@
         <span>Turn the figure</span>
         <div class="turn"><ScrubAngle id="turn" label="the figure's turn" symbol="↻" min={-180} max={180} bind:value={turnText} /></div>
       </div>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.square} />
-        <span>Right-angle squares <span class="hint">where lines cross at 90°</span></span>
-      </label>
       <label class="field">
         Round measures to
         <select bind:value={s.round}>
@@ -222,27 +244,32 @@
 {#if popup}
   {@const key = popup.part.key}
   <Popover at={popup.at} owner={popup.owner} onclose={close} label="Settings for this part of the figure">
-    {#if popup.part.kind === 'angle' && s.angles[key]}
+    {#if popup.part.kind === 'angle' && s.angles[key] && popupAngle}
       {@const a = s.angles[key]}
       {@const [r1, r2] = key.split('~')}
+      {@const right = popupAngle.right}
+      {@const crossing = popupAngle.crossing}
       <div class="pop-head">
         <span>Angle between {nameOf(r1.slice(0, -1))} and {nameOf(r2.slice(0, -1))}</span>
-        {#if popupAngle}<span class="measure">{drawing.angles.find((x) => x.key === key)?.ghost.text}</span>{/if}
+        <span class="measure">{popupAngle.ghost.text}</span>
       </div>
       <div class="group">
         <span class="name" id="pop-label">Label</span>
         <div class="segmented" role="radiogroup" aria-labelledby="pop-label">
           {#each ([['none', 'None'], ['measure', 'Measure'], ['text', 'Text']] as const) as [value, title]}
-            <button type="button" role="radio" aria-checked={a.label === value} class:on={a.label === value} onclick={() => (a.label = value)}>{title}</button>
+            <button type="button" role="radio" aria-checked={a.label === value} class:on={a.label === value} onclick={() => setLabel(a, value, right)}>{title}</button>
           {/each}
         </div>
         {#if a.label === 'text'}<MathInput id="pop-text" aria-label="Label text" placeholder="x" bind:value={a.text} />{/if}
       </div>
       <div class="group">
-        <span class="name" id="pop-arcs">Congruence arcs</span>
-        <div class="segmented" role="radiogroup" aria-labelledby="pop-arcs">
-          {#each [0, 1, 2, 3] as n}
-            <button type="button" role="radio" aria-checked={a.arcs === n} class:on={a.arcs === n} onclick={() => (a.arcs = n)}>{n ? '◠'.repeat(n) : 'None'}</button>
+        <span class="name" id="pop-mark">{right ? 'Right-angle mark' : 'Congruence arcs'}</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="pop-mark">
+          {#each (right ? ['none', 'right'] : ['none', '1', '2', '3']) as Mark[] as m}
+            {@const on = a.mark === m || (!right && a.mark === 'right' && m === '1')}
+            <button type="button" role="radio" aria-checked={on} class:on aria-label={MARK_NAMES[m]} title={MARK_NAMES[m]} onclick={() => (a.mark = m)}>
+              {@render markIcon(m)}
+            </button>
           {/each}
         </div>
       </div>
@@ -257,6 +284,13 @@
           {/each}
         </div>
       </div>
+      <label class="check point">
+        <input type="checkbox" checked={crossing in s.points} onchange={(e) => toggleCrossingPoint(crossing, e.currentTarget.checked)} />
+        <span>A point where the lines cross</span>
+      </label>
+      {#if crossing in s.points}
+        <label class="group"><span class="name">Its name</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[crossing]} /></label>
+      {/if}
     {:else if popup.part.kind === 'line' && popupLine}
       {@const line = popupLine}
       {@const ends = ENDS_NAMES(line.id)}
@@ -266,11 +300,10 @@
         <input type="text" maxlength="4" placeholder="m" bind:value={line.name} />
       </label>
       <div class="group">
-        <span class="name" id="pop-ends">Arrowheads</span>
-        <div class="segmented" role="radiogroup" aria-labelledby="pop-ends">
-          {#each ENDS as value}
-            <button type="button" role="radio" aria-checked={line.ends === value} class:on={line.ends === value} onclick={() => (line.ends = value)}>{ends[value]}</button>
-          {/each}
+        <span class="name">End points <span class="sides">{ends.start} · {ends.end}</span></span>
+        <div class="caps">
+          <CapPicker side="start" label="{ends.start} end" bind:value={line.startCap} />
+          <CapPicker side="end" label="{ends.end} end" bind:value={line.endCap} />
         </div>
       </div>
       <div class="group">
@@ -283,19 +316,10 @@
       </div>
       <LineStylePicker id="pop-style" bind:value={line.style} />
       <div class="two">
-        <label class="group"><span class="name">Point near {ends.left.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="A" bind:value={line.startPoint} /></label>
-        <label class="group"><span class="name">Point near {ends.right.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="B" bind:value={line.endPoint} /></label>
+        <label class="group"><span class="name">Point near {ends.start.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="A" bind:value={line.startPoint} /></label>
+        <label class="group"><span class="name">Point near {ends.end.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="B" bind:value={line.endPoint} /></label>
       </div>
       <button type="button" class="btn-ghost delete" disabled={line.id.startsWith('p') && s.parallels.length <= 1} onclick={() => removeLine(line.id)}>Delete this line</button>
-    {:else if popup.part.kind === 'crossing'}
-      <div class="pop-head"><span>Where {idsIn(key).map(nameOf).join(', ')} cross</span></div>
-      <label class="check">
-        <input type="checkbox" checked={key in s.points} onchange={(e) => toggleCrossingPoint(key, e.currentTarget.checked)} />
-        <span>Show a point here</span>
-      </label>
-      {#if key in s.points}
-        <label class="group"><span class="name">Its name</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[key]} /></label>
-      {/if}
     {/if}
   </Popover>
 {/if}
@@ -320,7 +344,6 @@
 
   .check { display: flex; align-items: flex-start; gap: 0.5rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.75rem; cursor: pointer; }
   .check input { width: 1.05rem; height: 1.05rem; margin: 0.08rem 0 0; accent-color: var(--blue); flex: none; }
-  .check .hint { display: block; }
   .field { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.75rem; }
   .turn { max-width: 9rem; }
 
@@ -333,6 +356,9 @@
   .group .name { width: auto; height: auto; font-family: inherit; font-style: normal; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
   .segmented button { flex: 1; display: inline-grid; place-items: center; padding: 0.3rem 0.4rem; }
   .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .caps { display: flex; gap: 0.5rem; }
+  .sides { font-weight: 400; }
+  .check.point { margin: 0; }
   .swatches { display: flex; gap: 0.4rem; }
   .swatch { width: 2rem; height: 2rem; display: grid; place-items: center; border: 1.5px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0; }
   .swatch.on { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-soft); }

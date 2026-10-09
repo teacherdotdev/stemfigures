@@ -44,9 +44,10 @@
   }
 </script>
 
-<svelte:window onpointerdowncapture={onpointerdown} onresize={onclose} onscrollcapture={(e) => !panel?.contains(e.target as Node) && onclose()} />
+<!-- Escape is heard on the window: a choice inside can take focus with it when it closes. -->
+<svelte:window {onkeydown} onpointerdowncapture={onpointerdown} onresize={onclose} onscrollcapture={(e) => !panel?.contains(e.target as Node) && onclose()} />
 
-<div bind:this={panel} class="panel" role="dialog" tabindex="-1" aria-label={label} style="left: {pos.left}px; top: {pos.top}px" {onkeydown}>
+<div bind:this={panel} class="panel" role="dialog" tabindex="-1" aria-label={label} style="left: {pos.left}px; top: {pos.top}px">
   {@render children()}
 </div>
 

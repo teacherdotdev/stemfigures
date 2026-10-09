@@ -20,14 +20,18 @@
 
 import { parseNumber } from '$lib/shared/math.js'
 import { cleanLabelSize, type LabelSize } from '$shared/labelSize'
-import { LINE_STYLES, MARKS, ROUNDING, bool, oneOf, type LineStyle, type RawSettings } from '$lib/shapes/parts.js'
+import { LINE_STYLES, MARKS as COUNTS, ROUNDING, oneOf, type LineStyle, type RawSettings } from '$lib/shapes/parts.js'
 
 export type { LineStyle, RawSettings }
 export { LINE_STYLES }
 
-/** Which ends of a line have arrowheads: left means the start, the bottom of a transversal. */
-export const ENDS = ['both', 'none', 'left', 'right'] as const
-export type Ends = (typeof ENDS)[number]
+/**
+ * How one end of a line finishes, as the Coordinate Grid's axes do: a
+ * triangle arrow, a line arrow, a dot (where a ray or segment stops), or
+ * nothing. A line's start is its left end, the bottom of a transversal.
+ */
+export const CAPS = { triangle: 'Arrow', line: 'Line arrow', circle: 'Dot', none: 'None' }
+export type Cap = keyof typeof CAPS
 
 /** How an angle is labeled. */
 export const ANGLE_LABELS = ['none', 'measure', 'text'] as const
@@ -46,12 +50,18 @@ export const MAX_LINES = 6
 export const MIN_ANGLE = 10
 export const MAX_ANGLE = 170
 
-/** What every line has: its name, arrowheads, parallel arrows, line style, and named points near its two ends. */
-export type LineBase = { id: string; name: string; ends: Ends; arrows: number; style: LineStyle; startPoint: string; endPoint: string }
+/** What every line has: its name, how its two ends finish, parallel arrows, line style, and named points near its two ends. */
+export type LineBase = { id: string; name: string; startCap: Cap; endCap: Cap; arrows: number; style: LineStyle; startPoint: string; endPoint: string }
 export type Parallel = LineBase
 /** A transversal: its angle with the parallel lines, as typed, and where it crosses the top one, in gaps between the lines. */
 export type Transversal = LineBase & { angle: string; pos: number }
-export type AngleStyle = { label: AngleLabel; text: string; arcs: number; shade: number }
+/**
+ * The mark drawn in an angle: nothing, one to three congruence arcs, or a
+ * right-angle square (drawn as one arc if the angle stops being 90°).
+ */
+export const MARKS = ['none', '1', '2', '3', 'right'] as const
+export type Mark = (typeof MARKS)[number]
+export type AngleStyle = { label: AngleLabel; text: string; mark: Mark; shade: number }
 
 export type Settings = {
   parallels: Parallel[]
@@ -59,13 +69,12 @@ export type Settings = {
   angles: Record<string, AngleStyle>
   points: Record<string, string>
   turn: number
-  square: boolean
   round: number
   labelSize: LabelSize
 }
 
-const LINE_DEFAULTS = { ends: 'both' as Ends, arrows: 0, style: 'solid' as LineStyle, startPoint: '', endPoint: '' }
-export const ANGLE_DEFAULTS: AngleStyle = { label: 'none', text: '', arcs: 0, shade: 0 }
+const LINE_DEFAULTS = { startCap: 'triangle' as Cap, endCap: 'triangle' as Cap, arrows: 0, style: 'solid' as LineStyle, startPoint: '', endPoint: '' }
+export const ANGLE_DEFAULTS: AngleStyle = { label: 'none', text: '', mark: 'none', shade: 0 }
 
 /** Names for new lines, in order. */
 const PARALLEL_NAMES = ['m', 'n', 'o', 'p', 'q', 'r']
@@ -80,7 +89,6 @@ export const DEFAULT_SETTINGS: Settings = {
   angles: {},
   points: {},
   turn: 0,
-  square: true,
   round: 1,
   labelSize: 'medium',
 }
@@ -94,8 +102,9 @@ function cleanLine(r: any, prefix: 'p' | 't'): LineBase {
   return {
     id: cleanId(r?.id, prefix),
     name: cleanName(r?.name),
-    ends: oneOf(ENDS, r?.ends, 'both'),
-    arrows: oneOf(MARKS, num(r?.arrows, 0), 0),
+    startCap: oneOf(Object.keys(CAPS) as Cap[], r?.startCap, 'triangle'),
+    endCap: oneOf(Object.keys(CAPS) as Cap[], r?.endCap, 'triangle'),
+    arrows: oneOf(COUNTS, num(r?.arrows, 0), 0),
     style: oneOf(Object.keys(LINE_STYLES) as LineStyle[], r?.style, 'solid'),
     startPoint: cleanName(r?.startPoint),
     endPoint: cleanName(r?.endPoint),
@@ -135,7 +144,6 @@ export function cleanSettings(s: RawSettings): Settings {
     angles: {},
     points: {},
     turn: Math.max(-180, Math.min(180, Math.round(num(s.turn, d.turn)))),
-    square: bool(s.square, d.square),
     round: oneOf(ROUNDING, num(s.round, d.round), d.round),
     labelSize: cleanLabelSize(s.labelSize),
   }
@@ -147,10 +155,10 @@ export function cleanSettings(s: RawSettings): Settings {
     const style: AngleStyle = {
       label: oneOf(ANGLE_LABELS, a?.label, 'none'),
       text: String(a?.text ?? '').slice(0, 40),
-      arcs: oneOf(MARKS, num(a?.arcs, 0), 0),
+      mark: oneOf(MARKS, a?.mark, 'none'),
       shade: oneOf(SHADES.map((_, i) => i), num(a?.shade, 0), 0),
     }
-    if (style.label !== 'none' || style.arcs || style.shade || style.text) out.angles[key] = style
+    if (style.label !== 'none' || style.mark !== 'none' || style.shade || style.text) out.angles[key] = style
   }
   for (const [key, name] of Object.entries((s.points ?? {}) as Record<string, any>)) {
     if (/^[pt]\d+(\.[pt]\d+)+$/.test(key) && known(key)) out.points[key] = cleanName(name)
@@ -180,14 +188,14 @@ function splitParts(value: string): [string, Record<string, string>] {
   return [first, values]
 }
 
-const lineValues = (l: LineBase) => ({ name: l.name, ends: l.ends, arrows: l.arrows, style: l.style, startPoint: l.startPoint, endPoint: l.endPoint })
+const lineValues = (l: LineBase) => ({ name: l.name, startCap: l.startCap, endCap: l.endCap, arrows: l.arrows, style: l.style, startPoint: l.startPoint, endPoint: l.endPoint })
 // A line's name, angle and place are always written, so a blank one isn't mistaken for the default.
 const ALWAYS = { name: null, angle: null, pos: null }
 
 export function settingsToQuery(s: Settings): string {
   const d = DEFAULT_SETTINGS
   const params = new URLSearchParams()
-  for (const key of ['turn', 'square', 'round', 'labelSize'] as const) {
+  for (const key of ['turn', 'round', 'labelSize'] as const) {
     const v = s[key]
     if (v !== d[key]) params.set(key, typeof v === 'boolean' ? (v ? '1' : '0') : String(v))
   }
@@ -204,7 +212,7 @@ export function settingsToQuery(s: Settings): string {
 
 export function settingsFromParams(params: URLSearchParams): Settings {
   const s: RawSettings = structuredClone(DEFAULT_SETTINGS)
-  for (const key of ['turn', 'square', 'round', 'labelSize']) if (params.has(key)) s[key] = params.get(key)
+  for (const key of ['turn', 'round', 'labelSize']) if (params.has(key)) s[key] = params.get(key)
   const line = (value: string, base: object) => {
     const [id, values] = splitParts(value)
     return { ...base, ...values, id }

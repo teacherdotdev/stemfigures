@@ -24869,6 +24869,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "t1+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M173.3,90 L190.1,54 A39.7,39.7 0 0 1 213,90 Z",
       },
       {
@@ -24890,6 +24891,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "p1+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M173.3,90 L213.3,90 A40,40 0 0 1 156.4,126.3 Z",
       },
       {
@@ -24911,6 +24913,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "t1-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M173.3,90 L156.4,126.3 A40,40 0 0 1 133.3,90 Z",
       },
       {
@@ -24932,6 +24935,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "p1-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M173.3,90 L133.6,90 A39.7,39.7 0 0 1 190.1,54 Z",
       },
       {
@@ -24953,6 +24957,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "t1+",
           "p2+",
         ],
+        "right": false,
         "wedge": "M126.7,190 L143.6,153.7 A40,40 0 0 1 166.7,190 Z",
       },
       {
@@ -24974,6 +24979,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "p2+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M126.7,190 L166.4,190 A39.7,39.7 0 0 1 109.9,226 Z",
       },
       {
@@ -24995,6 +25001,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "t1-",
           "p2-",
         ],
+        "right": false,
         "wedge": "M126.7,190 L109.9,226 A39.7,39.7 0 0 1 87,190 Z",
       },
       {
@@ -25016,6 +25023,7 @@ exports[`parallel lines and a transversal >  1`] = `
           "p2-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M126.7,190 L86.7,190 A40,40 0 0 1 143.6,153.7 Z",
       },
     ],
@@ -25095,20 +25103,6 @@ exports[`parallel lines and a transversal >  1`] = `
     "heads": [
       [
         [
-          287.99999999999994,
-          95.49999999999999,
-        ],
-        [
-          299.99999999999994,
-          89.99999999999999,
-        ],
-        [
-          287.99999999999994,
-          84.49999999999999,
-        ],
-      ],
-      [
-        [
           12,
           84.49999999999999,
         ],
@@ -25124,15 +25118,15 @@ exports[`parallel lines and a transversal >  1`] = `
       [
         [
           287.99999999999994,
-          195.49999999999997,
+          95.49999999999999,
         ],
         [
           299.99999999999994,
-          189.99999999999997,
+          89.99999999999999,
         ],
         [
           287.99999999999994,
-          184.49999999999997,
+          84.49999999999999,
         ],
       ],
       [
@@ -25151,16 +25145,16 @@ exports[`parallel lines and a transversal >  1`] = `
       ],
       [
         [
-          215.19634582951295,
-          13.200093884013647,
+          287.99999999999994,
+          195.49999999999997,
         ],
         [
-          215.28307214169976,
-          0,
+          299.99999999999994,
+          189.99999999999997,
         ],
         [
-          205.22696017210978,
-          8.551293004865954,
+          287.99999999999994,
+          184.49999999999997,
         ],
       ],
       [
@@ -25175,6 +25169,20 @@ exports[`parallel lines and a transversal >  1`] = `
         [
           94.77303982789013,
           271.44870699513405,
+        ],
+      ],
+      [
+        [
+          215.19634582951295,
+          13.200093884013647,
+        ],
+        [
+          215.28307214169976,
+          0,
+        ],
+        [
+          205.22696017210978,
+          8.551293004865954,
         ],
       ],
     ],
@@ -25282,6 +25290,7 @@ exports[`parallel lines and a transversal >  1`] = `
         "y": -10.918182917777163,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -25331,7 +25340,7 @@ exports[`parallel lines and a transversal >  1`] = `
 }
 `;
 
-exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=p1-%7Et1%2B%7Clabel%3Dtext%7Ctext%3D3x%2B5%7Carcs%3D2&a=p2%2B%7Et1%2B%7Clabel%3Dtext%7Ctext%3Dx%7Cshade%3D1 1`] = `
+exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=p1-%7Et1%2B%7Clabel%3Dtext%7Ctext%3D3x%2B5%7Cmark%3D2&a=p2%2B%7Et1%2B%7Clabel%3Dtext%7Ctext%3Dx%7Cshade%3D1 1`] = `
 {
   "figure": {
     "angles": [
@@ -25343,8 +25352,8 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
         "crossing": "p1.t1",
         "ghost": {
           "at": [
-            208.3462511482182,
-            67.68287563373191,
+            203.77881985618356,
+            70.59265027816873,
           ],
           "text": "65°",
         },
@@ -25354,6 +25363,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "t1+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M173.3,90 L190.1,54 A39.7,39.7 0 0 1 213,90 Z",
       },
       {
@@ -25375,6 +25385,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "p1+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M173.3,90 L213.3,90 A40,40 0 0 1 156.4,126.3 Z",
       },
       {
@@ -25396,6 +25407,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "t1-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M173.3,90 L156.4,126.3 A40,40 0 0 1 133.3,90 Z",
       },
       {
@@ -25417,6 +25429,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "p1-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M173.3,90 L133.6,90 A39.7,39.7 0 0 1 190.1,54 Z",
       },
       {
@@ -25427,8 +25440,8 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
         "crossing": "p2.t1",
         "ghost": {
           "at": [
-            161.71548533271834,
-            167.6828756337319,
+            157.14805404068372,
+            170.59265027816872,
           ],
           "text": "65°",
         },
@@ -25438,6 +25451,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "t1+",
           "p2+",
         ],
+        "right": false,
         "wedge": "M126.7,190 L143.6,153.7 A40,40 0 0 1 166.7,190 Z",
       },
       {
@@ -25459,6 +25473,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "p2+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M126.7,190 L166.4,190 A39.7,39.7 0 0 1 109.9,226 Z",
       },
       {
@@ -25480,6 +25495,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "t1-",
           "p2-",
         ],
+        "right": false,
         "wedge": "M126.7,190 L109.9,226 A39.7,39.7 0 0 1 87,190 Z",
       },
       {
@@ -25501,14 +25517,13 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           "p2-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M126.7,190 L86.7,190 A40,40 0 0 1 143.6,153.7 Z",
       },
     ],
     "arcs": [
-      "M181.8,71.9 A20,20 0 0 1 193.3,90",
       "M153.3,90 A20,20 0 0 1 181.8,71.9",
       "M148.8,90 A24.5,24.5 0 0 1 183.7,67.8",
-      "M135.1,171.9 A20,20 0 0 1 146.7,190",
     ],
     "arrows": [
       [
@@ -25585,20 +25600,6 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
     "heads": [
       [
         [
-          287.99999999999994,
-          95.49999999999999,
-        ],
-        [
-          299.99999999999994,
-          89.99999999999999,
-        ],
-        [
-          287.99999999999994,
-          84.49999999999999,
-        ],
-      ],
-      [
-        [
           12,
           84.49999999999999,
         ],
@@ -25614,15 +25615,15 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
       [
         [
           287.99999999999994,
-          195.49999999999997,
+          95.49999999999999,
         ],
         [
           299.99999999999994,
-          189.99999999999997,
+          89.99999999999999,
         ],
         [
           287.99999999999994,
-          184.49999999999997,
+          84.49999999999999,
         ],
       ],
       [
@@ -25641,16 +25642,16 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
       ],
       [
         [
-          215.19634582951295,
-          13.200093884013647,
+          287.99999999999994,
+          195.49999999999997,
         ],
         [
-          215.28307214169976,
-          0,
+          299.99999999999994,
+          189.99999999999997,
         ],
         [
-          205.22696017210978,
-          8.551293004865954,
+          287.99999999999994,
+          184.49999999999997,
         ],
       ],
       [
@@ -25665,6 +25666,20 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
         [
           94.77303982789013,
           271.44870699513405,
+        ],
+      ],
+      [
+        [
+          215.19634582951295,
+          13.200093884013647,
+        ],
+        [
+          215.28307214169976,
+          0,
+        ],
+        [
+          205.22696017210978,
+          8.551293004865954,
         ],
       ],
     ],
@@ -25803,15 +25818,15 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           ],
           "w": 28,
         },
-        "cx": 208.3462511482182,
-        "cy": 67.68287563373191,
+        "cx": 203.77881985618356,
+        "cy": 70.59265027816873,
         "offset": [
           0,
           0,
         ],
         "part": "angle:p1+~t1+",
-        "x": 194.3462511482182,
-        "y": 72.48287563373191,
+        "x": 189.77881985618356,
+        "y": 75.39265027816873,
       },
       {
         "across": [
@@ -25895,17 +25910,18 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
           ],
           "w": 8.88,
         },
-        "cx": 154.9153700415978,
-        "cy": 172.01502685576708,
+        "cx": 145.20690690223643,
+        "cy": 178.19999999999996,
         "offset": [
           0,
           0,
         ],
         "part": "angle:p2+~t1+",
-        "x": 150.4753700415978,
-        "y": 176.8150268557671,
+        "x": 140.76690690223643,
+        "y": 182.99999999999997,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -25956,7 +25972,7 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
     "squares": [],
   },
   "problems": {},
-  "query": "a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=p1-%7Et1%2B%7Clabel%3Dtext%7Ctext%3D3x%252B5%7Carcs%3D2&a=p2%2B%7Et1%2B%7Clabel%3Dtext%7Ctext%3Dx%7Cshade%3D1",
+  "query": "a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=p1-%7Et1%2B%7Clabel%3Dtext%7Ctext%3D3x%252B5%7Cmark%3D2&a=p2%2B%7Et1%2B%7Clabel%3Dtext%7Ctext%3Dx%7Cshade%3D1",
 }
 `;
 
@@ -25983,6 +25999,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t1+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M120,66.3 L129.6,39.8 A28.2,28.2 0 0 1 148.2,66.3 Z",
       },
       {
@@ -26004,6 +26021,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p1+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M120,66.3 L160,66.3 A40,40 0 0 1 106.3,103.9 Z",
       },
       {
@@ -26025,6 +26043,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t1-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M120,66.3 L106.3,103.9 A40,40 0 0 1 80,66.3 Z",
       },
       {
@@ -26046,6 +26065,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p1-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M120,66.3 L91.7,66.3 A28.2,28.2 0 0 1 129.6,39.8 Z",
       },
       {
@@ -26067,6 +26087,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t2+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M267.3,66.3 L257.7,39.8 A28.2,28.2 0 0 1 295.6,66.3 Z",
       },
       {
@@ -26088,6 +26109,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p1+",
           "t2-",
         ],
+        "right": false,
         "wedge": "M267.3,66.3 L307.3,66.3 A40,40 0 0 1 281,103.9 Z",
       },
       {
@@ -26109,6 +26131,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t2-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M267.3,66.3 L281,103.9 A40,40 0 0 1 227.3,66.3 Z",
       },
       {
@@ -26130,6 +26153,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p1-",
           "t2+",
         ],
+        "right": false,
         "wedge": "M267.3,66.3 L239.1,66.3 A28.2,28.2 0 0 1 257.7,39.8 Z",
       },
       {
@@ -26151,6 +26175,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t1+",
           "p2+",
         ],
+        "right": false,
         "wedge": "M93.1,140 L106.8,102.4 A40,40 0 0 1 133.1,140 Z",
       },
       {
@@ -26172,6 +26197,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p2+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M93.1,140 L133.1,140 A40,40 0 0 1 79.5,177.6 Z",
       },
       {
@@ -26193,6 +26219,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t1-",
           "p2-",
         ],
+        "right": false,
         "wedge": "M93.1,140 L80.4,175 A37.3,37.3 0 0 1 55.9,140 Z",
       },
       {
@@ -26214,6 +26241,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p2-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M93.1,140 L55.9,140 A37.3,37.3 0 0 1 105.9,105 Z",
       },
       {
@@ -26235,6 +26263,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t2+",
           "p2+",
         ],
+        "right": false,
         "wedge": "M294.1,140 L281.4,105 A37.3,37.3 0 0 1 331.4,140 Z",
       },
       {
@@ -26256,6 +26285,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p2+",
           "t2-",
         ],
+        "right": false,
         "wedge": "M294.1,140 L331.4,140 A37.3,37.3 0 0 1 306.9,175 Z",
       },
       {
@@ -26277,6 +26307,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t2-",
           "p2-",
         ],
+        "right": false,
         "wedge": "M294.1,140 L307.8,177.6 A40,40 0 0 1 254.1,140 Z",
       },
       {
@@ -26298,6 +26329,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p2-",
           "t2+",
         ],
+        "right": false,
         "wedge": "M294.1,140 L254.1,140 A40,40 0 0 1 280.5,102.4 Z",
       },
       {
@@ -26319,6 +26351,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t1+",
           "p3+",
         ],
+        "right": false,
         "wedge": "M66.3,213.7 L80,176.1 A40,40 0 0 1 106.3,213.7 Z",
       },
       {
@@ -26340,6 +26373,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p3+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M66.3,213.7 L94.5,213.7 A28.2,28.2 0 0 1 56.7,240.2 Z",
       },
       {
@@ -26361,6 +26395,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t1-",
           "p3-",
         ],
+        "right": false,
         "wedge": "M66.3,213.7 L57.2,238.6 A26.5,26.5 0 0 1 39.8,213.7 Z",
       },
       {
@@ -26382,6 +26417,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p3-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M66.3,213.7 L39.8,213.7 A26.5,26.5 0 0 1 75.4,188.8 Z",
       },
       {
@@ -26403,6 +26439,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t2+",
           "p3+",
         ],
+        "right": false,
         "wedge": "M321,213.7 L311.9,188.8 A26.5,26.5 0 0 1 347.5,213.7 Z",
       },
       {
@@ -26424,6 +26461,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p3+",
           "t2-",
         ],
+        "right": false,
         "wedge": "M321,213.7 L347.5,213.7 A26.5,26.5 0 0 1 330,238.6 Z",
       },
       {
@@ -26445,6 +26483,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "t2-",
           "p3-",
         ],
+        "right": false,
         "wedge": "M321,213.7 L330.6,240.2 A28.2,28.2 0 0 1 292.7,213.7 Z",
       },
       {
@@ -26466,6 +26505,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
           "p3-",
           "t2+",
         ],
+        "right": false,
         "wedge": "M321,213.7 L281,213.7 A40,40 0 0 1 307.3,176.1 Z",
       },
     ],
@@ -26645,20 +26685,6 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
     "heads": [
       [
         [
-          375.27543746793333,
-          71.81578947368422,
-        ],
-        [
-          387.27543746793333,
-          66.31578947368422,
-        ],
-        [
-          375.27543746793333,
-          60.81578947368422,
-        ],
-      ],
-      [
-        [
           12,
           60.81578947368422,
         ],
@@ -26674,15 +26700,15 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
       [
         [
           375.27543746793333,
-          145.5,
+          71.81578947368422,
         ],
         [
           387.27543746793333,
-          140,
+          66.31578947368422,
         ],
         [
           375.27543746793333,
-          134.5,
+          60.81578947368422,
         ],
       ],
       [
@@ -26702,6 +26728,34 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
       [
         [
           375.27543746793333,
+          145.5,
+        ],
+        [
+          387.27543746793333,
+          140,
+        ],
+        [
+          375.27543746793333,
+          134.5,
+        ],
+      ],
+      [
+        [
+          12,
+          208.1842105263158,
+        ],
+        [
+          0,
+          213.6842105263158,
+        ],
+        [
+          12,
+          219.1842105263158,
+        ],
+      ],
+      [
+        [
+          375.27543746793333,
           219.1842105263158,
         ],
         [
@@ -26711,34 +26765,6 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         [
           375.27543746793333,
           208.1842105263158,
-        ],
-      ],
-      [
-        [
-          12,
-          208.1842105263158,
-        ],
-        [
-          0,
-          213.6842105263158,
-        ],
-        [
-          12,
-          219.1842105263158,
-        ],
-      ],
-      [
-        [
-          145.15454933235037,
-          13.15742223772208,
-        ],
-        [
-          144.0904816379359,
-          0,
-        ],
-        [
-          134.81793050370538,
-          9.395200661139722,
         ],
       ],
       [
@@ -26757,16 +26783,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
       ],
       [
         [
-          252.45750696422803,
-          9.395200661139722,
+          145.15454933235037,
+          13.15742223772208,
         ],
         [
-          243.1849558299975,
+          144.0904816379359,
           0,
         ],
         [
-          242.12088813558304,
-          13.15742223772208,
+          134.81793050370538,
+          9.395200661139722,
         ],
       ],
       [
@@ -26781,6 +26807,20 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         [
           346.16068911894865,
           266.8425777622779,
+        ],
+      ],
+      [
+        [
+          252.45750696422803,
+          9.395200661139722,
+        ],
+        [
+          243.1849558299975,
+          0,
+        ],
+        [
+          242.12088813558304,
+          13.15742223772208,
         ],
       ],
     ],
@@ -26956,6 +26996,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         "y": -11.949399289379285,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -27054,6 +27095,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t1+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M101.8,140 L140.9,131.7 A40,40 0 0 1 141.8,140 Z",
       },
       {
@@ -27075,6 +27117,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "p1+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M101.8,140 L141.8,140 A40,40 0 0 1 62.6,148.3 Z",
       },
       {
@@ -27096,6 +27139,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t1-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M101.8,140 L62.6,148.3 A40,40 0 0 1 61.8,140 Z",
       },
       {
@@ -27117,6 +27161,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "p1-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M101.8,140 L61.8,140 A40,40 0 0 1 140.9,131.7 Z",
       },
       {
@@ -27127,8 +27172,8 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
         "crossing": "p1.t2",
         "ghost": {
           "at": [
-            244.49123548468717,
-            117.68287563373192,
+            239.92380419265254,
+            120.59265027816875,
           ],
           "text": "65°",
         },
@@ -27138,6 +27183,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t2+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M209.5,140 L226.4,103.7 A40,40 0 0 1 249.5,140 Z",
       },
       {
@@ -27159,6 +27205,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "p1+",
           "t2-",
         ],
+        "right": false,
         "wedge": "M209.5,140 L249.5,140 A40,40 0 0 1 192.6,176.3 Z",
       },
       {
@@ -27180,6 +27227,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t2-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M209.5,140 L192.6,176.3 A40,40 0 0 1 169.5,140 Z",
       },
       {
@@ -27201,6 +27249,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "p1-",
           "t2+",
         ],
+        "right": false,
         "wedge": "M209.5,140 L169.5,140 A40,40 0 0 1 226.4,103.7 Z",
       },
       {
@@ -27222,6 +27271,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t2+",
           "t1+",
         ],
+        "right": false,
         "wedge": "M221.3,114.6 L238.2,78.3 A40,40 0 0 1 260.4,106.3 Z",
       },
       {
@@ -27243,6 +27293,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t1+",
           "t2-",
         ],
+        "right": false,
         "wedge": "M221.3,114.6 L260.4,106.3 A40,40 0 0 1 204.4,150.8 Z",
       },
       {
@@ -27264,6 +27315,7 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t2-",
           "t1-",
         ],
+        "right": false,
         "wedge": "M221.3,114.6 L204.4,150.8 A40,40 0 0 1 182.2,122.9 Z",
       },
       {
@@ -27285,12 +27337,11 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           "t1-",
           "t2+",
         ],
+        "right": false,
         "wedge": "M221.3,114.6 L182.2,122.9 A40,40 0 0 1 238.2,78.3 Z",
       },
     ],
-    "arcs": [
-      "M217.9,121.9 A20,20 0 0 1 229.5,140",
-    ],
+    "arcs": [],
     "arrows": [],
     "crossings": [
       {
@@ -27348,20 +27399,6 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
     "heads": [
       [
         [
-          311.0769230769231,
-          145.5,
-        ],
-        [
-          323.0769230769231,
-          140,
-        ],
-        [
-          311.0769230769231,
-          134.5,
-        ],
-      ],
-      [
-        [
           12,
           134.5,
         ],
@@ -27376,16 +27413,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
       ],
       [
         [
-          312.4826661676151,
-          100.83410099587235,
+          311.0769230769231,
+          145.5,
         ],
         [
           323.0769230769231,
-          92.95934890202331,
+          140,
         ],
         [
-          310.19563756861976,
-          90.0744773878005,
+          311.0769230769231,
+          134.5,
         ],
       ],
       [
@@ -27404,16 +27441,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
       ],
       [
         [
-          274.6567130737318,
-          13.200093884013647,
+          312.4826661676151,
+          100.83410099587235,
         ],
         [
-          274.74343938591863,
-          0,
+          323.0769230769231,
+          92.95934890202331,
         ],
         [
-          264.6873274163287,
-          8.551293004865954,
+          310.19563756861976,
+          90.0744773878005,
         ],
       ],
       [
@@ -27428,6 +27465,20 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
         [
           154.23340707210903,
           271.44870699513405,
+        ],
+      ],
+      [
+        [
+          274.6567130737318,
+          13.200093884013647,
+        ],
+        [
+          274.74343938591863,
+          0,
+        ],
+        [
+          264.6873274163287,
+          8.551293004865954,
         ],
       ],
     ],
@@ -27566,17 +27617,18 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
           ],
           "w": 28,
         },
-        "cx": 244.49123548468717,
-        "cy": 117.68287563373192,
+        "cx": 239.92380419265254,
+        "cy": 120.59265027816875,
         "offset": [
           0,
           0,
         ],
         "part": "angle:p1+~t2+",
-        "x": 230.49123548468717,
-        "y": 122.48287563373192,
+        "x": 225.92380419265254,
+        "y": 125.39265027816874,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -27669,6 +27721,20 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D5%7Cpos%3D
     "heads": [
       [
         [
+          12,
+          -5.5,
+        ],
+        [
+          0,
+          0,
+        ],
+        [
+          12,
+          5.5,
+        ],
+      ],
+      [
+        [
           428,
           5.5,
         ],
@@ -27679,20 +27745,6 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D5%7Cpos%3D
         [
           428,
           -5.5,
-        ],
-      ],
-      [
-        [
-          12,
-          -5.5,
-        ],
-        [
-          0,
-          0,
-        ],
-        [
-          12,
-          5.5,
         ],
       ],
     ],
@@ -27732,6 +27784,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D5%7Cpos%3D
         "y": 5.040000000000001,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -27780,6 +27833,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
           "t2+",
           "t1+",
         ],
+        "right": false,
         "wedge": "M161.5,140 L141.5,105.4 A40,40 0 0 1 181.5,105.4 Z",
       },
       {
@@ -27801,6 +27855,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
           "t1+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M161.5,140 L181.5,105.4 A40,40 0 0 1 201.5,140 Z",
       },
       {
@@ -27822,6 +27877,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
           "p1+",
           "t2-",
         ],
+        "right": false,
         "wedge": "M161.5,140 L201.5,140 A40,40 0 0 1 181.5,174.6 Z",
       },
       {
@@ -27843,6 +27899,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
           "t2-",
           "t1-",
         ],
+        "right": false,
         "wedge": "M161.5,140 L181.5,174.6 A40,40 0 0 1 141.5,174.6 Z",
       },
       {
@@ -27864,6 +27921,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
           "t1-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M161.5,140 L141.5,174.6 A40,40 0 0 1 121.5,140 Z",
       },
       {
@@ -27885,6 +27943,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
           "p1-",
           "t2+",
         ],
+        "right": false,
         "wedge": "M161.5,140 L121.5,140 A40,40 0 0 1 141.5,105.4 Z",
       },
     ],
@@ -27945,6 +28004,20 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
     "heads": [
       [
         [
+          12,
+          134.5,
+        ],
+        [
+          0,
+          140,
+        ],
+        [
+          12,
+          145.5,
+        ],
+      ],
+      [
+        [
           311.0769230769231,
           145.5,
         ],
@@ -27955,34 +28028,6 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
         [
           311.0769230769231,
           134.5,
-        ],
-      ],
-      [
-        [
-          12,
-          134.5,
-        ],
-        [
-          0,
-          140,
-        ],
-        [
-          12,
-          145.5,
-        ],
-      ],
-      [
-        [
-          241.13063894582362,
-          13.142304845413262,
-        ],
-        [
-          242.3674992250092,
-          0,
-        ],
-        [
-          231.60435950419478,
-          7.642304845413262,
         ],
       ],
       [
@@ -28001,16 +28046,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
       ],
       [
         [
-          91.47256357272838,
-          7.642304845413266,
+          241.13063894582362,
+          13.142304845413262,
         ],
         [
-          80.70942385191397,
+          242.3674992250092,
           0,
         ],
         [
-          81.94628413109956,
-          13.142304845413262,
+          231.60435950419478,
+          7.642304845413262,
         ],
       ],
       [
@@ -28025,6 +28070,20 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
         [
           241.1306389458235,
           266.85769515458674,
+        ],
+      ],
+      [
+        [
+          91.47256357272838,
+          7.642304845413266,
+        ],
+        [
+          80.70942385191397,
+          0,
+        ],
+        [
+          81.94628413109956,
+          13.142304845413262,
         ],
       ],
     ],
@@ -28166,6 +28225,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
         "y": -10.58684361115428,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -28227,8 +28287,8 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
         "crossing": "p1.t1",
         "ghost": {
           "at": [
-            189.4739954443943,
-            112.06446609406726,
+            181.4237429127001,
+            120.11471862576144,
           ],
           "text": "90°",
         },
@@ -28238,6 +28298,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
           "t1+",
           "p1+",
         ],
+        "right": true,
         "wedge": "M161.5,140 L161.5,100 A40,40 0 0 1 201.5,140 Z",
       },
       {
@@ -28259,6 +28320,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
           "p1+",
           "t1-",
         ],
+        "right": true,
         "wedge": "M161.5,140 L201.5,140 A40,40 0 0 1 161.5,180 Z",
       },
       {
@@ -28280,6 +28342,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
           "t1-",
           "p1-",
         ],
+        "right": true,
         "wedge": "M161.5,140 L161.5,180 A40,40 0 0 1 121.5,140 Z",
       },
       {
@@ -28301,6 +28364,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
           "p1-",
           "t1+",
         ],
+        "right": true,
         "wedge": "M161.5,140 L121.5,140 A40,40 0 0 1 161.5,100 Z",
       },
     ],
@@ -28355,6 +28419,20 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
     "heads": [
       [
         [
+          12,
+          134.5,
+        ],
+        [
+          0,
+          140,
+        ],
+        [
+          12,
+          145.5,
+        ],
+      ],
+      [
+        [
           311.0769230769231,
           145.5,
         ],
@@ -28369,34 +28447,6 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
       ],
       [
         [
-          12,
-          134.5,
-        ],
-        [
-          0,
-          140,
-        ],
-        [
-          12,
-          145.5,
-        ],
-      ],
-      [
-        [
-          167.03846153846155,
-          12,
-        ],
-        [
-          161.53846153846155,
-          0,
-        ],
-        [
-          156.03846153846155,
-          12,
-        ],
-      ],
-      [
-        [
           156.03846153846155,
           268,
         ],
@@ -28407,6 +28457,20 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
         [
           167.03846153846155,
           268,
+        ],
+      ],
+      [
+        [
+          167.03846153846155,
+          12,
+        ],
+        [
+          161.53846153846155,
+          0,
+        ],
+        [
+          156.03846153846155,
+          12,
         ],
       ],
     ],
@@ -28480,6 +28544,7 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
         "y": -12.200000000000001,
       },
     ],
+    "openHeads": [],
     "segments": [
       {
         "from": [
@@ -28509,29 +28574,14 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
       },
     ],
     "shades": [],
-    "squares": [
-      [
-        [
-          161.53846153846155,
-          127,
-        ],
-        [
-          174.53846153846155,
-          127,
-        ],
-        [
-          174.53846153846155,
-          140,
-        ],
-      ],
-    ],
+    "squares": [],
   },
   "problems": {},
   "query": "p=p1%7Cname%3Dm%7Carrows%3D1&t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3D0",
 }
 `;
 
-exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%3Dm%7Cends%3Dnone%7CstartPoint%3DA%7CendPoint%3DB&p=p2%7Cname%3Dn%7Cstyle%3Ddashed&t=t1%7Cname%3Dt%7Cangle%3D65%7Cpos%3D0%7Cends%3Dright 1`] = `
+exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%3Dm%7CstartCap%3Dnone%7CendCap%3Dnone%7CstartPoint%3DA%7CendPoint%3DB&p=p2%7Cname%3Dn%7Cstyle%3Ddashed%7CendCap%3Dline&t=t1%7Cname%3Dt%7Cangle%3D65%7Cpos%3D0%7CstartCap%3Dcircle 1`] = `
 {
   "figure": {
     "angles": [
@@ -28554,6 +28604,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "t1+",
           "p1+",
         ],
+        "right": false,
         "wedge": "M136.6,90 L133.4,54 A36.1,36.1 0 0 1 167.8,71.9 Z",
       },
       {
@@ -28575,6 +28626,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "p1+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M136.6,90 L171.2,70 A40,40 0 0 1 140,129.8 Z",
       },
       {
@@ -28596,6 +28648,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "t1-",
           "p1-",
         ],
+        "right": false,
         "wedge": "M136.6,90 L140,129.8 A40,40 0 0 1 101.9,110 Z",
       },
       {
@@ -28617,6 +28670,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "p1-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M136.6,90 L105.3,108.1 A36.1,36.1 0 0 1 133.4,54 Z",
       },
       {
@@ -28638,6 +28692,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "t1+",
           "p2+",
         ],
+        "right": false,
         "wedge": "M145.3,190 L141.8,150.2 A40,40 0 0 1 179.9,170 Z",
       },
       {
@@ -28659,6 +28714,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "p2+",
           "t1-",
         ],
+        "right": false,
         "wedge": "M145.3,190 L176.6,171.9 A36.1,36.1 0 0 1 148.5,226 Z",
       },
       {
@@ -28680,6 +28736,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "t1-",
           "p2-",
         ],
+        "right": false,
         "wedge": "M145.3,190 L148.5,226 A36.1,36.1 0 0 1 114,208.1 Z",
       },
       {
@@ -28701,6 +28758,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
           "p2-",
           "t1+",
         ],
+        "right": false,
         "wedge": "M145.3,190 L110.7,210 A40,40 0 0 1 141.8,150.2 Z",
       },
     ],
@@ -28732,6 +28790,10 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
     ],
     "dots": [
       [
+        153.1752116690593,
+        280,
+      ],
+      [
         47.79332795969682,
         141.24505427414107,
       ],
@@ -28758,20 +28820,6 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
       "y": -46.1,
     },
     "heads": [
-      [
-        [
-          274.2112927054467,
-          121.92459468367437,
-        ],
-        [
-          281.85359755085994,
-          111.16145496285996,
-        ],
-        [
-          268.7112927054467,
-          112.39831524204556,
-        ],
-      ],
       [
         [
           53.1307916227833,
@@ -28973,6 +29021,22 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
         "y": 80.11789847313034,
       },
     ],
+    "openHeads": [
+      [
+        [
+          274.2112927054467,
+          121.92459468367437,
+        ],
+        [
+          281.85359755085994,
+          111.16145496285996,
+        ],
+        [
+          268.7112927054467,
+          112.39831524204556,
+        ],
+      ],
+    ],
     "segments": [
       {
         "from": [
@@ -29018,7 +29082,7 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
     "squares": [],
   },
   "problems": {},
-  "query": "turn=30&labelSize=large&p=p1%7Cname%3Dm%7Cends%3Dnone%7CstartPoint%3DA%7CendPoint%3DB&p=p2%7Cname%3Dn%7Cstyle%3Ddashed&t=t1%7Cname%3Dt%7Cends%3Dright%7Cangle%3D65%7Cpos%3D0",
+  "query": "turn=30&labelSize=large&p=p1%7Cname%3Dm%7CstartCap%3Dnone%7CendCap%3Dnone%7CstartPoint%3DA%7CendPoint%3DB&p=p2%7Cname%3Dn%7CendCap%3Dline%7Cstyle%3Ddashed&t=t1%7Cname%3Dt%7CstartCap%3Dcircle%7Cangle%3D65%7Cpos%3D0",
 }
 `;
 

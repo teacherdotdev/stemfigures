@@ -151,11 +151,11 @@ const lines = (...rows: [string, string][]) => new URLSearchParams(rows).toStrin
 const PARALLEL = [
   '',
   lines(['t', 't1|name=t|angle=90|pos=0']),
-  lines(['a', 'p1+~t1+|label=measure'], ['a', 'p1-~t1+|label=text|text=3x+5|arcs=2'], ['a', 'p2+~t1+|label=text|text=x|shade=1']),
+  lines(['a', 'p1+~t1+|label=measure'], ['a', 'p1-~t1+|label=text|text=3x+5|mark=2'], ['a', 'p2+~t1+|label=text|text=x|shade=1']),
   lines(['p', 'p1|name=m'], ['t', 't1|name=n|angle=12|pos=0'], ['t', 't2|name=t|angle=65|pos=1'], ['a', 'p1+~t2+|label=measure']),
   lines(['p', 'p1|name=m|arrows=2'], ['p', 'p2|name=n|arrows=2'], ['p', 'p3|name=o|arrows=2'], ['t', 't1|name=t|angle=70|pos=0'], ['t', 't2|name=s|angle=110|pos=2']),
   lines(['t', 't1|name=t|angle=60|pos=0'], ['t', 't2|name=s|angle=120|pos=0'], ['pt', 'p1.t1.t2|name=A'], ['pt', 'p2.t1|name=B'], ['pt', 'p2.t2|name=C']),
-  lines(['turn', '30'], ['labelSize', 'large'], ['p', 'p1|name=m|ends=none|startPoint=A|endPoint=B'], ['p', 'p2|name=n|style=dashed'], ['t', 't1|name=t|angle=65|pos=0|ends=right']),
+  lines(['turn', '30'], ['labelSize', 'large'], ['p', 'p1|name=m|startCap=none|endCap=none|startPoint=A|endPoint=B'], ['p', 'p2|name=n|style=dashed|endCap=line'], ['t', 't1|name=t|angle=65|pos=0|startCap=circle']),
   lines(['t', 't1|name=t|angle=5|pos=0']),
 ]
 

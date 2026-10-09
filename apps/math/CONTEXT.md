@@ -47,7 +47,7 @@ The short name at an axis's arrow tip, such as x or y.
 _Avoid_: Axis title, variable
 
 **End cap**:
-How one end of an axis finishes: a triangle arrow, a line arrow, a circle or nothing.
+How one end of an axis finishes: a triangle arrow, a line arrow, a circle or nothing. Each end of a line in a Parallel Lines and Transversal has one too, where the circle is a dot marking where a ray or segment stops.
 _Avoid_: Arrow (alone), arrowhead, tip
 
 **Preset**:
@@ -231,7 +231,7 @@ Where any two of the figure's lines meet: a transversal and a parallel line, or 
 _Avoid_: Intersection (fine in teaching), vertex, corner
 
 **Angle** (in this figure):
-The space between two neighboring rays at a crossing, named by the two lines and its side, so it keeps its label while the lines move and gets it back if its crossing comes back. Its label is nothing, its measure or text the teacher types, and starts as nothing; it can also have congruence arcs and shading. It's edited by clicking it on the figure.
+The space between two neighboring rays at a crossing, named by the two lines and its side, so it keeps its label while the lines move and gets it back if its crossing comes back. Its label is nothing, its measure or text the teacher types, and starts as nothing. Its mark is nothing, one to three congruence arcs, or, at a 90° angle, a right-angle square; giving it a label gives it one arc (or the square) unless the teacher takes it off. It can also be shaded. It's edited by clicking it on the figure, which can also put a named point where its lines cross.
 _Avoid_: Angle number (angles aren't numbered unless the teacher types the numbers)
 
 **Shading**:

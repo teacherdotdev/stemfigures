@@ -7,7 +7,7 @@
   // beside the export buttons it matters for. Status messages appear as a
   // toast over the figure. Printing prints just the figure, the width of a
   // letter page unless the page sets --print-width (and --print-height).
-  import { ALargeSmall, Copy, FileDown, ImageDown, Redo2, Share, Undo2 } from '@lucide/svelte'
+  import { Copy, FileDown, ImageDown, Redo2, Share, Undo2 } from '@lucide/svelte'
   import type { Snippet } from 'svelte'
   import { copyPng, downloadPng, downloadSvg } from './exporting'
   import type { createHistory } from './history.svelte'
@@ -21,6 +21,9 @@
     children: Snippet
   }
   let { svg, filename, history, labelSize = $bindable(), children }: Props = $props()
+
+  const LABEL_ORDER: LabelSize[] = ['large', 'medium', 'small']
+  const GLYPH: Record<LabelSize, number> = { large: 20, medium: 15, small: 11 }
 
   let sheet = $state<HTMLElement>()
   const figure = () => svg ?? sheet?.querySelector('svg') ?? undefined
@@ -65,13 +68,15 @@
     <button class="icon-btn" aria-label="Undo" data-tip="Undo" disabled={!history.canUndo} onclick={history.undo}><Undo2 size={19} /></button>
     <button class="icon-btn" aria-label="Redo" data-tip="Redo" disabled={!history.canRedo} onclick={history.redo}><Redo2 size={19} /></button>
     {#if labelSize !== undefined}
-      <label class="label-size" data-tip="Label size, for how big text prints">
-        <ALargeSmall size={19} aria-hidden="true" />
-        <span class="visually-hidden">Label size</span>
-        <select bind:value={labelSize}>
-          {#each Object.entries(LABEL_SIZES) as [v, name] (v)}<option value={v}>{name} labels</option>{/each}
-        </select>
-      </label>
+      <!-- Three buttons, each an "A" drawn at its size: large, medium, small. -->
+      <div class="label-size" role="radiogroup" aria-label="Label size, for how big text prints">
+        {#each LABEL_ORDER as v (v)}
+          <button
+            type="button" role="radio" class="size" class:on={labelSize === v} aria-checked={labelSize === v}
+            aria-label="{LABEL_SIZES[v]} labels" data-tip="{LABEL_SIZES[v]} labels" onclick={() => (labelSize = v)}
+          ><span style="font-size: {GLYPH[v]}px" aria-hidden="true">A</span></button>
+        {/each}
+      </div>
     {/if}
   </div>
   <div class="sheet" bind:this={sheet}>
@@ -84,8 +89,13 @@
   .canvas { display: flex; flex-direction: column; }
   .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; padding: 0.45rem; border-bottom: 1px solid var(--border); }
   .divider { width: 1px; height: 1.6rem; background: var(--border); margin: 0 0.3rem; }
-  .label-size { margin-left: auto; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); }
-  .label-size select { width: auto; padding-block: 0.25rem; font-size: 0.85rem; }
+  .label-size { margin-left: auto; display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg); }
+  .size {
+    display: inline-grid; place-items: center; width: 2.1rem; height: 1.9rem; padding: 0; border: 0; border-radius: 8px;
+    background: transparent; color: var(--muted); font-family: 'Times New Roman', Times, serif; line-height: 1; cursor: pointer;
+  }
+  .size:hover { color: var(--ink); }
+  .size.on { background: #fff; color: var(--blue); box-shadow: 0 1px 2px rgb(17 24 39 / 12%); }
   @media (max-width: 480px) {
     .divider { display: none; }
     .toolbar { justify-content: space-between; gap: 0.15rem; padding: 0.35rem; }

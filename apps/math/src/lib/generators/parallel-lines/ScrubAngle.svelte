@@ -68,8 +68,9 @@
     font-family: 'Times New Roman', Times, serif; font-size: 1.05rem; color: var(--muted); border-radius: 8px 0 0 8px;
   }
   .handle:hover, .active .handle { color: var(--blue); background: var(--blue-soft); }
-  input {
-    flex: 1; min-width: 0; width: 100%; border: 0; outline: none; background: transparent; padding: 0 0.1rem;
+  /* Over the site's own text-box style: the frame around the whole field is the box. */
+  .scrub input[type='text'] {
+    flex: 1; min-width: 0; width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; outline: none; background: transparent; padding: 0 0.1rem;
     font-family: 'Times New Roman', Times, serif; font-size: 1.05rem; color: var(--ink);
   }
   .deg { padding-right: 0.55rem; font-family: 'Times New Roman', Times, serif; color: var(--muted); }

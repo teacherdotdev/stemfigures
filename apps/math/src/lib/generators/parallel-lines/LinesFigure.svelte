@@ -42,6 +42,7 @@
     {/each}
   </g>
   {#each figure.heads as h}<polygon points={pts(h)} fill={INK} stroke={INK} stroke-width="1" stroke-linejoin="round" />{/each}
+  {#each figure.openHeads as h}<polyline points={pts(h)} fill="none" stroke={INK} stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" />{/each}
   {#each figure.dots as [x, y]}<circle cx={x.toFixed(1)} cy={y.toFixed(1)} r={DOT} fill={INK} />{/each}
 
   <FigureLabels labels={figure.labels} ink={INK} />

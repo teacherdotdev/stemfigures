@@ -22,7 +22,7 @@ import { ANGLE_DEFAULTS, SHADES, angleKey, readAngle, type LineBase, type LineSt
 export type Vec = [number, number]
 export type { PlacedLabel }
 /** Something on the figure the teacher can point at: an angle, a line or a crossing, by its key or id. */
-export type Part = { kind: 'angle' | 'line' | 'crossing'; key: string }
+export type Part = { kind: 'angle' | 'line'; key: string }
 
 const BASE_FS = 20 // label font size, at medium labels
 const BASE_NAME_FS = 21
@@ -224,23 +224,22 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
     const arc = `A${r1(r)},${r1(r)} 0 ${large} 1 ${r1(b[0])},${r1(b[1])}`
     return closed ? `M${r1(v[0])},${r1(v[1])} L${r1(a[0])},${r1(a[1])} ${arc} Z` : `M${r1(a[0])},${r1(a[1])} ${arc}`
   }
-  const angles = crossings.flatMap((c) => {
-    // One square per right-angled crossing, in its first unlabeled right angle.
-    const right = c.angles.filter((a) => Math.abs(a.measure - 90) < 1e-4)
-    const squared = s.square && right.length ? (right.find((a) => (s.angles[a.key] ?? ANGLE_DEFAULTS).label === 'none') ?? right[0]) : null
-    return c.angles.map((a) => {
+  const angles = crossings.flatMap((c) =>
+    c.angles.map((a) => {
       const style = s.angles[a.key] ?? ANGLE_DEFAULTS
       const room = 0.4 * Math.min(...a.rays.map((ray) => rayRoom(c.v, ray)))
       const radius = Math.max(16, Math.min(WEDGE, room))
       const fill = SHADES[style.shade]?.fill
       if (fill) shades.push({ d: sectorPath(c.v, a.e1, a.e2, radius, true), fill })
       const box = style.label === 'text' ? layoutMath(style.text, FS) : style.label === 'measure' ? layoutMath(rounded(a.measure), FS, { suffix: '°' }) : null
+      // Only the mark the teacher set: a square at a right angle, or that many arcs.
+      const right = Math.abs(a.measure - 90) < 1e-4
       let outer = 0
-      if (squared === a) {
+      if (style.mark === 'right' && right) {
         squares.push([add(c.v, mul(a.e1, SQUARE)), add(c.v, add(mul(a.e1, SQUARE), mul(a.e2, SQUARE))), add(c.v, mul(a.e2, SQUARE))])
         outer = SQUARE * Math.SQRT2
-      } else if (style.arcs || box) {
-        const count = Math.max(1, style.arcs)
+      } else if (style.mark !== 'none') {
+        const count = style.mark === 'right' ? 1 : Number(style.mark)
         for (let n = 0; n < count; n++) arcs.push(sectorPath(c.v, a.e1, a.e2, ARC + n * ARC_GAP, false))
         outer = ARC + (count - 1) * ARC_GAP
       }
@@ -263,6 +262,8 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
         crossing: c.key,
         rays: a.rays,
         measure: a.measure,
+        /** Whether it's 90°, so its mark can be a right-angle square. */
+        right,
         /** The wedge that's highlighted, and pointed at to pick the angle. */
         wedge: sectorPath(c.v, a.e1, a.e2, radius, true),
         /** Where its measure is written while it's highlighted. */
@@ -270,20 +271,21 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
         /** Where its popup opens. */
         anchor: add(c.v, mul(mid, radius * 0.7)),
       }
-    })
-  })
+    }),
+  )
 
-  // Arrowheads, pointing out, at whichever ends the line has them.
+  // Each end's cap: a filled arrowhead or an open one pointing out, or a dot.
   const heads: Vec[][] = []
+  const openHeads: Vec[][] = []
   for (const g of segments) {
-    const e = byId.get(g.id)!.line.ends
-    const tips: [Vec, Vec][] = []
-    if (e === 'both' || e === 'right') tips.push([g.to, g.from])
-    if (e === 'both' || e === 'left') tips.push([g.from, g.to])
-    for (const [tip, from] of tips) {
+    const line = byId.get(g.id)!.line
+    for (const [cap, tip, from] of [[line.startCap, g.from, g.to], [line.endCap, g.to, g.from]] as const) {
       const d = unit(sub(tip, from))
       const base = add(tip, mul(d, -HEAD))
-      heads.push([add(base, mul(perp(d), HEAD_W)), tip, add(base, mul(perp(d), -HEAD_W))])
+      const head = [add(base, mul(perp(d), HEAD_W)), tip, add(base, mul(perp(d), -HEAD_W))]
+      if (cap === 'triangle') heads.push(head)
+      else if (cap === 'line') openHeads.push(head)
+      else if (cap === 'circle') dots.push(tip)
     }
   }
 
@@ -333,7 +335,7 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
   }
 
   // The frame holds the lines, their arrowheads and every label.
-  const points: Vec[] = [...segments.flatMap((g) => [g.from, g.to]), ...heads.flat()]
+  const points: Vec[] = [...segments.flatMap((g) => [g.from, g.to]), ...heads.flat(), ...openHeads.flat()]
   for (const l of labels) points.push([l.cx - l.box.w / 2, l.y - l.box.asc], [l.cx + l.box.w / 2, l.y + l.box.desc])
   const minX = Math.min(...points.map((p) => p[0])) - PAD
   const minY = Math.min(...points.map((p) => p[1])) - PAD
@@ -345,6 +347,7 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
     frame,
     segments,
     heads,
+    openHeads,
     shades,
     arcs,
     squares,

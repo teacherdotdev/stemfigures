@@ -1,8 +1,9 @@
 <script lang="ts">
   // What the teacher can point at on the figure, drawn over LinesFigure.svelte
   // in an SVG of its own so nothing here reaches a copy or an export. A mouse
-  // hovering an angle, line or crossing lights it ghost blue; clicking or
-  // tapping one calls onpick with where to open its popup. Pressing a
+  // hovering an angle or a line lights it ghost blue; clicking or tapping one
+  // calls onpick with where to open its popup. Near a crossing the angles
+  // win, even right on a line; a line is picked farther out. Pressing a
   // transversal and moving slides it: ondrag hears the move on the page, in
   // the figure's units, from where the press started. `ghost` is an angle
   // shown with its measure (the one a transversal's value sets, while it's
@@ -88,20 +89,9 @@
         <line x1={g.from[0]} y1={g.from[1]} x2={g.to[0]} y2={g.to[1]} stroke={BLUE} stroke-opacity="0.3" stroke-width="9" stroke-linecap="round" />
       {/if}
     {/each}
-    {#each figure.crossings as c (c.key)}
-      {#if lit({ kind: 'crossing', key: c.key })}<circle cx={c.at[0]} cy={c.at[1]} r="7" fill={BLUE} fill-opacity="0.3" stroke={BLUE} stroke-width="1.5" />{/if}
-    {/each}
   </g>
 
-  <!-- What can be pointed at: angles under lines under crossings -->
-  {#each figure.angles as a (a.key)}
-    {@const part = { kind: 'angle', key: a.key } as Part}
-    <path
-      d={a.wedge} fill="transparent" class="hit" role="button" tabindex="0" aria-label="Angle of {Math.round(a.measure)}°"
-      onpointerdown={(e) => down(e, part, a.anchor)} onpointermove={move} onpointerup={up} onpointercancel={up}
-      onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, a.anchor)}
-    />
-  {/each}
+  <!-- What can be pointed at: angles over lines, so near a crossing the angle wins, even right on a line -->
   {#each figure.segments as g (g.id)}
     {@const part = { kind: 'line', key: g.id } as Part}
     <line
@@ -111,12 +101,12 @@
       onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, mid(g))}
     />
   {/each}
-  {#each figure.crossings as c (c.key)}
-    {@const part = { kind: 'crossing', key: c.key } as Part}
-    <circle
-      cx={c.at[0]} cy={c.at[1]} r="8" fill="transparent" class="hit" role="button" tabindex="0" aria-label="Crossing"
-      onpointerdown={(e) => down(e, part, c.at)} onpointermove={move} onpointerup={up} onpointercancel={up}
-      onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, c.at)}
+  {#each figure.angles as a (a.key)}
+    {@const part = { kind: 'angle', key: a.key } as Part}
+    <path
+      d={a.wedge} fill="transparent" class="hit" role="button" tabindex="0" aria-label="Angle of {Math.round(a.measure)}°"
+      onpointerdown={(e) => down(e, part, a.anchor)} onpointermove={move} onpointerup={up} onpointercancel={up}
+      onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, a.anchor)}
     />
   {/each}
 </svg>
