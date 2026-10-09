@@ -3,21 +3,18 @@
   // in an SVG of its own so nothing here reaches a copy or an export. A mouse
   // hovering an angle or a line lights it ghost blue; clicking or tapping one
   // calls onpick with where to open its popup. Near a crossing the angles
-  // win, even right on a line; a line is picked farther out. Pressing a
-  // transversal and moving slides it: ondrag hears the move on the page, in
-  // the figure's units, from where the press started. `ghost` is an angle
-  // shown with its measure (the one a transversal's value sets, while it's
-  // being changed), and `selected` the part whose popup is open.
+  // win, even right on a line; a line is picked farther out. `ghost` is an
+  // angle shown with its measure (the one a transversal's value sets, while
+  // it's being changed), and `selected` the part whose popup is open.
   import type { LinesLayout, Part, Vec } from './layout.js'
 
   let {
-    figure, ghost = null, selected = null, onpick, ondrag,
+    figure, ghost = null, selected = null, onpick,
   }: {
     figure: LinesLayout
     ghost?: string | null
     selected?: Part | null
     onpick: (part: Part, at: { x: number; y: number }) => void
-    ondrag: (id: string, phase: 'start' | 'move' | 'end', moved: Vec) => void
   } = $props()
 
   const BLUE = '#2563eb'
@@ -35,39 +32,13 @@
     return { x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f }
   }
 
-  let press: { id: number; part: Part; x: number; y: number; dragging: boolean; at: Vec } | null = null
-  function down(event: PointerEvent, part: Part, at: Vec) {
-    if (event.button !== 0) return
-    event.preventDefault()
-    ;(event.currentTarget as Element).setPointerCapture(event.pointerId)
-    press = { id: event.pointerId, part, x: event.clientX, y: event.clientY, dragging: false, at }
-  }
-  function move(event: PointerEvent) {
-    if (!press || event.pointerId !== press.id) return
-    const d: Vec = [event.clientX - press.x, event.clientY - press.y]
-    const slides = press.part.kind === 'line' && press.part.key.startsWith('t')
-    if (!press.dragging && slides && Math.hypot(...d) > 4) {
-      press.dragging = true
-      ondrag(press.part.key, 'start', [0, 0])
-    }
-    if (press.dragging) {
-      const k = svg!.getScreenCTM()?.a || 1
-      ondrag(press.part.key, 'move', figure.back([d[0] / k, d[1] / k]))
-    }
-  }
-  function up(event: PointerEvent) {
-    if (!press || event.pointerId !== press.id) return
-    const p = press
-    press = null
-    if (p.dragging) ondrag(p.part.key, 'end', [0, 0])
-    else if (event.type === 'pointerup') onpick(p.part, onScreen(p.at))
-  }
-  const enter = (event: PointerEvent, part: Part) => event.pointerType === 'mouse' && !press && (hover = part)
+  const pick = (part: Part, at: Vec) => onpick(part, onScreen(at))
+  const enter = (event: PointerEvent, part: Part) => event.pointerType === 'mouse' && (hover = part)
   const leave = (part: Part) => hover?.kind === part.kind && hover.key === part.key && (hover = null)
   const key = (event: KeyboardEvent, part: Part, at: Vec) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
-    onpick(part, onScreen(at))
+    pick(part, at)
   }
   const mid = (g: { from: Vec; to: Vec }): Vec => [(g.from[0] + g.to[0]) / 2, (g.from[1] + g.to[1]) / 2]
 </script>
@@ -96,8 +67,8 @@
     {@const part = { kind: 'line', key: g.id } as Part}
     <line
       x1={g.from[0]} y1={g.from[1]} x2={g.to[0]} y2={g.to[1]} stroke="transparent" stroke-width="16" stroke-linecap="round"
-      class="hit" class:slides={g.kind === 't'} role="button" tabindex="0" aria-label={g.kind === 't' ? 'Transversal' : 'Parallel line'}
-      onpointerdown={(e) => down(e, part, mid(g))} onpointermove={move} onpointerup={up} onpointercancel={up}
+      class="hit" role="button" tabindex="0" aria-label={g.kind === 't' ? 'Transversal' : 'Parallel line'}
+      onclick={() => pick(part, mid(g))}
       onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, mid(g))}
     />
   {/each}
@@ -105,15 +76,14 @@
     {@const part = { kind: 'angle', key: a.key } as Part}
     <path
       d={a.wedge} fill="transparent" class="hit" role="button" tabindex="0" aria-label="Angle of {Math.round(a.measure)}°"
-      onpointerdown={(e) => down(e, part, a.anchor)} onpointermove={move} onpointerup={up} onpointercancel={up}
+      onclick={() => pick(part, a.anchor)}
       onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, a.anchor)}
     />
   {/each}
 </svg>
 
 <style>
-  .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; touch-action: none; }
+  .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .hit { cursor: pointer; outline: none; }
-  .hit.slides { cursor: grab; }
   .hit:focus-visible { stroke: #2563eb; stroke-opacity: 0.5; }
 </style>

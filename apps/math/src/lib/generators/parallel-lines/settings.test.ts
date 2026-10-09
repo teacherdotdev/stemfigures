@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { buildLines, readLines, snapPositions } from './layout.js'
+import { buildLines, readLines } from './layout.js'
 import {
   DEFAULT_SETTINGS, angleKey, cleanSettings, freePos, freshName, nextId, readAngle, setAngleKey, settingsFromParams, settingsToQuery,
 } from './settings.js'
@@ -125,17 +125,5 @@ describe('the angles on the figure', () => {
   test('a measure label is the angle as drawn, and an unlabeled angle has no label', () => {
     const fig = buildLines(params('a=p1%2B~t1%2B|label=measure&a=p2-~t1-|label=text|text=x'))
     expect(fig.labels.filter((l) => l.part.startsWith('angle:')).map((l) => l.part)).toEqual(['angle:p1+~t1+', 'angle:p2-~t1-'])
-  })
-})
-
-describe('snapping', () => {
-  test('a transversal snaps to meet another on each parallel line', () => {
-    const s = params('p=p1&p=p2&t=t1|angle=60|pos=0&t=t2|angle=120|pos=2')
-    const [onTop, onSecond] = snapPositions(s, 't1')
-    expect(onTop).toBeCloseTo(2)
-    // On the second line t2 is at 2 + cot 60°; t1 at pos − cot 60° there.
-    expect(onSecond).toBeCloseTo(2 + 2 / Math.sqrt(3))
-    const met = buildLines({ ...s, transversals: s.transversals.map((t) => (t.id === 't1' ? { ...t, pos: onSecond } : t)) })
-    expect(met.crossings.some((c) => c.key === 'p2.t1.t2')).toBe(true)
   })
 })

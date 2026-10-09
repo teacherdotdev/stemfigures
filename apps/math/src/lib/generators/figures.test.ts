@@ -250,7 +250,7 @@ describe('regular polygon', () => {
 describe('parallel lines and a transversal', () => {
   test.each(PARALLEL)('%s', (q) => {
     const s = parallel.settingsFromParams(params(q))
-    const { back: _, ...figure } = buildLines(s)
+    const figure = buildLines(s)
     expect({ query: parallel.settingsToQuery(s), problems: readLines(s).problems, figure }).toMatchSnapshot()
   })
 })

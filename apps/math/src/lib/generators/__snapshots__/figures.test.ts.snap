@@ -25083,17 +25083,6 @@ exports[`parallel lines and a transversal >  1`] = `
       },
     ],
     "dots": [],
-    "fit": {
-      "frame": {
-        "h": 329.2,
-        "w": 347.2,
-        "x": -12,
-        "y": -37.2,
-      },
-      "scale": 99.99999999999999,
-      "x0": -1.7331538290774993,
-      "y0": -0.9,
-    },
     "frame": {
       "h": 329.2,
       "w": 347.2,
@@ -25293,6 +25282,16 @@ exports[`parallel lines and a transversal >  1`] = `
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            89.99999999999999,
+          ],
+          [
+            292.79999999999995,
+            89.99999999999999,
+          ],
+        ],
         "from": [
           0,
           89.99999999999999,
@@ -25306,6 +25305,16 @@ exports[`parallel lines and a transversal >  1`] = `
         ],
       },
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            189.99999999999997,
+          ],
+          [
+            292.79999999999995,
+            189.99999999999997,
+          ],
+        ],
         "from": [
           0,
           189.99999999999997,
@@ -25319,6 +25328,16 @@ exports[`parallel lines and a transversal >  1`] = `
         ],
       },
       {
+        "drawn": [
+          [
+            87.7597793428332,
+            273.47458393333613,
+          ],
+          [
+            212.24022065716673,
+            6.52541606666388,
+          ],
+        ],
         "from": [
           84.71692785830017,
           280,
@@ -25580,17 +25599,6 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
       },
     ],
     "dots": [],
-    "fit": {
-      "frame": {
-        "h": 329.2,
-        "w": 347.2,
-        "x": -12,
-        "y": -37.2,
-      },
-      "scale": 99.99999999999999,
-      "x0": -1.7331538290774993,
-      "y0": -0.9,
-    },
     "frame": {
       "h": 329.2,
       "w": 347.2,
@@ -25924,6 +25932,16 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            89.99999999999999,
+          ],
+          [
+            292.79999999999995,
+            89.99999999999999,
+          ],
+        ],
         "from": [
           0,
           89.99999999999999,
@@ -25937,6 +25955,16 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
         ],
       },
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            189.99999999999997,
+          ],
+          [
+            292.79999999999995,
+            189.99999999999997,
+          ],
+        ],
         "from": [
           0,
           189.99999999999997,
@@ -25950,6 +25978,16 @@ exports[`parallel lines and a transversal > a=p1%2B%7Et1%2B%7Clabel%3Dmeasure&a=
         ],
       },
       {
+        "drawn": [
+          [
+            87.7597793428332,
+            273.47458393333613,
+          ],
+          [
+            212.24022065716673,
+            6.52541606666388,
+          ],
+        ],
         "from": [
           84.71692785830017,
           280,
@@ -26665,17 +26703,6 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
       },
     ],
     "dots": [],
-    "fit": {
-      "frame": {
-        "h": 330.2,
-        "w": 434.4,
-        "x": -12,
-        "y": -38.2,
-      },
-      "scale": 73.6842105263158,
-      "x0": -1.627940468532405,
-      "y0": -0.9,
-    },
     "frame": {
       "h": 330.2,
       "w": 434.4,
@@ -26999,6 +27026,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            66.31578947368422,
+          ],
+          [
+            380.07543746793334,
+            66.31578947368422,
+          ],
+        ],
         "from": [
           0,
           66.31578947368422,
@@ -27012,6 +27049,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         ],
       },
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            140,
+          ],
+          [
+            380.07543746793334,
+            140,
+          ],
+        ],
         "from": [
           0,
           140,
@@ -27025,6 +27072,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         ],
       },
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            213.6842105263158,
+          ],
+          [
+            380.07543746793334,
+            213.6842105263158,
+          ],
+        ],
         "from": [
           0,
           213.6842105263158,
@@ -27038,6 +27095,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         ],
       },
       {
+        "drawn": [
+          [
+            44.64136107534402,
+            273.23421313034146,
+          ],
+          [
+            141.6279366059911,
+            6.76578686965854,
+          ],
+        ],
         "from": [
           42.17881604339921,
           280,
@@ -27051,6 +27118,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm%7Carrows%3D2&p=p2%7C
         ],
       },
       {
+        "drawn": [
+          [
+            342.63407639258935,
+            273.23421313034146,
+          ],
+          [
+            245.64750086194232,
+            6.76578686965854,
+          ],
+        ],
         "from": [
           345.0966214245342,
           280,
@@ -27379,17 +27456,6 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
       },
     ],
     "dots": [],
-    "fit": {
-      "frame": {
-        "h": 329.2,
-        "w": 370.2,
-        "x": -12,
-        "y": -37.2,
-      },
-      "scale": 107.6923076923077,
-      "x0": -0.9449891244106039,
-      "y0": -1.3,
-    },
     "frame": {
       "h": 329.2,
       "w": 370.2,
@@ -27631,6 +27697,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            140,
+          ],
+          [
+            315.8769230769231,
+            140,
+          ],
+        ],
         "from": [
           0,
           140,
@@ -27644,6 +27720,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
         ],
       },
       {
+        "drawn": [
+          [
+            7.0426627252833995,
+            160.1345046522964,
+          ],
+          [
+            316.0342603516397,
+            94.45631307591117,
+          ],
+        ],
         "from": [
           0,
           161.6314688261843,
@@ -27657,6 +27743,16 @@ exports[`parallel lines and a transversal > p=p1%7Cname%3Dm&t=t1%7Cname%3Dn%7Can
         ],
       },
       {
+        "drawn": [
+          [
+            147.22014658705208,
+            273.47458393333613,
+          ],
+          [
+            271.7005879013856,
+            6.52541606666388,
+          ],
+        ],
         "from": [
           144.17729510251905,
           280,
@@ -27701,17 +27797,6 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D5%7Cpos%3D
     ],
     "crossings": [],
     "dots": [],
-    "fit": {
-      "frame": {
-        "h": 42.5,
-        "w": 487.2,
-        "x": -12,
-        "y": -21.2,
-      },
-      "scale": 146.66666666666666,
-      "x0": -1.5,
-      "y0": -0,
-    },
     "frame": {
       "h": 42.5,
       "w": 487.2,
@@ -27787,6 +27872,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D5%7Cpos%3D
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            0,
+          ],
+          [
+            432.8,
+            0,
+          ],
+        ],
         "from": [
           0,
           0,
@@ -27984,17 +28079,6 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
         140,
       ],
     ],
-    "fit": {
-      "frame": {
-        "h": 328.9,
-        "w": 370.2,
-        "x": -12,
-        "y": -36.9,
-      },
-      "scale": 107.6923076923077,
-      "x0": -1.5,
-      "y0": -1.3,
-    },
     "frame": {
       "h": 328.9,
       "w": 370.2,
@@ -28228,6 +28312,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            140,
+          ],
+          [
+            315.8769230769231,
+            140,
+          ],
+        ],
         "from": [
           0,
           140,
@@ -28241,6 +28335,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
         ],
       },
       {
+        "drawn": [
+          [
+            84.3094238519139,
+            273.764617092752,
+          ],
+          [
+            238.7674992250092,
+            6.235382907247956,
+          ],
+        ],
         "from": [
           80.70942385191391,
           280,
@@ -28254,6 +28358,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D60%7Cpos%3
         ],
       },
       {
+        "drawn": [
+          [
+            238.7674992250091,
+            273.764617092752,
+          ],
+          [
+            84.30942385191396,
+            6.235382907247958,
+          ],
+        ],
         "from": [
           242.36749922500908,
           280,
@@ -28399,17 +28513,6 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
       },
     ],
     "dots": [],
-    "fit": {
-      "frame": {
-        "h": 330.5,
-        "w": 370.2,
-        "x": -12,
-        "y": -38.5,
-      },
-      "scale": 107.6923076923077,
-      "x0": -1.5,
-      "y0": -1.3,
-    },
     "frame": {
       "h": 330.5,
       "w": 370.2,
@@ -28547,6 +28650,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
     "openHeads": [],
     "segments": [
       {
+        "drawn": [
+          [
+            7.199999999999999,
+            140,
+          ],
+          [
+            315.8769230769231,
+            140,
+          ],
+        ],
         "from": [
           0,
           140,
@@ -28560,6 +28673,16 @@ exports[`parallel lines and a transversal > t=t1%7Cname%3Dt%7Cangle%3D90%7Cpos%3
         ],
       },
       {
+        "drawn": [
+          [
+            161.53846153846155,
+            272.8,
+          ],
+          [
+            161.53846153846155,
+            7.199999999999999,
+          ],
+        ],
         "from": [
           161.53846153846155,
           280,
@@ -28802,17 +28925,6 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
         52.542505058269484,
       ],
     ],
-    "fit": {
-      "frame": {
-        "h": 338.1,
-        "w": 331.2,
-        "x": -12,
-        "y": -46.1,
-      },
-      "scale": 90.97697355474007,
-      "x0": -1.5009552446473873,
-      "y0": -0.9892613095757442,
-    },
     "frame": {
       "h": 338.1,
       "w": 331.2,
@@ -29039,6 +29151,16 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
     ],
     "segments": [
       {
+        "drawn": [
+          [
+            0,
+            168.83854503714008,
+          ],
+          [
+            236.3651107734899,
+            32.37308470502999,
+          ],
+        ],
         "from": [
           0,
           168.83854503714008,
@@ -29052,6 +29174,16 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
         ],
       },
       {
+        "drawn": [
+          [
+            51.723869684617995,
+            244.02691529497002,
+          ],
+          [
+            280.90096960669706,
+            111.71145496285996,
+          ],
+        ],
         "from": [
           45.488486777370035,
           247.62691529497002,
@@ -29065,6 +29197,16 @@ exports[`parallel lines and a transversal > turn=30&labelSize=large&p=p1%7Cname%
         ],
       },
       {
+        "drawn": [
+          [
+            153.1752116690593,
+            280,
+          ],
+          [
+            129.30590722958374,
+            7.172601826260568,
+          ],
+        ],
         "from": [
           153.1752116690593,
           280,

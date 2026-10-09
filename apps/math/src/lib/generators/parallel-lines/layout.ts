@@ -34,6 +34,7 @@ const ARC = 20 // angle arc radius
 const ARC_GAP = 4.5 // between congruence arcs
 export const WEDGE = 40 // shading's radius, and the highlight's
 const SQUARE = 13 // right-angle square
+const LINE_W = 2.2 // the lines' stroke width, as LinesFigure.svelte draws them
 const HEAD = 12 // an arrowhead's length, and
 const HEAD_W = 5.5 // half its width
 const ARROW = 4.5 // half a parallel arrow's length, and
@@ -56,9 +57,6 @@ const r1 = (v: number) => Math.round(v * 10) / 10
 /** How far a label's box reaches from its middle in direction d. */
 const reach = (box: MathBox, d: Vec) => (box.w / 2) * Math.abs(d[0]) + ((box.asc + box.desc) / 2) * Math.abs(d[1])
 
-/** How the figure's own units map onto the SVG, kept still while the teacher drags a transversal. */
-export type Fit = { scale: number; x0: number; y0: number; frame: { x: number; y: number; w: number; h: number } }
-
 /** A line of the figure in its own units: a point on it and its "+" direction. */
 type Geo = { id: string; kind: 'p' | 't'; line: LineBase; at: Vec; d: Vec; theta?: number }
 
@@ -78,7 +76,7 @@ export function readLines(s: Settings) {
 export type LinesLayout = ReturnType<typeof buildLines>
 export type AngleSpot = LinesLayout['angles'][number]
 
-export function buildLines(s: Settings, lock: Fit | null = null) {
+export function buildLines(s: Settings) {
   const FS = BASE_FS * LABEL_SCALE[s.labelSize]
   const NAME_FS = BASE_NAME_FS * LABEL_SCALE[s.labelSize]
   const { lines } = readLines(s)
@@ -122,24 +120,19 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
   const shown = lines.filter((g) => ends.has(g.id))
   const pointOn = (g: Geo, t: number) => add(g.at, mul(g.d, t))
 
-  // Turned, then in SVG's y-down coordinates, scaled to fit (or held still while dragging).
+  // Turned, then in SVG's y-down coordinates, scaled to fit.
   const turn = s.turn * RAD
   const dir = ([x, y]: Vec): Vec => [x * Math.cos(turn) - y * Math.sin(turn), -(x * Math.sin(turn) + y * Math.cos(turn))]
   const corners = shown.flatMap((g) => ends.get(g.id)!.map((t) => dir(pointOn(g, t))))
   const cx = corners.map((p) => p[0])
   const cy = corners.map((p) => p[1])
-  const scale = lock?.scale ?? Math.min(FIT_W / (Math.max(...cx) - Math.min(...cx) || 1), FIT_H / (Math.max(...cy) - Math.min(...cy) || 1))
-  const [x0, y0] = lock ? [lock.x0, lock.y0] : [Math.min(...cx), Math.min(...cy)]
+  const scale = Math.min(FIT_W / (Math.max(...cx) - Math.min(...cx) || 1), FIT_H / (Math.max(...cy) - Math.min(...cy) || 1))
+  const [x0, y0] = [Math.min(...cx), Math.min(...cy)]
   const at = (p: Vec): Vec => {
     const [x, y] = dir(p)
     return [(x - x0) * scale, (y - y0) * scale]
   }
   const way = (v: Vec) => unit(dir(v))
-  /** Turns a move on the page back into the figure's own units. */
-  const back = ([dx, dy]: Vec): Vec => {
-    const [x, y] = [dx / scale, -dy / scale]
-    return [x * Math.cos(-turn) - y * Math.sin(-turn), x * Math.sin(-turn) + y * Math.cos(-turn)]
-  }
 
   const byId = new Map(shown.map((g) => [g.id, g]))
   const segments = shown.map((g) => {
@@ -275,10 +268,16 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
   )
 
   // Each end's cap: a filled arrowhead or an open one pointing out, or a dot.
+  // The line itself stops short of an arrow's tip, so its round end doesn't
+  // poke past the point: inside a filled head, and half its width back from
+  // an open one's tip. `drawn` is the line as drawn; `from` and `to` stay
+  // its full length, for pointing at it.
   const heads: Vec[][] = []
   const openHeads: Vec[][] = []
+  const drawn = new Map<string, [Vec, Vec]>()
   for (const g of segments) {
     const line = byId.get(g.id)!.line
+    const ends: Vec[] = []
     for (const [cap, tip, from] of [[line.startCap, g.from, g.to], [line.endCap, g.to, g.from]] as const) {
       const d = unit(sub(tip, from))
       const base = add(tip, mul(d, -HEAD))
@@ -286,7 +285,9 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
       if (cap === 'triangle') heads.push(head)
       else if (cap === 'line') openHeads.push(head)
       else if (cap === 'circle') dots.push(tip)
+      ends.push(cap === 'triangle' ? add(tip, mul(d, -HEAD * 0.6)) : cap === 'line' ? add(tip, mul(d, -LINE_W / 2)) : tip)
     }
+    drawn.set(g.id, [ends[0], ends[1]])
   }
 
   // Where a line meets the others, as distances in from its start, for its arrows and end points.
@@ -341,11 +342,11 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
   const minY = Math.min(...points.map((p) => p[1])) - PAD
   const maxX = Math.max(...points.map((p) => p[0])) + PAD
   const maxY = Math.max(...points.map((p) => p[1])) + PAD
-  const frame = lock?.frame ?? { x: r1(minX), y: r1(minY), w: r1(maxX - minX), h: r1(maxY - minY) }
+  const frame = { x: r1(minX), y: r1(minY), w: r1(maxX - minX), h: r1(maxY - minY) }
 
   return {
     frame,
-    segments,
+    segments: segments.map((g) => ({ ...g, drawn: drawn.get(g.id)! })),
     heads,
     openHeads,
     shades,
@@ -356,25 +357,5 @@ export function buildLines(s: Settings, lock: Fit | null = null) {
     labels,
     angles,
     crossings: crossings.map((c) => ({ key: c.key, at: c.v, ids: c.ids })),
-    fit: { scale, x0, y0, frame } as Fit,
-    back,
   }
-}
-
-/**
- * Where a transversal should cross the top line (its pos) to meet another
- * transversal exactly on one of the parallel lines: one place for each other
- * transversal and parallel line.
- */
-export function snapPositions(s: Settings, id: string): number[] {
-  const { lines } = readLines(s)
-  const me = lines.find((g) => g.id === id)
-  if (!me?.theta) return []
-  const cot = (deg: number) => 1 / Math.tan(deg * RAD)
-  const out: number[] = []
-  for (const other of lines) {
-    if (other.kind !== 't' || other.id === id) continue
-    for (let j = 0; j < s.parallels.length; j++) out.push(other.at[0] - j * cot(other.theta!) + j * cot(me.theta))
-  }
-  return out
 }

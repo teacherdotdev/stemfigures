@@ -35,8 +35,9 @@
 
   <g stroke={INK}>
     {#each figure.segments as g}
+      {@const [a, b] = g.drawn}
       <line
-        x1={g.from[0].toFixed(1)} y1={g.from[1].toFixed(1)} x2={g.to[0].toFixed(1)} y2={g.to[1].toFixed(1)}
+        x1={a[0].toFixed(1)} y1={a[1].toFixed(1)} x2={b[0].toFixed(1)} y2={b[1].toFixed(1)}
         stroke-width={g.style === 'dotted' ? 3 : 2.2} stroke-dasharray={DASH[g.style]} stroke-linecap="round"
       />
     {/each}

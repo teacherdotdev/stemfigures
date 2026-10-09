@@ -223,7 +223,7 @@ One of the figure's lines that all run the same way, evenly spaced; a figure has
 _Avoid_: Base line, horizontal line
 
 **Transversal**:
-Any line in the figure that isn't one of the parallel lines, set by its angle with them: the angle above the top parallel line, to the right of the transversal. A figure has any number, named t, s…, placed apart until the teacher drags one along the lines. Two lines that aren't parallel, cut by a third, are drawn as one parallel line and two transversals.
+Any line in the figure that isn't one of the parallel lines, set by its angle with them: the angle above the top parallel line, to the right of the transversal. A figure has any number, named t, s…, placed apart along the lines. Two lines that aren't parallel, cut by a third, are drawn as one parallel line and two transversals.
 _Avoid_: Cutting line, secant, non-parallel line
 
 **Crossing**:

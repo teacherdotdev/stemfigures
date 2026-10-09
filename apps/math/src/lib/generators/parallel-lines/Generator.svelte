@@ -1,9 +1,8 @@
 <script lang="ts">
   // The Parallel Lines and Transversal Generator: a card of parallel lines and
   // a card of transversals on the left, each line a row like the Coordinate
-  // Grid's equations, and the figure on the right, where every angle, line
-  // can be clicked to label or style it. Transversals slide
-  // along the lines when dragged on the figure. Settings are mirrored into
+  // Grid's equations, and the figure on the right, where every angle and
+  // line can be clicked to label or style it. Settings are mirrored into
   // the page address so a bookmark or shared link brings back exactly this
   // figure, and the server renders that same figure on first load.
   import { Plus, Shapes, X } from '@lucide/svelte'
@@ -15,7 +14,7 @@
   import Section from '$lib/shared/Section.svelte'
   import LineStylePicker from '$lib/shapes/LineStylePicker.svelte'
   import { ROUND_NAMES } from '$lib/shapes/parts.js'
-  import { buildLines, readLines, snapPositions, type Fit, type Part, type Vec } from './layout.js'
+  import { buildLines, readLines, type Part } from './layout.js'
   import LineButton from './LineButton.svelte'
   import LinesFigure from './LinesFigure.svelte'
   import PickLayer from './PickLayer.svelte'
@@ -36,9 +35,7 @@
   const clean = $derived(gen.snapshot())
   const problems = $derived(readLines(clean).problems)
 
-  // While a transversal is dragged, the figure holds its scale and frame still under the pointer.
-  let drag = $state<{ id: string; pos: number; fit: Fit; snaps: number[] } | null>(null)
-  const drawing = $derived(buildLines(clean, drag?.fit ?? null))
+  const drawing = $derived(buildLines(clean))
 
   const lineOf = (id: string): LineBase | undefined => s.parallels.find((l) => l.id === id) ?? s.transversals.find((l) => l.id === id)
   const nameOf = (id: string) => lineOf(id)?.name.trim() || (id.startsWith('p') ? 'a parallel line' : 'a transversal')
@@ -74,7 +71,7 @@
     const { kind, key } = popup.part
     const there =
       kind === 'line' ? !!lineOf(key) : drawing.angles.some((a) => a.key === key)
-    if (!there && !drag) close()
+    if (!there) close()
   })
 
   function addParallel() {
@@ -94,25 +91,6 @@
     for (const key of Object.keys(s.angles)) if (idsIn(key).includes(id)) delete s.angles[key]
     for (const key of Object.keys(s.points)) if (idsIn(key).includes(id)) delete s.points[key]
     if (popup?.part.key === id) close()
-  }
-
-  // Sliding a transversal: it follows the pointer along the lines, and snaps to meet another on a line.
-  function onDrag(id: string, phase: 'start' | 'move' | 'end', moved: Vec) {
-    const t = s.transversals.find((x) => x.id === id)
-    if (!t) return
-    if (phase === 'start') {
-      close()
-      drag = { id, pos: t.pos, fit: drawing.fit, snaps: snapPositions(clean, id) }
-      ghostLine = id
-    } else if (phase === 'move' && drag) {
-      let pos = drag.pos + moved[0]
-      const near = drag.snaps.find((p) => Math.abs(p - pos) < 10 / drag!.fit.scale)
-      if (near !== undefined) pos = near
-      t.pos = Math.round(pos * 100) / 100
-    } else {
-      drag = null
-      ghostLine = null
-    }
   }
 
   function toggleCrossingPoint(key: string, on: boolean) {
@@ -199,9 +177,8 @@
         <h2 class="card-head">Parallel lines</h2>
         <HelpTip id="parallel-tip" label="How the figure works">
           The parallel lines run across the page, evenly spaced. Each transversal crosses them at the angle you give: the
-          angle above the top line, to the right of the transversal. Drag a transversal on the figure to slide it along;
-          it snaps to meet another one on a line. Click any angle or line on the figure to label or style it; an angle's
-          popup can also put a named point where its lines cross.
+          angle above the top line, to the right of the transversal. Click any angle or line on the figure to label or
+          style it; an angle's popup can also put a named point where its lines cross.
         </HelpTip>
       </div>
       {#each s.parallels as line (line.id)}{@render lineRow(line, 'p')}{/each}
@@ -212,7 +189,7 @@
       <p class="hint">Each angle is above {nameOf(clean.parallels[0].id)}, to the right of the transversal. Drag the ∠ to change it.</p>
       {#each s.transversals as line (line.id)}{@render lineRow(line, 't')}{/each}
       <button type="button" class="btn-ghost add" disabled={s.transversals.length >= MAX_LINES} onclick={addTransversal}><Plus size={16} /> Add transversal</button>
-      <p class="hint on-figure">On the figure, click an angle or a line to label it, and drag a transversal to slide it.</p>
+      <p class="hint on-figure">On the figure, click an angle or a line to label or style it.</p>
     </section>
   {/snippet}
 
@@ -236,7 +213,7 @@
   {#snippet figure()}
     <div class="stage">
       <LinesFigure figure={drawing} bind:svg />
-      <PickLayer figure={drawing} {ghost} selected={popup?.part ?? null} onpick={(part, at) => open(part, at)} ondrag={onDrag} />
+      <PickLayer figure={drawing} {ghost} selected={popup?.part ?? null} onpick={(part, at) => open(part, at)} />
     </div>
   {/snippet}
 </GeneratorPage>
