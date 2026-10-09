@@ -1,24 +1,30 @@
 <script lang="ts">
-  // The Parallel Lines and Transversal Generator: presets, the transversal's
-  // angle and the eight angles' labels on the left, collapsed settings below,
-  // the figure card on the right. Settings are mirrored into the page address
-  // so a bookmark or shared link brings back exactly this figure, and the
-  // server renders that same figure on first load. When the angles stop making
-  // a figure, the last one that did stays on screen.
-  import { Highlighter, RotateCw, Spline, Tag } from '@lucide/svelte'
+  // The Parallel Lines and Transversal Generator: a card of parallel lines and
+  // a card of transversals on the left, each line a row like the Coordinate
+  // Grid's equations, and the figure on the right, where every angle, line
+  // and crossing can be clicked to label or style it. Transversals slide
+  // along the lines when dragged on the figure. Settings are mirrored into
+  // the page address so a bookmark or shared link brings back exactly this
+  // figure, and the server renders that same figure on first load.
+  import { Plus, Shapes, X } from '@lucide/svelte'
+  import { untrack } from 'svelte'
   import GeneratorPage from '$shared/GeneratorPage.svelte'
   import { generatorState } from '$shared/generatorState.svelte'
   import HelpTip from '$lib/shared/HelpTip.svelte'
   import MathInput from '$lib/shared/MathInput.svelte'
   import Section from '$lib/shared/Section.svelte'
-  import PartLabel from '$lib/shapes/PartLabel.svelte'
-  import { ROUND_NAMES, roundTo, type Offset } from '$lib/shapes/parts.js'
-  import { buildLines, drawnAngles } from './layout.js'
+  import LineStylePicker from '$lib/shapes/LineStylePicker.svelte'
+  import { ROUND_NAMES } from '$lib/shapes/parts.js'
+  import { buildLines, readLines, snapPositions, type Fit, type Part, type Vec } from './layout.js'
+  import LineButton from './LineButton.svelte'
   import LinesFigure from './LinesFigure.svelte'
+  import PickLayer from './PickLayer.svelte'
+  import Popover from './Popover.svelte'
+  import ScrubAngle from './ScrubAngle.svelte'
   import {
-    FIRST, MAX_SHIFT, MAX_TILT, SECOND, SHADES,
-    cleanSettings, readLines, readMoved, settingsFromParams, settingsToQuery, writeMoved,
-    type AngleNo, type Lines, type RawSettings,
+    ANGLE_DEFAULTS, ENDS, MAX_ANGLE, MAX_LINES, MIN_ANGLE, SHADES,
+    cleanSettings, freePos, freshName, idsIn, newParallel, newTransversal, nextId, setAngleKey, settingsFromParams, settingsToQuery,
+    type LineBase, type RawSettings,
   } from './settings.js'
 
   const gen = generatorState(
@@ -27,207 +33,172 @@
   )
   const s = gen.s
   const clean = $derived(gen.snapshot())
-  const read = $derived(readLines(clean))
+  const problems = $derived(readLines(clean).problems)
 
-  // The last angles that made a figure, drawn with the current settings.
-  let lastGood: Lines = readLines(cleanSettings({})).lines! // the opening figure always reads
-  const shown = $derived.by(() => {
-    if (read.lines) lastGood = read.lines
-    return lastGood
+  // While a transversal is dragged, the figure holds its scale and frame still under the pointer.
+  let drag = $state<{ id: string; pos: number; fit: Fit; snaps: number[] } | null>(null)
+  const drawing = $derived(buildLines(clean, drag?.fit ?? null))
+
+  const lineOf = (id: string): LineBase | undefined => s.parallels.find((l) => l.id === id) ?? s.transversals.find((l) => l.id === id)
+  const nameOf = (id: string) => lineOf(id)?.name.trim() || (id.startsWith('p') ? 'a parallel line' : 'a transversal')
+
+  // The angle a transversal's value sets, shown ghost blue while it's changed, focused or its row hovered.
+  let ghostLine = $state<string | null>(null)
+  let hoveredRow = $state<string | null>(null)
+  const ghostId = $derived(ghostLine ?? hoveredRow)
+  const ghost = $derived.by(() => {
+    const t = ghostId ? clean.transversals.find((x) => x.id === ghostId) : null
+    return t ? setAngleKey(clean, t) : null
   })
-  const drawing = $derived(buildLines(clean, shown))
 
-  const name = (key: 'line1' | 'line2' | 'trans1' | 'trans2', fallback: string) => clean[key].trim() || fallback
-  const rounded = (v: number) => roundTo(v, clean.round)
-  const measureOf = (k: AngleNo) => (shown.measures[k] === undefined ? null : `${rounded(shown.measures[k]!)}°`)
-  const given = (k: AngleNo) => k === 2 || k === 10
-  function noteOf(k: AngleNo) {
-    if (given(k)) return 'Its measure, as you typed it.'
-    const from = k > 8 ? '∠10' : '∠2'
-    return clean.parallel ? `Worked out from ${from}, rounded to ${ROUND_NAMES[clean.round]}.` : `Measured on the drawing, from ${from} and the tilt, rounded to ${ROUND_NAMES[clean.round]}.`
+  // The popup open, for one part of the figure, and where.
+  let popup = $state<{ part: Part; at: { x: number; y: number }; owner: Element | null } | null>(null)
+  const close = () => (popup = null)
+  function open(part: Part, at: { x: number; y: number }, owner: Element | null = null) {
+    if (part.kind === 'angle' && !s.angles[part.key]) s.angles[part.key] = { ...ANGLE_DEFAULTS }
+    popup = { part, at, owner }
+  }
+  function openLine(id: string, button: HTMLElement | undefined) {
+    if (popup?.part.kind === 'line' && popup.part.key === id) return close()
+    const r = button!.getBoundingClientRect()
+    open({ kind: 'line', key: id }, { x: r.left + r.width / 2, y: r.bottom }, button)
+  }
+  const buttons: Record<string, HTMLButtonElement> = $state({})
+
+  const popupAngle = $derived(popup?.part.kind === 'angle' ? drawing.angles.find((a) => a.key === popup!.part.key) : null)
+  const popupLine = $derived(popup?.part.kind === 'line' ? lineOf(popup.part.key) : null)
+  // A part that's gone (its line deleted, its crossing left the figure) closes its popup.
+  $effect(() => {
+    if (!popup) return
+    const { kind, key } = popup.part
+    const there =
+      kind === 'line' ? !!lineOf(key) : kind === 'angle' ? drawing.angles.some((a) => a.key === key) : drawing.crossings.some((c) => c.key === key)
+    if (!there && !drag) close()
+  })
+
+  function addParallel() {
+    s.parallels.push(newParallel(nextId(s.parallels, 'p'), freshName(s.parallels, 'p')))
+  }
+  const NEW_ANGLES = ['65', '120', '45', '135', '80', '100']
+  function addTransversal() {
+    const id = nextId(s.transversals, 't')
+    s.transversals.push(newTransversal(id, freshName(s.transversals, 't'), NEW_ANGLES[s.transversals.length % NEW_ANGLES.length], freePos(s.transversals)))
+  }
+  /** Removes a line, and what was set on its angles and points, so a new line can't inherit them. */
+  function removeLine(id: string) {
+    if (id.startsWith('p')) {
+      if (s.parallels.length <= 1) return
+      s.parallels = s.parallels.filter((l) => l.id !== id)
+    } else s.transversals = s.transversals.filter((l) => l.id !== id)
+    for (const key of Object.keys(s.angles)) if (idsIn(key).includes(id)) delete s.angles[key]
+    for (const key of Object.keys(s.points)) if (idsIn(key).includes(id)) delete s.points[key]
+    if (popup?.part.key === id) close()
   }
 
-  /** Set every drawn angle's label at once. */
-  function labelAll(mode: 'number' | 'measure' | 'none') {
-    for (const k of drawnAngles(clean)) {
-      s[`a${k}Label`] = mode === 'number' ? 'text' : mode
-      if (mode === 'number') s[`a${k}Text`] = String(k)
+  // Sliding a transversal: it follows the pointer along the lines, and snaps to meet another on a line.
+  function onDrag(id: string, phase: 'start' | 'move' | 'end', moved: Vec) {
+    const t = s.transversals.find((x) => x.id === id)
+    if (!t) return
+    if (phase === 'start') {
+      close()
+      drag = { id, pos: t.pos, fit: drawing.fit, snaps: snapPositions(clean, id) }
+      ghostLine = id
+    } else if (phase === 'move' && drag) {
+      let pos = drag.pos + moved[0]
+      const near = drag.snaps.find((p) => Math.abs(p - pos) < 10 / drag!.fit.scale)
+      if (near !== undefined) pos = near
+      t.pos = Math.round(pos * 100) / 100
+    } else {
+      drag = null
+      ghostLine = null
     }
   }
 
-  function moveLabel(part: string, offset: Offset) {
-    const moved = readMoved(s.moved)
-    moved[part] = offset
-    s.moved = writeMoved(moved)
+  function toggleCrossingPoint(key: string, on: boolean) {
+    if (on) s.points[key] = ''
+    else delete s.points[key]
   }
 
-  const secondSummary = $derived(clean.second ? `${name('trans2', 's')} at ${clean.angle2.trim() || '?'}°` : 'None')
-  const namesSummary = $derived(
-    [
-      clean.names ? [name('line1', ''), name('line2', ''), name('trans1', ''), clean.second ? name('trans2', '') : ''].filter(Boolean).join(', ') || 'no names' : 'lines not named',
-      clean.crossPoints ? 'crossing points' : '',
-      clean.rayPoints ? 'points on rays' : '',
-      clean.moved ? 'labels moved' : '',
-    ].filter(Boolean).join(' · '),
+  const figureSummary = $derived(
+    [clean.turn ? `turned ${clean.turn}°` : 'lines across the page', clean.square ? 'right-angle squares' : '', `measures to ${ROUND_NAMES[clean.round]}`]
+      .filter(Boolean)
+      .join(' · '),
   )
-  const markingsSummary = $derived(
-    [
-      clean.parallel && clean.arrows ? `${'›'.repeat(clean.arrows)} parallel arrows` : '',
-      clean.ends ? 'arrowheads' : 'no arrowheads',
-      clean.arcs ? 'arcs on labeled angles' : '',
-      `rounded to ${ROUND_NAMES[clean.round]}`,
-    ].filter(Boolean).join(' · '),
-  )
+  const ENDS_NAMES = (id: string) =>
+    id.startsWith('p') ? { both: 'Both', none: 'None', left: 'Left', right: 'Right' } : { both: 'Both', none: 'None', left: 'Bottom', right: 'Top' }
 
   let svg = $state<SVGSVGElement>()
-  const filename = 'parallel-lines-transversal'
+  // The turn as typed, kept apart from the setting so a half-typed "−" isn't undone; undo and presets still show through.
+  let turnText = $state(String(s.turn))
+  $effect(() => {
+    const v = Number(turnText)
+    if (Number.isFinite(v) && turnText.trim() !== '' && untrack(() => v !== s.turn)) s.turn = Math.max(-180, Math.min(180, Math.round(v)))
+  })
+  $effect(() => {
+    const t = s.turn
+    untrack(() => Number(turnText) !== t && (turnText = String(t)))
+  })
 </script>
 
-{#snippet angleRow(k: AngleNo)}
-  <div class="row">
-    <span class="mname">∠{k}</span>
-    <span class="fixed" class:solved={!given(k)}>{measureOf(k) ?? '?'}</span>
-    <PartLabel
-      name="∠{k}" id="a{k}" given={given(k)} measure={measureOf(k)} note={noteOf(k)} markKind="arcs"
-      bind:mode={s[`a${k}Label`]} bind:text={s[`a${k}Text`]} bind:marks={s[`a${k}Arcs`]}
+{#snippet lineRow(line: LineBase, kind: 'p' | 't')}
+  {@const t = kind === 't' ? s.transversals.find((x) => x.id === line.id) : undefined}
+  <div
+    class="row" role="group" aria-label={kind === 'p' ? 'Parallel line' : 'Transversal'}
+    onpointerenter={() => kind === 't' && (hoveredRow = line.id)} onpointerleave={() => hoveredRow === line.id && (hoveredRow = null)}
+  >
+    <LineButton
+      {line} name={line.name || '(unnamed)'} expanded={popup?.part.kind === 'line' && popup.part.key === line.id}
+      bind:button={buttons[line.id]} onclick={() => openLine(line.id, buttons[line.id])}
     />
-    <select class="shade" aria-label="Shading for ∠{k}" title="Shading" bind:value={s[`a${k}Shade`]}>
-      {#each SHADES as shade, i}<option value={i}>{shade.name}</option>{/each}
-    </select>
+    <input class="name" class:wide={kind === 'p'} type="text" maxlength="4" aria-label="Name of the line" placeholder="name" bind:value={line.name} />
+    {#if t}
+      <div class="angle">
+        <ScrubAngle
+          id="angle-{t.id}" label="the angle between {nameOf(clean.parallels[0].id)} and {nameOf(t.id)}" min={MIN_ANGLE} max={MAX_ANGLE}
+          invalid={!!problems[t.id]} bind:value={t.angle} onactive={(on) => (ghostLine = on ? t.id : ghostLine === t.id ? null : ghostLine)}
+        />
+      </div>
+    {/if}
+    <button
+      type="button" class="remove" aria-label="Remove this line" data-tip="Remove"
+      disabled={kind === 'p' && s.parallels.length <= 1} onclick={() => removeLine(line.id)}
+    ><X size={16} /></button>
   </div>
+  {#if problems[line.id]}<p class="help problem">{problems[line.id]}</p>{/if}
 {/snippet}
 
-{#snippet angleRows(list: readonly AngleNo[], t: string)}
-  <h3 class="sub">Where {t} crosses {name('line1', 'm')}</h3>
-  {#each list.slice(0, 4) as k}{@render angleRow(k)}{/each}
-  <h3 class="sub">Where {t} crosses {name('line2', 'n')}</h3>
-  {#each list.slice(4) as k}{@render angleRow(k)}{/each}
-{/snippet}
-
-<GeneratorPage name="Parallel Lines and Transversal Generator" {filename} gen={gen} {svg} bind:labelSize={s.labelSize} printWidth={6}>
+<GeneratorPage name="Parallel Lines and Transversal Generator" filename="parallel-lines-transversal" {gen} {svg} bind:labelSize={s.labelSize} printWidth={6}>
   {#snippet inputs()}
-    <section class="measures">
+    <section class="card-body">
       <div class="head-row">
-        <h2 class="card-head">Lines</h2>
-        <HelpTip id="lines-tip" label="How to set the lines">
-          Give ∠2, the angle at the top right where the transversal crosses the first line. Every other angle is worked
-          out from it. The angles are numbered 1 to 4 around the top crossing and 5 to 8 around the bottom one, left to
-          right and top to bottom. The button after each angle sets its label: its number, its measure, or text you type,
-          like x or 3x + 5.
+        <h2 class="card-head">Parallel lines</h2>
+        <HelpTip id="parallel-tip" label="How the figure works">
+          The parallel lines run across the page, evenly spaced. Each transversal crosses them at the angle you give: the
+          angle above the top line, to the right of the transversal. Drag a transversal on the figure to slide it along;
+          it snaps to meet another one on a line. Click any angle, line or crossing on the figure to label or style it.
         </HelpTip>
       </div>
-
-      <div class="field">
-        <label for="m-angle">∠2 <span class="hint">between {name('line1', 'm')} and {name('trans1', 't')}</span></label>
-        <div class="row">
-          <MathInput id="m-angle" aria-label="The measure of angle 2" aria-invalid={read.field === 'angle'} bind:value={s.angle} />
-          <span class="suffix" aria-hidden="true">°</span>
-        </div>
-        {#if read.field === 'angle'}<p class="help problem">{read.problem}</p>{/if}
-      </div>
-
-      <div class="field">
-        <span id="parallel">The lines are</span>
-        <div class="segmented" role="radiogroup" aria-labelledby="parallel">
-          {#each ([[true, 'Parallel'], [false, 'Not parallel']] as const) as [value, title]}
-            <button type="button" role="radio" aria-checked={clean.parallel === value} class:on={clean.parallel === value} onclick={() => (s.parallel = value)}>{title}</button>
-          {/each}
-        </div>
-        {#if !clean.parallel}
-          <label for="tilt" class="hint">{name('line2', 'n')} tilts {clean.tilt}° from {name('line1', 'm')}</label>
-          <input id="tilt" type="range" min={-MAX_TILT} max={MAX_TILT} step="1" bind:value={s.tilt} />
-        {/if}
-      </div>
-
-      <div class="head-row">
-        <h3 class="sub">Angles</h3>
-        <div class="bulk" role="group" aria-label="Label every angle">
-          <button type="button" class="btn-ghost tiny" onclick={() => labelAll('number')}>Numbers</button>
-          <button type="button" class="btn-ghost tiny" onclick={() => labelAll('measure')}>Measures</button>
-          <button type="button" class="btn-ghost tiny" onclick={() => labelAll('none')}>Blank</button>
-        </div>
-      </div>
-      {@render angleRows(FIRST, name('trans1', 't'))}
+      {#each s.parallels as line (line.id)}{@render lineRow(line, 'p')}{/each}
+      <button type="button" class="btn-ghost add" disabled={s.parallels.length >= MAX_LINES} onclick={addParallel}><Plus size={16} /> Add parallel line</button>
+    </section>
+    <section class="card-body second">
+      <h2 class="card-head">Transversals</h2>
+      <p class="hint">Each angle is above {nameOf(clean.parallels[0].id)}, to the right of the transversal. Drag the ∠ to change it.</p>
+      {#each s.transversals as line (line.id)}{@render lineRow(line, 't')}{/each}
+      <button type="button" class="btn-ghost add" disabled={s.transversals.length >= MAX_LINES} onclick={addTransversal}><Plus size={16} /> Add transversal</button>
+      <p class="hint on-figure">On the figure, click an angle, line or crossing to label it, and drag a transversal to slide it.</p>
     </section>
   {/snippet}
 
   {#snippet settings()}
-    <Section title="Second transversal" icon={Spline} summary={secondSummary}>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.second} />
-        <span>A second transversal <span class="hint">its angles are numbered 9 to 16</span></span>
-      </label>
-      {#if clean.second}
-        <div class="field">
-          <label for="m-angle2">∠10 <span class="hint">between {name('line1', 'm')} and {name('trans2', 's')}</span></label>
-          <div class="row">
-            <MathInput id="m-angle2" aria-label="The measure of angle 10" aria-invalid={read.field === 'angle2'} bind:value={s.angle2} />
-            <span class="suffix" aria-hidden="true">°</span>
-          </div>
-          {#if read.field === 'angle2'}<p class="help problem">{read.problem}</p>{/if}
-        </div>
-        <div class="field">
-          <label for="shift">Where it crosses {name('line1', 'm')} <span class="hint">{clean.shift > 0 ? 'right of' : 'left of'} {name('trans1', 't')}</span></label>
-          <input id="shift" type="range" min={-MAX_SHIFT} max={MAX_SHIFT} step="0.25" bind:value={s.shift} />
-          {#if read.field === 'shift'}<p class="help problem">{read.problem}</p>{/if}
-        </div>
-        {@render angleRows(SECOND, name('trans2', 's'))}
-      {/if}
-    </Section>
-
-    <Section title="Names and points" icon={Tag} summary={namesSummary}>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.names} />
-        <span>Name the lines <span class="hint">at their ends</span></span>
-      </label>
-      {#if clean.names}
-        <div class="two">
-          <label class="field">First line <input type="text" maxlength="4" placeholder="m" bind:value={s.line1} /></label>
-          <label class="field">Second line <input type="text" maxlength="4" placeholder="n" bind:value={s.line2} /></label>
-          <label class="field">Transversal <input type="text" maxlength="4" placeholder="t" bind:value={s.trans1} /></label>
-          {#if clean.second}<label class="field">Second transversal <input type="text" maxlength="4" placeholder="s" bind:value={s.trans2} /></label>{/if}
-        </div>
-      {/if}
-      <label class="check">
-        <input type="checkbox" bind:checked={s.crossPoints} />
-        <span>Points where the lines cross</span>
-      </label>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.rayPoints} />
-        <span>A point on every ray <span class="hint">for naming angles like ∠ABC</span></span>
-      </label>
-      {#if clean.crossPoints || clean.rayPoints}
-        <label class="field">
-          <span>Point names <span class="hint">in order: the crossings, then the rays</span></span>
-          <input type="text" maxlength="80" placeholder="A B C D" bind:value={s.pointNames} />
-        </label>
-      {/if}
-      <div class="reset-row">
-        <p class="hint">Drag any label on the figure to move it.</p>
-        <button class="btn-ghost small" disabled={!clean.moved} onclick={() => (s.moved = '')}>Reset label positions</button>
-      </div>
-    </Section>
-
-    <Section title="Markings" icon={Highlighter} summary={markingsSummary}>
+    <Section title="Figure" icon={Shapes} summary={figureSummary}>
       <div class="field">
-        <span id="arrows">Parallel arrows <span class="hint">{clean.parallel ? 'on both lines' : 'only while the lines are parallel'}</span></span>
-        <div class="segmented" role="radiogroup" aria-labelledby="arrows">
-          {#each [0, 1, 2, 3] as n}
-            <button type="button" role="radio" aria-checked={clean.arrows === n} class:on={clean.arrows === n} disabled={!clean.parallel} onclick={() => (s.arrows = n)}>{n ? '›'.repeat(n) : 'None'}</button>
-          {/each}
-        </div>
+        <span>Turn the figure</span>
+        <div class="turn"><ScrubAngle id="turn" label="the figure's turn" symbol="↻" min={-180} max={180} bind:value={turnText} /></div>
       </div>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.ends} />
-        <span>Arrowheads <span class="hint">at the ends of every line</span></span>
-      </label>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.arcs} />
-        <span>Arcs at labeled angles <span class="hint">congruence arcs always show</span></span>
-      </label>
       <label class="check">
         <input type="checkbox" bind:checked={s.square} />
-        <span>Right-angle squares <span class="hint">where a transversal is perpendicular</span></span>
+        <span>Right-angle squares <span class="hint">where lines cross at 90°</span></span>
       </label>
       <label class="field">
         Round measures to
@@ -238,59 +209,132 @@
         </select>
       </label>
     </Section>
-
-    <Section title="Position" icon={RotateCw} summary={clean.rotate ? `turned ${clean.rotate}°` : 'lines across the page'}>
-      <div class="field">
-        <label for="rotate">Turn <span class="hint">{clean.rotate}°</span></label>
-        <div class="turn">
-          <input id="rotate" type="range" min="-180" max="180" step="1" bind:value={s.rotate} />
-          <button class="btn-ghost small" disabled={!clean.rotate} onclick={() => (s.rotate = 0)}>Straighten</button>
-        </div>
-      </div>
-    </Section>
   {/snippet}
 
   {#snippet figure()}
-    <LinesFigure figure={drawing} bind:svg onmove={moveLabel} />
+    <div class="stage">
+      <LinesFigure figure={drawing} bind:svg />
+      <PickLayer figure={drawing} {ghost} selected={popup?.part ?? null} onpick={(part, at) => open(part, at)} ondrag={onDrag} />
+    </div>
   {/snippet}
 </GeneratorPage>
 
+{#if popup}
+  {@const key = popup.part.key}
+  <Popover at={popup.at} owner={popup.owner} onclose={close} label="Settings for this part of the figure">
+    {#if popup.part.kind === 'angle' && s.angles[key]}
+      {@const a = s.angles[key]}
+      {@const [r1, r2] = key.split('~')}
+      <div class="pop-head">
+        <span>Angle between {nameOf(r1.slice(0, -1))} and {nameOf(r2.slice(0, -1))}</span>
+        {#if popupAngle}<span class="measure">{drawing.angles.find((x) => x.key === key)?.ghost.text}</span>{/if}
+      </div>
+      <div class="group">
+        <span class="name" id="pop-label">Label</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="pop-label">
+          {#each ([['none', 'None'], ['measure', 'Measure'], ['text', 'Text']] as const) as [value, title]}
+            <button type="button" role="radio" aria-checked={a.label === value} class:on={a.label === value} onclick={() => (a.label = value)}>{title}</button>
+          {/each}
+        </div>
+        {#if a.label === 'text'}<MathInput id="pop-text" aria-label="Label text" placeholder="x" bind:value={a.text} />{/if}
+      </div>
+      <div class="group">
+        <span class="name" id="pop-arcs">Congruence arcs</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="pop-arcs">
+          {#each [0, 1, 2, 3] as n}
+            <button type="button" role="radio" aria-checked={a.arcs === n} class:on={a.arcs === n} onclick={() => (a.arcs = n)}>{n ? '◠'.repeat(n) : 'None'}</button>
+          {/each}
+        </div>
+      </div>
+      <div class="group">
+        <span class="name" id="pop-shade">Shading</span>
+        <div class="swatches" role="radiogroup" aria-labelledby="pop-shade">
+          {#each SHADES as shade, i}
+            <button
+              type="button" role="radio" aria-checked={a.shade === i} aria-label={shade.name} title={shade.name} class="swatch" class:on={a.shade === i}
+              style="background: {shade.fill || '#fff'}" onclick={() => (a.shade = i)}
+            >{#if !shade.fill}<X size={14} />{/if}</button>
+          {/each}
+        </div>
+      </div>
+    {:else if popup.part.kind === 'line' && popupLine}
+      {@const line = popupLine}
+      {@const ends = ENDS_NAMES(line.id)}
+      <div class="pop-head"><span>{line.id.startsWith('p') ? 'Parallel line' : 'Transversal'} {line.name}</span></div>
+      <label class="group">
+        <span class="name">Name</span>
+        <input type="text" maxlength="4" placeholder="m" bind:value={line.name} />
+      </label>
+      <div class="group">
+        <span class="name" id="pop-ends">Arrowheads</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="pop-ends">
+          {#each ENDS as value}
+            <button type="button" role="radio" aria-checked={line.ends === value} class:on={line.ends === value} onclick={() => (line.ends = value)}>{ends[value]}</button>
+          {/each}
+        </div>
+      </div>
+      <div class="group">
+        <span class="name" id="pop-arrows">Parallel arrows</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="pop-arrows">
+          {#each [0, 1, 2, 3] as n}
+            <button type="button" role="radio" aria-checked={line.arrows === n} class:on={line.arrows === n} onclick={() => (line.arrows = n)}>{n ? '›'.repeat(n) : 'None'}</button>
+          {/each}
+        </div>
+      </div>
+      <LineStylePicker id="pop-style" bind:value={line.style} />
+      <div class="two">
+        <label class="group"><span class="name">Point near {ends.left.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="A" bind:value={line.startPoint} /></label>
+        <label class="group"><span class="name">Point near {ends.right.toLowerCase()} end</span><input type="text" maxlength="4" placeholder="B" bind:value={line.endPoint} /></label>
+      </div>
+      <button type="button" class="btn-ghost delete" disabled={line.id.startsWith('p') && s.parallels.length <= 1} onclick={() => removeLine(line.id)}>Delete this line</button>
+    {:else if popup.part.kind === 'crossing'}
+      <div class="pop-head"><span>Where {idsIn(key).map(nameOf).join(', ')} cross</span></div>
+      <label class="check">
+        <input type="checkbox" checked={key in s.points} onchange={(e) => toggleCrossingPoint(key, e.currentTarget.checked)} />
+        <span>Show a point here</span>
+      </label>
+      {#if key in s.points}
+        <label class="group"><span class="name">Its name</span><input type="text" maxlength="4" placeholder="A" bind:value={s.points[key]} /></label>
+      {/if}
+    {/if}
+  </Popover>
+{/if}
+
 <style>
   .card-head { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-
-  .measures { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  .card-body { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  .card-body.second { border-top: 1px solid var(--border); }
   .head-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-  .sub { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-top: 0.3rem; }
-  .row { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.3rem; }
-  .row > :global(.caret-field) { flex: 1; min-width: 0; }
-  .mname { width: 2.2rem; flex: none; font-family: 'Times New Roman', Times, serif; font-size: 1.05rem; }
-  .suffix { width: 1rem; flex: none; font-family: 'Times New Roman', Times, serif; color: var(--muted); }
-  .fixed {
-    flex: 1; min-width: 0; min-height: 2.6rem; box-sizing: border-box; display: flex; align-items: center; padding: 0 0.6rem;
-    border: 1.5px dashed var(--border); border-radius: 10px; font-family: 'Times New Roman', Times, serif; font-size: 1.05rem;
-    color: var(--ink); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-  }
-  .solved { color: var(--muted); }
-  .shade { width: 4.6rem; flex: none; align-self: stretch; font-size: 0.8rem; padding: 0 0.3rem; }
-  .bulk { display: flex; gap: 0.25rem; }
-  .tiny { padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 8px; }
+  .row { display: flex; align-items: center; gap: 0.35rem; }
+  .name { width: 3.6rem; flex: none; height: 2.6rem; box-sizing: border-box; font-family: 'Times New Roman', Times, serif; font-style: italic; font-size: 1.05rem; }
+  .angle { flex: 1; min-width: 0; }
+  .name.wide { flex: 1; width: auto; min-width: 0; }
+  .remove { display: inline-grid; place-items: center; width: 2rem; height: 2.6rem; flex: none; border: 0; background: none; color: var(--muted); border-radius: 8px; }
+  .remove:hover:not(:disabled) { color: var(--red); background: #fef2f2; }
+  .remove:disabled { opacity: 0.35; }
+  .add { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.8rem; font-size: 0.85rem; border-radius: 10px; }
 
-  .help { margin: 0.2rem 0 0; font-size: 0.84rem; color: var(--muted); }
+  .help { margin: 0; font-size: 0.84rem; color: var(--muted); }
   .help.problem { color: var(--red); font-weight: 600; }
   .hint { font-weight: 400; color: var(--muted); font-size: 0.84rem; margin: 0; }
 
   .check { display: flex; align-items: flex-start; gap: 0.5rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.75rem; cursor: pointer; }
   .check input { width: 1.05rem; height: 1.05rem; margin: 0.08rem 0 0; accent-color: var(--blue); flex: none; }
   .check .hint { display: block; }
-
   .field { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.75rem; }
-  .measures .field { margin-bottom: 0.3rem; }
-  .field input[type='range'] { accent-color: var(--blue); }
-  .segmented button { flex: 1; display: inline-grid; place-items: center; padding: 0.3rem 0.4rem; }
-  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 0.6rem; }
+  .turn { max-width: 9rem; }
 
-  .reset-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
-  .small { padding: 0.45rem 0.8rem; font-size: 0.85rem; border-radius: 10px; white-space: nowrap; }
-  .turn { display: flex; align-items: center; gap: 0.6rem; }
-  .turn input { flex: 1; accent-color: var(--blue); }
+  .stage { position: relative; }
+  .on-figure { margin-top: 0.35rem; }
+
+  .pop-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; font-weight: 700; font-size: 0.88rem; }
+  .pop-head .measure { font-family: 'Times New Roman', Times, serif; font-weight: 400; font-size: 1.05rem; color: var(--muted); }
+  .group { display: flex; flex-direction: column; gap: 0.35rem; }
+  .group .name { width: auto; height: auto; font-family: inherit; font-style: normal; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+  .segmented button { flex: 1; display: inline-grid; place-items: center; padding: 0.3rem 0.4rem; }
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .swatches { display: flex; gap: 0.4rem; }
+  .swatch { width: 2rem; height: 2rem; display: grid; place-items: center; border: 1.5px solid var(--border); border-radius: 8px; color: var(--muted); padding: 0; }
+  .swatch.on { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-soft); }
+  .delete { color: var(--red); font-size: 0.85rem; padding: 0.45rem 0.8rem; border-radius: 10px; align-self: flex-start; }
 </style>

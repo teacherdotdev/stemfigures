@@ -1,35 +1,37 @@
-// Every choice the teacher makes for parallel lines cut by a transversal, with
+// Every choice the teacher makes for parallel lines cut by transversals, with
 // its default. The page address carries any non-default values, so a figure
 // can be bookmarked or shared.
 //
-// One angle sets the figure: ∠2, between the first line and the transversal
-// at their crossing's top right, kept as typed ("65", "47.5"). readLines()
-// works out the other angles. The generator opens on lines m and n cut by t
-// at 65°, with the eight angles numbered 1 to 8 and parallel arrows on m and n.
+// The figure is lines: one or more parallel lines, evenly spaced, and any
+// number of transversals, each set by its angle with the parallel lines (the
+// angle above the top one, to the right of the transversal) and where it
+// crosses the top one. Each line has an id that never changes, so what's set
+// on an angle or a point stays with it while lines are added, moved or
+// deleted.
 //
-// Angles are numbered the way most worksheets do: 1 to 4 around the
-// transversal's crossing with the first line (top left, top right, bottom
-// left, bottom right), then 5 to 8 the same way around its crossing with the
-// second. A second transversal's angles are 9 to 16. Each number is just the
-// angle's label text, so the teacher can retype it as x or 3x + 5, or show
-// the angle's measure instead.
+// An angle is named by the two rays around it, each a line's id and which way
+// along it: "+" runs right along a parallel line and up along a transversal,
+// "-" the other way. "p1+~t1+" is the angle above the top line, right of the
+// first transversal. A crossing is named by its lines: "p1.t1".
+//
+// In the page address each line is one value, like t=t1|name=t|angle=65|pos=0,
+// each labeled angle one too, like a=p1+~t1+|label=measure, and each named
+// point pt=p1.t1|name=A.
 
 import { parseNumber } from '$lib/shared/math.js'
 import { cleanLabelSize, type LabelSize } from '$shared/labelSize'
-import {
-  LABEL_MODES, MARKS, ROUNDING,
-  cleanAgainst, oneOf, queryAgainst, readMoved, writeMoved,
-  type LabelMode, type RawSettings,
-} from '$lib/shapes/parts.js'
+import { LINE_STYLES, MARKS, ROUNDING, bool, oneOf, type LineStyle, type RawSettings } from '$lib/shapes/parts.js'
 
-export { readMoved, writeMoved }
-export type { RawSettings }
+export type { LineStyle, RawSettings }
+export { LINE_STYLES }
 
-/** The angles' numbers: 1–8 at the first transversal, 9–16 at the second. */
-export const FIRST = [1, 2, 3, 4, 5, 6, 7, 8] as const
-export const SECOND = [9, 10, 11, 12, 13, 14, 15, 16] as const
-export const ANGLES = [...FIRST, ...SECOND]
-export type AngleNo = (typeof ANGLES)[number]
+/** Which ends of a line have arrowheads: left means the start, the bottom of a transversal. */
+export const ENDS = ['both', 'none', 'left', 'right'] as const
+export type Ends = (typeof ENDS)[number]
+
+/** How an angle is labeled. */
+export const ANGLE_LABELS = ['none', 'measure', 'text'] as const
+export type AngleLabel = (typeof ANGLE_LABELS)[number]
 
 /** Shading for an angle: none, or a light color that still prints in grayscale. */
 export const SHADES = [
@@ -39,179 +41,207 @@ export const SHADES = [
   { name: 'Green', fill: '#bbf7d0' },
   { name: 'Yellow', fill: '#fde68a' },
 ]
-const SHADE_IDS = SHADES.map((_, i) => i)
 
-/** The second line tilts at most this far from the first when they aren't parallel. */
-export const MAX_TILT = 30
-/** How far along the first line the second transversal may cross it, in gaps between the lines. */
-export const MAX_SHIFT = 3
+export const MAX_LINES = 6
+export const MIN_ANGLE = 10
+export const MAX_ANGLE = 170
 
-type AngleSettings = { [K in `a${AngleNo}Label`]: LabelMode } & { [K in `a${AngleNo}Text`]: string } & {
-  [K in `a${AngleNo}Arcs` | `a${AngleNo}Shade`]: number
-}
+/** What every line has: its name, arrowheads, parallel arrows, line style, and named points near its two ends. */
+export type LineBase = { id: string; name: string; ends: Ends; arrows: number; style: LineStyle; startPoint: string; endPoint: string }
+export type Parallel = LineBase
+/** A transversal: its angle with the parallel lines, as typed, and where it crosses the top one, in gaps between the lines. */
+export type Transversal = LineBase & { angle: string; pos: number }
+export type AngleStyle = { label: AngleLabel; text: string; arcs: number; shade: number }
 
-export type Settings = AngleSettings & {
-  angle: string
-  parallel: boolean
-  tilt: number
-  second: boolean
-  angle2: string
-  shift: number
-  names: boolean
-  line1: string
-  line2: string
-  trans1: string
-  trans2: string
-  crossPoints: boolean
-  rayPoints: boolean
-  pointNames: string
-  arrows: number
-  ends: boolean
-  arcs: boolean
+export type Settings = {
+  parallels: Parallel[]
+  transversals: Transversal[]
+  angles: Record<string, AngleStyle>
+  points: Record<string, string>
+  turn: number
   square: boolean
   round: number
-  rotate: number
-  moved: string
   labelSize: LabelSize
 }
 
-const perAngle = Object.fromEntries(
-  ANGLES.flatMap((k) => [[`a${k}Label`, 'text'], [`a${k}Text`, String(k)], [`a${k}Arcs`, 0], [`a${k}Shade`, 0]]),
-)
+const LINE_DEFAULTS = { ends: 'both' as Ends, arrows: 0, style: 'solid' as LineStyle, startPoint: '', endPoint: '' }
+export const ANGLE_DEFAULTS: AngleStyle = { label: 'none', text: '', arcs: 0, shade: 0 }
 
-export const DEFAULT_SETTINGS = {
-  angle: '65',
-  parallel: true,
-  tilt: 12, // the second line's tilt, when the lines aren't parallel
-  second: false,
-  angle2: '120',
-  shift: 1.5, // where the second transversal crosses the first line, from the first's crossing
-  names: true,
-  line1: 'm',
-  line2: 'n',
-  trans1: 't',
-  trans2: 's',
-  crossPoints: false,
-  rayPoints: false,
-  pointNames: 'A B C D E F G H I J K L M N O P',
-  arrows: 1, // parallel arrows on both lines, when they're parallel
-  ends: true, // arrowheads at the lines' ends
-  arcs: false, // an arc at every labeled angle
-  square: true, // a right-angle square where the transversal is perpendicular
+/** Names for new lines, in order. */
+const PARALLEL_NAMES = ['m', 'n', 'o', 'p', 'q', 'r']
+const TRANSVERSAL_NAMES = ['t', 's', 'u', 'v', 'w', 'k']
+
+export const newParallel = (id: string, name: string): Parallel => ({ id, name, ...LINE_DEFAULTS, arrows: 1 })
+export const newTransversal = (id: string, name: string, angle: string, pos: number): Transversal => ({ id, name, ...LINE_DEFAULTS, angle, pos })
+
+export const DEFAULT_SETTINGS: Settings = {
+  parallels: [newParallel('p1', 'm'), newParallel('p2', 'n')],
+  transversals: [newTransversal('t1', 't', '65', 0)],
+  angles: {},
+  points: {},
+  turn: 0,
+  square: true,
   round: 1,
-  rotate: 0,
-  moved: '',
   labelSize: 'medium',
-  ...perAngle,
-} as Settings
+}
+
+/** A line's name, as typed, without the characters the page address uses. */
+const cleanName = (v: unknown) => String(v ?? '').replace(/[|=]/g, '').slice(0, 4)
+const cleanId = (v: unknown, prefix: string) => (new RegExp(`^${prefix}\\d{1,3}$`).test(String(v)) ? String(v) : '')
+const num = (v: unknown, fallback: number) => (v !== '' && v !== null && v !== undefined && Number.isFinite(Number(v)) ? Number(v) : fallback)
+
+function cleanLine(r: any, prefix: 'p' | 't'): LineBase {
+  return {
+    id: cleanId(r?.id, prefix),
+    name: cleanName(r?.name),
+    ends: oneOf(ENDS, r?.ends, 'both'),
+    arrows: oneOf(MARKS, num(r?.arrows, 0), 0),
+    style: oneOf(Object.keys(LINE_STYLES) as LineStyle[], r?.style, 'solid'),
+    startPoint: cleanName(r?.startPoint),
+    endPoint: cleanName(r?.endPoint),
+  }
+}
+
+/** Gives lines without a usable id (or with a repeated one) a fresh one. */
+function withIds<T extends LineBase>(lines: T[], prefix: string): T[] {
+  const used = new Set<string>()
+  let next = 1 + Math.max(0, ...lines.map((l) => Number(l.id.slice(1)) || 0))
+  return lines.map((l) => {
+    const id = l.id && !used.has(l.id) ? l.id : `${prefix}${next++}`
+    used.add(id)
+    return { ...l, id }
+  })
+}
+
+/** The next free id for a new line. */
+export const nextId = (lines: LineBase[], prefix: 'p' | 't') => `${prefix}${1 + Math.max(0, ...lines.map((l) => Number(l.id.slice(1)) || 0))}`
+
+/** The line ids an angle's or a crossing's key is made from. */
+export const idsIn = (key: string): string[] => key.match(/[pt]\d+/g) ?? []
 
 /** Tidy raw values (from a form, a link or a stored preset) into usable settings. */
 export function cleanSettings(s: RawSettings): Settings {
   const d = DEFAULT_SETTINGS
-  const out = cleanAgainst(d, s)
-  for (const k of ANGLES) {
-    out[`a${k}Label`] = oneOf(LABEL_MODES, out[`a${k}Label`], 'text')
-    out[`a${k}Text`] = out[`a${k}Text`].slice(0, 40)
-    out[`a${k}Arcs`] = oneOf(MARKS, out[`a${k}Arcs`], 0)
-    out[`a${k}Shade`] = oneOf(SHADE_IDS, out[`a${k}Shade`], 0)
+  let parallels = (Array.isArray(s.parallels) ? s.parallels : d.parallels).slice(0, MAX_LINES).map((r: any) => cleanLine(r, 'p'))
+  if (!parallels.length) parallels = [cleanLine(d.parallels[0], 'p')]
+  const transversals = (Array.isArray(s.transversals) ? s.transversals : d.transversals).slice(0, MAX_LINES).map((r: any) => ({
+    ...cleanLine(r, 't'),
+    angle: String(r?.angle ?? '').slice(0, 20),
+    pos: Math.round(Math.max(-20, Math.min(20, num(r?.pos, 0))) * 100) / 100,
+  }))
+  const out: Settings = {
+    parallels: withIds(parallels, 'p'),
+    transversals: withIds(transversals, 't'),
+    angles: {},
+    points: {},
+    turn: Math.max(-180, Math.min(180, Math.round(num(s.turn, d.turn)))),
+    square: bool(s.square, d.square),
+    round: oneOf(ROUNDING, num(s.round, d.round), d.round),
+    labelSize: cleanLabelSize(s.labelSize),
   }
-  out.tilt = Math.max(-MAX_TILT, Math.min(MAX_TILT, Math.round(out.tilt)))
-  out.shift = Math.max(-MAX_SHIFT, Math.min(MAX_SHIFT, Math.round(out.shift * 4) / 4))
-  for (const k of ['line1', 'line2', 'trans1', 'trans2']) out[k] = out[k].slice(0, 4)
-  out.pointNames = out.pointNames.slice(0, 80)
-  out.arrows = oneOf(MARKS, out.arrows, d.arrows)
-  out.round = oneOf(ROUNDING, out.round, d.round)
-  out.rotate = Math.max(-180, Math.min(180, Math.round(out.rotate)))
-  out.moved = writeMoved(readMoved(out.moved))
-  out.labelSize = cleanLabelSize(out.labelSize)
-  return out as Settings
+  // Only what belongs to lines that are still there, and isn't the default.
+  const ids = new Set([...out.parallels, ...out.transversals].map((l) => l.id))
+  const known = (key: string) => idsIn(key).length >= 2 && idsIn(key).every((id) => ids.has(id))
+  for (const [key, a] of Object.entries((s.angles ?? {}) as Record<string, any>)) {
+    if (!/^[pt]\d+[+-]~[pt]\d+[+-]$/.test(key) || !known(key)) continue
+    const style: AngleStyle = {
+      label: oneOf(ANGLE_LABELS, a?.label, 'none'),
+      text: String(a?.text ?? '').slice(0, 40),
+      arcs: oneOf(MARKS, num(a?.arcs, 0), 0),
+      shade: oneOf(SHADES.map((_, i) => i), num(a?.shade, 0), 0),
+    }
+    if (style.label !== 'none' || style.arcs || style.shade || style.text) out.angles[key] = style
+  }
+  for (const [key, name] of Object.entries((s.points ?? {}) as Record<string, any>)) {
+    if (/^[pt]\d+(\.[pt]\d+)+$/.test(key) && known(key)) out.points[key] = cleanName(name)
+  }
+  return out
 }
 
-export const settingsToQuery = (s: Settings) => queryAgainst(DEFAULT_SETTINGS, s)
+/** One value of the page address: the first part, then key=value for anything not the default. */
+function joinParts(first: string, values: Record<string, unknown>, defaults: Record<string, unknown>) {
+  const parts = Object.entries(values)
+    .filter(([k, v]) => v !== defaults[k])
+    .map(([k, v]) => `${k}=${typeof v === 'string' ? encodeURIComponent(v) : v}`)
+  return [first, ...parts].join('|')
+}
+function splitParts(value: string): [string, Record<string, string>] {
+  const [first, ...rest] = String(value).split('|')
+  const values: Record<string, string> = {}
+  for (const part of rest) {
+    const i = part.indexOf('=')
+    if (i <= 0) continue
+    try {
+      values[part.slice(0, i)] = decodeURIComponent(part.slice(i + 1))
+    } catch {
+      values[part.slice(0, i)] = part.slice(i + 1)
+    }
+  }
+  return [first, values]
+}
+
+const lineValues = (l: LineBase) => ({ name: l.name, ends: l.ends, arrows: l.arrows, style: l.style, startPoint: l.startPoint, endPoint: l.endPoint })
+// A line's name, angle and place are always written, so a blank one isn't mistaken for the default.
+const ALWAYS = { name: null, angle: null, pos: null }
+
+export function settingsToQuery(s: Settings): string {
+  const d = DEFAULT_SETTINGS
+  const params = new URLSearchParams()
+  for (const key of ['turn', 'square', 'round', 'labelSize'] as const) {
+    const v = s[key]
+    if (v !== d[key]) params.set(key, typeof v === 'boolean' ? (v ? '1' : '0') : String(v))
+  }
+  // The lines only when they aren't the opening ones; then all of them, in order.
+  const lines = (x: Settings) => JSON.stringify([x.parallels, x.transversals])
+  if (lines(s) !== lines(d)) {
+    for (const p of s.parallels) params.append('p', joinParts(p.id, lineValues(p), { ...LINE_DEFAULTS, ...ALWAYS }))
+    for (const t of s.transversals) params.append('t', joinParts(t.id, { ...lineValues(t), angle: t.angle, pos: t.pos }, { ...LINE_DEFAULTS, ...ALWAYS }))
+  }
+  for (const [key, a] of Object.entries(s.angles)) params.append('a', joinParts(key, a, ANGLE_DEFAULTS))
+  for (const [key, name] of Object.entries(s.points)) params.append('pt', joinParts(key, { name }, { name: '' }))
+  return params.toString()
+}
 
 export function settingsFromParams(params: URLSearchParams): Settings {
-  const s: RawSettings = { ...DEFAULT_SETTINGS }
-  for (const key of Object.keys(DEFAULT_SETTINGS)) if (params.has(key)) s[key] = params.get(key)
+  const s: RawSettings = structuredClone(DEFAULT_SETTINGS)
+  for (const key of ['turn', 'square', 'round', 'labelSize']) if (params.has(key)) s[key] = params.get(key)
+  const line = (value: string, base: object) => {
+    const [id, values] = splitParts(value)
+    return { ...base, ...values, id }
+  }
+  if (params.has('p') || params.has('t')) {
+    s.parallels = params.getAll('p').map((v) => line(v, { ...LINE_DEFAULTS, name: '' }))
+    s.transversals = params.getAll('t').map((v) => line(v, { ...LINE_DEFAULTS, name: '', angle: '', pos: 0 }))
+  }
+  s.angles = Object.fromEntries(params.getAll('a').map(splitParts).map(([key, values]) => [key, { ...ANGLE_DEFAULTS, ...values }]))
+  s.points = Object.fromEntries(params.getAll('pt').map(splitParts).map(([key, values]) => [key, values.name ?? '']))
   return cleanSettings(s)
 }
 
-/** The point names, in order: where lines cross first, then one on each ray. */
-export const pointNameList = (s: Settings) => s.pointNames.trim().split(/[\s,]+/).filter(Boolean)
-
-/**
- * The figure's angles: θ for each transversal (its ∠2 or ∠10, against the
- * first line), φ for the second line's tilt (0 when parallel), and
- * every numbered angle's measure in degrees.
- */
-export type Lines = { theta: number[]; phi: number; shift: number; measures: Partial<Record<AngleNo, number>> }
-
-/** What the settings mean, or what to fix, as a message for the settings panel and the field it belongs to. */
-export type LinesRead = { lines: Lines | null; problem: string | null; field: 'angle' | 'angle2' | 'shift' | null }
-
-const NOT_A_NUMBER = 'Type a number of degrees, like 65 or 47.5.'
-
-function readAngle(typed: string): number | string {
+/** A transversal's angle in degrees, or what to fix about it. */
+export function readAngle(typed: string): number | string {
   if (!typed.trim()) return 'Give the angle a measure.'
   const v = parseNumber(typed)
-  if (v === null) return NOT_A_NUMBER
+  if (v === null) return 'Type a number of degrees, like 65 or 47.5.'
   if (v <= 0 || v >= 180) return 'The angle has to be between 0° and 180°.'
-  if (v < 10 || v > 170) return 'Keep the angle between 10° and 170°, so the figure fits on a page.'
+  if (v < MIN_ANGLE || v > MAX_ANGLE) return `Keep the angle between ${MIN_ANGLE}° and ${MAX_ANGLE}°, so the figure fits on a page.`
   return v
 }
 
-/** Measures of the four angles where a transversal at θ crosses a line tilted φ: top left, top right, bottom left, bottom right. */
-const around = (theta: number, phi: number) => {
-  const rel = theta - phi
-  return [180 - rel, rel, rel, 180 - rel]
+/** A name for a new line, skipping any already used. */
+export function freshName(lines: LineBase[], kind: 'p' | 't') {
+  const used = new Set(lines.map((l) => l.name))
+  return (kind === 'p' ? PARALLEL_NAMES : TRANSVERSAL_NAMES).find((n) => !used.has(n)) ?? ''
 }
 
-/** A point or direction in the figure's own units: the lines are 1 apart, y up. */
-export type Vec = [number, number]
-const RAD = Math.PI / 180
-
-/**
- * Where a transversal at θ, crossing the first line (y = ½) at x, crosses the
- * second line (through (0, −½), tilted φ). `s` is how far along the
- * transversal that is, negative when below the first line, as it has to be.
- */
-export function crossingsOf(theta: number, phi: number, x: number) {
-  const w: Vec = [Math.cos(theta * RAD), Math.sin(theta * RAD)]
-  const u: Vec = [Math.cos(phi * RAD), Math.sin(phi * RAD)]
-  const top: Vec = [x, 0.5]
-  const qp: Vec = [0 - x, -0.5 - 0.5]
-  const s = (qp[0] * u[1] - qp[1] * u[0]) / (w[0] * u[1] - w[1] * u[0])
-  return { top, bottom: [x + s * w[0], 0.5 + s * w[1]] as Vec, s }
+/** Where a new transversal goes: clear of the others along the top line. */
+export function freePos(transversals: Transversal[]) {
+  if (!transversals.length) return 0
+  return Math.round((Math.max(...transversals.map((t) => t.pos)) + 1.5) * 100) / 100
 }
 
-export function readLines(s: Settings): LinesRead {
-  const phi = s.parallel ? 0 : s.tilt
-  const theta: number[] = []
-  const fields = s.second ? (['angle', 'angle2'] as const) : (['angle'] as const)
-  for (const field of fields) {
-    const v = readAngle(s[field])
-    if (typeof v === 'string') return { lines: null, problem: v, field }
-    // Measured against the second line, the transversal has to cross it too, not run alongside it.
-    if (v - phi < 10 || v - phi > 170) {
-      return { lines: null, problem: `The transversal is too close to running along line ${s.line2.trim() || 'n'}. Change its angle or the tilt.`, field }
-    }
-    theta.push(v)
-  }
-  if (s.second && s.shift === 0) {
-    return { lines: null, problem: 'The transversals can’t cross the first line at the same point. Slide the second one along.', field: 'shift' }
-  }
-  const crossings = theta.map((t, i) => crossingsOf(t, phi, i ? s.shift : 0))
-  if (crossings.some((c) => c.s > -0.2)) {
-    const field = crossings[0].s > -0.2 ? 'angle' : s.second ? 'shift' : 'angle'
-    return { lines: null, problem: `Lines ${s.line1.trim() || 'm'} and ${s.line2.trim() || 'n'} meet before the transversal crosses them both. Tilt the line less.`, field }
-  }
-  if (crossings.length === 2 && Math.abs(crossings[0].bottom[0] - crossings[1].bottom[0]) < 0.05) {
-    return { lines: null, problem: 'The transversals can’t cross the second line at the same point. Slide the second one along.', field: 'shift' }
-  }
-  const measures: Partial<Record<AngleNo, number>> = {}
-  theta.forEach((t, i) => {
-    const top = around(t, 0)
-    const bottom = around(t, phi)
-    ;[...top, ...bottom].forEach((m, j) => (measures[(i * 8 + j + 1) as AngleNo] = m))
-  })
-  return { lines: { theta, phi, shift: s.shift, measures }, problem: null, field: null }
-}
+/** The angle a transversal's value sets: above the top parallel line, right of the transversal. */
+export const setAngleKey = (s: Settings, t: Transversal) => angleKey(`${s.parallels[0].id}+`, `${t.id}+`)
+
+/** An angle's key from its two rays, in either order. */
+export const angleKey = (a: string, b: string) => [a, b].sort().join('~')

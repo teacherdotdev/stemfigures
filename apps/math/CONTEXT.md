@@ -215,24 +215,24 @@ _Avoid_: Circumradius
 ### Parallel lines and transversals
 
 **Parallel Lines and Transversal**:
-A figure of two lines cut by one or two transversals, with the angles where they cross numbered, measured or labeled for students. The two lines are parallel unless the teacher gives the second a tilt. Its generator is the Parallel Lines and Transversal Generator. It isn't a **Shape**: its lines run on past the figure, with no corners.
+A figure of parallel lines cut by transversals, with the angles where they cross labeled for students. Its generator is the Parallel Lines and Transversal Generator. It isn't a **Shape**: its lines run on past the figure, with no corners.
 _Avoid_: Transversal diagram, angle pairs diagram (fine as search words)
 
+**Parallel line**:
+One of the figure's lines that all run the same way, evenly spaced; a figure has one or more, named m, n… They have no angle of their own: the figure is turned as a whole.
+_Avoid_: Base line, horizontal line
+
 **Transversal**:
-A line that crosses both lines, each at its own point. A figure has one, named t, and can have a second, named s. Two transversals never cross a line at the same point.
-_Avoid_: Cutting line, secant
+Any line in the figure that isn't one of the parallel lines, set by its angle with them: the angle above the top parallel line, to the right of the transversal. A figure has any number, named t, s…, placed apart until the teacher drags one along the lines. Two lines that aren't parallel, cut by a third, are drawn as one parallel line and two transversals.
+_Avoid_: Cutting line, secant, non-parallel line
 
 **Crossing**:
-Where a transversal meets one of the lines, making four angles around it. It can be shown as a point and named.
+Where any two of the figure's lines meet: a transversal and a parallel line, or two transversals. The rays out from it split the space around it into angles, four where two lines cross.
 _Avoid_: Intersection (fine in teaching), vertex, corner
 
-**Angle number**:
-The number that names an angle by where it sits: 1 to 4 around the first transversal's crossing with the first line, top left, top right, bottom left, bottom right, then 5 to 8 the same way at its crossing with the second line; 9 to 16 for a second transversal. An angle's number is its label until the teacher changes it, so it can be retyped as x or 3x + 5 or swapped for the angle's measure; the number still names the angle in the settings panel.
-_Avoid_: Angle name, angle label (its label can be something else)
-
-**Tilt**:
-How far the second line turns from the first, in degrees, when the lines aren't parallel.
-_Avoid_: Lean (that's an oblique 3D shape's slide), slope, skew
+**Angle** (in this figure):
+The space between two neighboring rays at a crossing, named by the two lines and its side, so it keeps its label while the lines move and gets it back if its crossing comes back. Its label is nothing, its measure or text the teacher types, and starts as nothing; it can also have congruence arcs and shading. It's edited by clicking it on the figure.
+_Avoid_: Angle number (angles aren't numbered unless the teacher types the numbers)
 
 **Shading**:
 A light color filling one angle near its crossing, so the teacher can point at an angle pair ("what is the relationship between the shaded angles?"). It's set per angle and never follows from the measures.
