@@ -43,11 +43,11 @@ The piece of lab equipment a figure shows, drawn so students can read a measurem
 _Avoid_: Tool, device, apparatus
 
 **Reading**:
-The value an instrument shows, which the teacher types and students read back. On a scale with marks it has one digit beyond the smallest mark (the estimated digit); on a digital balance it is exactly what the display shows.
+The value an instrument shows, which the teacher types and students read back. On a scale with marks it has one digit beyond the smallest mark (the estimated digit), unless the teacher sets the decimal places (on the volume instruments, for significant-figure practice); on a digital balance it is exactly what the display shows.
 _Avoid_: Value, measurement, answer
 
 **Graduated cylinder**:
-A volume instrument in 10, 25, 50, 100, 250 or 1000 mL, labeled every tenth of its capacity except where real ones differ (the 250 mL has 2 mL marks from 10 mL up, numbered 10, 30, 50… 250, and can't read below 10 mL). Volume by displacement uses only the four smaller sizes.
+A volume instrument in 10, 25, 50, 100, 250 or 1000 mL, labeled every tenth of its capacity except where real ones differ (the 25 mL has 0.5 mL marks numbered every 1 mL; the 250 mL has 2 mL marks from 10 mL up, numbered 10, 30, 50… 250, and can't read below 10 mL). Volume by displacement uses only the four smaller sizes.
 _Avoid_: Measuring cylinder
 
 **Buret**:
@@ -59,7 +59,11 @@ A volume instrument in small (50 mL), medium (250 mL) or large (600 mL), coarsel
 _Avoid_: Cup, jar
 
 **Meniscus**:
-The curved top surface of a liquid; a volume reading is taken at its bottom.
+The curved top surface of a liquid; a volume reading is taken at its bottom. A dotted line from its bottom across to the marks can show students where to read.
+
+**Scale**:
+The marks printed on an instrument: the smallest marks, the numbered marks, and a medium mark halfway between numbers where one falls on a mark. Each volume instrument has its usual scale, and the teacher can pick from a few other spacings that suit it (a 25 mL graduated cylinder marked every 0.2, 0.5 or 1 mL and numbered every 1 or 5 mL), or leave the numbers off for students to work out. A volume scale is printed in mL or cm³, which are the same size, so changing the unit never changes the reading.
+_Avoid_: Graduations (fine in help text), ruler
 
 **Gas syringe**:
 A volume instrument for collecting gas: a glass barrel lying on its side, 50 or 100 mL, marked every 1 and numbered every 10 from 0 at its nozzle end, read to 0.1 at the plunger's face. Its scale is printed in cm³ or mL, which are the same size, so changing the unit never changes the reading. Both sizes are drawn the same length; the 50 is thinner.

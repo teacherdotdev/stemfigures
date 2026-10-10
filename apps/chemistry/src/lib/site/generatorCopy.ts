@@ -27,12 +27,15 @@ export const COPY: Record<string, GeneratorCopy> = {
   'volume-reading': {
     heading: 'Graduated cylinder, buret and beaker figures',
     intro: [
-      'Volume Reading draws a graduated cylinder, a 50 mL buret or a beaker holding the volume you type, with the meniscus drawn so students read the volume at its bottom. On the cylinder and the buret, readings go one digit past the smallest mark (the estimated digit), so the same figure works for reading glassware and for significant figures. A beaker, with its coarse marks, is read to the whole mL.',
+      'Volume Reading draws a graduated cylinder, a 50 mL buret or a beaker holding the volume you type, with the meniscus drawn so students read the volume at its bottom. On the cylinder and the buret, readings go one digit past the smallest mark (the estimated digit), so the same figure works for reading glassware and for significant figures. A beaker, with its coarse marks, is read to the whole mL. Each instrument starts with its usual scale; you can pick finer or coarser marks, number them more or less often or not at all, set the decimal places yourself, and print it in mL or cm³.',
       'Teachers use it for measurement questions on tests, worksheets and lab practicals. Add a magnified view of the scale around the meniscus so the marks stay readable in print, and turn on the answer key to print the reading under the figure for your key.',
     ],
     settings: [
       'Instrument: a 10, 25, 50, 100, 250 or 1000 mL graduated cylinder, a 50 mL buret, or a 50, 250 or 600 mL beaker',
-      'The reading, typed or picked at random',
+      'The scale: how far apart the smallest marks are and how often they are numbered, from a few spacings that suit each instrument, or no numbers',
+      'How far readings go: one estimated digit past the smallest mark, or 0 to 3 decimal places',
+      'Unit: mL or cm³',
+      'The reading, typed or picked at random, with an optional dotted line from the bottom of the meniscus to the marks',
       'Liquid color: gray, which photocopies well, or blue, red or green',
       'A magnifier beside the instrument or in place of it, spanning 1 to 6 numbered marks',
       'A chart title, and an answer key line with the reading',
@@ -48,7 +51,15 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'Can a beaker be read as precisely as a graduated cylinder?',
-        a: 'No. A beaker is marked only every 10, 25 or 50 mL, depending on its size, so it is read to the whole mL. Putting a beaker and a graduated cylinder side by side makes a good question on precision.',
+        a: 'No. A beaker’s usual marks are only every 10, 25 or 50 mL, depending on its size, so it is read to the whole mL. Putting a beaker and a graduated cylinder side by side makes a good question on precision.',
+      },
+      {
+        q: 'Can I change how the scale is marked?',
+        a: 'Yes. Under Scale, pick how far apart the smallest marks are and how often they are numbered, from spacings that suit the instrument: a 25 mL cylinder can be marked every 0.2, 0.5 or 1 mL and numbered every 1 or 5 mL. Choose No numbers to leave the numbered marks blank for students to work out. Readings follow the marks, one digit past the smallest, unless you set the decimal places yourself.',
+      },
+      {
+        q: 'Can it show cm³ instead of mL?',
+        a: 'Yes. Under Scale, choose cm³. A cubic centimeter is the same size as a milliliter, so the reading stays the same; only the unit on the glass and in the answer key changes.',
       },
       {
         q: 'Can I show just the magnified view?',
@@ -67,7 +78,8 @@ export const COPY: Record<string, GeneratorCopy> = {
     ],
     settings: [
       'Graduated cylinder: 10, 25, 50 or 100 mL',
-      'The before and after readings, typed or picked at random (the after reading is always higher)',
+      'The scale: how far apart the smallest marks are and how often they are numbered, or no numbers; how far readings go; and mL or cm³',
+      'The before and after readings, typed or picked at random (the after reading is always higher), with an optional dotted line from the bottom of each meniscus to the marks',
       'The object: 1 to 5 marbles, a rock, a cube or a metal cylinder',
       'Liquid color: gray, blue, red or green',
       'A magnifier beside each cylinder, spanning 1 to 6 numbered marks',
@@ -85,6 +97,10 @@ export const COPY: Record<string, GeneratorCopy> = {
       {
         q: 'Can I make a density question with this?',
         a: 'Yes. Make the displacement figure, then open Mass Reading and put the same object on a balance; it is drawn alike in both. Students find the volume from one figure and the mass from the other, then divide mass by volume.',
+      },
+      {
+        q: 'Can I change the cylinders’ marks or units?',
+        a: 'Yes. Under Scale, pick finer or coarser marks, number them more or less often or not at all, set the decimal places, and choose mL or cm³. Both cylinders and the answer key follow.',
       },
       {
         q: 'Why are there no 250 mL or 1000 mL cylinders?',
