@@ -3,7 +3,7 @@
 import { describeLinking } from '$lib/linking/define'
 import { chartTitleDocs } from '$lib/linking/common'
 import { latticeRoom } from './lattice'
-import { CHARGES, MAX_COUNT, MAX_KINDS, MAX_NAME, SHAPES, SHAPE_NAMES, SHADES, SHADE_NAMES, SIZES } from './particles'
+import { CHARGES, MAX_ATOMS, MAX_COUNT, MAX_KINDS, MAX_NAME, SHAPES, SHAPE_NAMES, SHADES, SHADE_NAMES, SIZES } from './particles'
 import { particleSettings } from './settings'
 
 const LOOK = `{"size":…,"shade":…,"charge":…}, where size is ${SIZES.join(', ')}; shade is ${SHADES.map((s) => `${s} (${SHADE_NAMES[s].toLowerCase()})`).join(', ')}; and charge is ${CHARGES.map((c) => (c ? c : '"" (none, an atom)')).join(', ')}`
@@ -18,6 +18,7 @@ export const particleLinking = describeLinking(particleSettings, {
     'seed picks the random positions (and, in a lattice, which sites get the second kind); the same seed always gives the same figure.',
     `In a lattice, pattern=pure uses main only; alternate alternates main and second like an ionic solid; substitute swaps secondCount sites for second (room for rows × columns); interstitial puts secondCount second atoms in the gaps between four (room for (rows − 1) × (columns − 1), e.g. ${latticeRoom({ pattern: 'interstitial', rows: 4, columns: 5 })} in a 4 × 5 lattice).`,
     'border applies to the scattered box and latticeBorder to the lattice (none by default).',
+    `With keyList=atoms the key lists each different atom or ion in the particle kinds once (a molecule’s center before its outer atoms), instead of each kind whole. Their names are atomNames, a URL-encoded JSON array of up to ${MAX_ATOMS} {"look":LOOK,"name":"…"}, each naming the atom drawn with that look; an atom with no name in it is listed without one.`,
   ],
   params: {
     layout: { what: 'How the particles are arranged.', values: 'scattered: at random in a box, for a gas, liquid or solution; lattice: packed in a grid, for a solid' },
@@ -36,6 +37,8 @@ export const particleLinking = describeLinking(particleSettings, {
     latticeBorder: { what: 'The border around a lattice.', when: 'layout=lattice' },
     show: { what: 'What the figure shows.', values: 'box: the box only; both: the box and its key; key: the key only (so separate answer choices can share one key)' },
     keyNote: { what: 'A note line at the bottom of the key, e.g. “H₂O molecules are not shown”.', when: 'show is both or key' },
+    keyList: { what: 'What the key lists.', when: 'layout=scattered and show is both or key', values: 'particles: each kind whole; atoms: each different atom once (see notes)' },
+    atomNames: { what: 'The key’s names for each atom, as JSON (see notes).', when: 'keyList=atoms' },
     ...chartTitleDocs(),
   },
   examples: [
@@ -47,6 +50,18 @@ export const particleLinking = describeLinking(particleSettings, {
           { count: 4, shape: 'single', look: { size: 'l', shade: 'white', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'Ar atom' },
         ],
         show: 'both',
+      },
+    },
+    {
+      shows: 'Water molecules with a key that lists each atom, a large gray O atom and a small white H atom, for students to write the formula.',
+      settings: {
+        particles: [{ count: 6, shape: 'bent', look: { size: 'l', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' } }],
+        show: 'both',
+        keyList: 'atoms',
+        atomNames: [
+          { look: { size: 'l', shade: 'gray', charge: '' }, name: 'O atom' },
+          { look: { size: 's', shade: 'white', charge: '' }, name: 'H atom' },
+        ],
       },
     },
     {

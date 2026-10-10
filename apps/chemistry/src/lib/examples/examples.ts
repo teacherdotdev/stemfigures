@@ -411,6 +411,26 @@ export const EXAMPLES: Example[] = [
       },
     },
     {
+      slug: 'particle-diagram-key-of-each-atom-water-and-carbon-dioxide',
+      title: 'Particle diagram with a key of each atom (H₂O and CO₂)',
+      alt: 'A box of bent molecules of one gray and two white atoms and linear molecules of one black and two gray atoms, with a key listing a gray O atom, a white H atom and a black C atom',
+      caption:
+        'A box of four bent molecules, each a gray atom with two small white atoms, and four linear molecules, each a black atom between two gray atoms. The key lists each atom on its own rather than each molecule: gray is O, white is H and black is C, with O listed once though it is in both. Students can write the formulas H₂O and CO₂ from the box.',
+      settings: {
+        seed: 4,
+        particles: [
+          { count: 4, shape: 'bent', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' } },
+          { count: 4, shape: 'line', look: { size: 'm', shade: 'black', charge: '' }, outer: { size: 'm', shade: 'gray', charge: '' } },
+        ],
+        show: 'both', keyList: 'atoms',
+        atomNames: [
+          { look: { size: 'm', shade: 'gray', charge: '' }, name: 'O atom' },
+          { look: { size: 's', shade: 'white', charge: '' }, name: 'H atom' },
+          { look: { size: 'm', shade: 'black', charge: '' }, name: 'C atom' },
+        ],
+      },
+    },
+    {
       slug: 'particle-diagram-ionic-solid-lattice-nacl',
       title: 'Particle diagram of an ionic solid (NaCl lattice)',
       alt: 'A lattice of alternating large light gray negative ions and small dark gray positive ions, with a key naming them Cl⁻ and Na⁺',

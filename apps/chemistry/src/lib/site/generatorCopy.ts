@@ -322,7 +322,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       'Up to four kinds of particle, 0 to 60 of each, each alone or joined as a pair, bent, in a line, three around or four around',
       'Each atom’s size (XS to XL), shade (white to black) and charge (+, −, 2+, 2−, 3+ or 3−)',
       'Lattice patterns: one kind (a pure metal), alternating (an ionic solid), substitutional or interstitial (alloys), touching or spaced',
-      'A key with your names and a note line, the box’s border (single, double or none), and a chart title',
+      'A key with your names and a note line, listing each kind whole or each atom once, the box’s border (single, double or none), and a chart title',
     ],
     faqs: [
       {
@@ -340,6 +340,10 @@ export const COPY: Record<string, GeneratorCopy> = {
       {
         q: 'Can I put element symbols on the atoms?',
         a: 'No. Atoms are drawn as plain shaded discs, and ions show only their charge. Put names like “Na⁺ ion” or “CCl₄ molecule” in the key instead.',
+      },
+      {
+        q: 'Can the key show each atom on its own, for writing formulas?',
+        a: 'Yes. Set the key’s List to Each atom and it shows every different atom once, drawn alone with its own name, instead of each molecule whole. An atom in two kinds of molecule, like the O in H₂O and CO₂, is listed once. Students can then work out each molecule’s formula from the box.',
       },
       {
         q: 'Can a kind of particle appear in the key but not in the box?',

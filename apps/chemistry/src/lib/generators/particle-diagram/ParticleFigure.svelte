@@ -8,11 +8,12 @@
   import KeyDrawing from './KeyDrawing.svelte'
   import { figureLayout, keyLabel, keyLayout } from './key'
   import { describeKind, describeParticle } from './particles'
-  import { DOUBLE_INSET, type BoxContents, type ParticleSettings } from './settings'
+  import { DOUBLE_INSET, keyKinds, type BoxContents, type ParticleSettings } from './settings'
 
   let { settings, box, svg = $bindable() }: { settings: ParticleSettings; box: BoxContents; svg?: SVGSVGElement } = $props()
 
-  const key = $derived(keyLayout(box.kinds, settings.keyNote))
+  const listed = $derived(keyKinds(settings, box))
+  const key = $derived(keyLayout(listed, settings.keyNote))
   const layout = $derived(figureLayout(settings.show, key, box))
 
   const boxLabel = $derived(
@@ -29,8 +30,8 @@
     settings.show === 'box'
       ? boxLabel
       : settings.show === 'both'
-        ? `${boxLabel}. ${keyLabel(box.kinds, settings.keyNote)}`
-        : keyLabel(box.kinds, settings.keyNote, 'A particle diagram key'),
+        ? `${boxLabel}. ${keyLabel(listed, settings.keyNote)}`
+        : keyLabel(listed, settings.keyNote, 'A particle diagram key'),
   )
 </script>
 

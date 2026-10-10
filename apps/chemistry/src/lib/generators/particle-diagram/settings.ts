@@ -3,7 +3,19 @@
 import { choice, defineSettings, json, number, text } from '$lib/shared/settings'
 import { LATTICE_PATTERNS, LATTICE_SPACINGS, lattice, latticeRoom } from './lattice'
 import { scatter } from './layout'
-import { DEFAULT_OUTER, MAX_NAME, isObject, tidyKinds, tidyLook, type Disc, type Look, type ParticleKind } from './particles'
+import {
+  DEFAULT_OUTER,
+  MAX_NAME,
+  atomKinds,
+  isObject,
+  tidyAtomNames,
+  tidyKinds,
+  tidyLook,
+  type AtomName,
+  type Disc,
+  type Look,
+  type ParticleKind,
+} from './particles'
 
 /** Particles scattered at random in the box, or packed in a lattice. */
 export const LAYOUTS = ['scattered', 'lattice'] as const
@@ -32,6 +44,11 @@ export type Show = (typeof SHOWS)[number]
 
 export const MAX_NOTE = 80
 
+/** What the key of scattered particles lists: each kind whole, or each
+ *  different atom in them, for students to write formulas from. */
+export const KEY_LISTS = ['particles', 'atoms'] as const
+export type KeyList = (typeof KEY_LISTS)[number]
+
 const DEFAULT_KINDS: ParticleKind[] = [
   { count: 4, shape: 'single', look: { size: 'l', shade: 'light', charge: '-' }, outer: { ...DEFAULT_OUTER } },
   { count: 4, shape: 'single', look: { size: 's', shade: 'white', charge: '+' }, outer: { ...DEFAULT_OUTER } },
@@ -58,6 +75,8 @@ export const particleSettings = defineSettings(
     latticeBorder: choice(BORDERS, 'none'),
     show: choice(SHOWS, 'box'),
     keyNote: text('', MAX_NOTE),
+    keyList: choice(KEY_LISTS, 'particles'),
+    atomNames: json<AtomName[]>([], tidyAtomNames),
     titleMode: choice(['none', 'text'] as const, 'none'),
     title: text(''),
   },
@@ -125,3 +144,8 @@ export function boxContents(s: ParticleSettings): BoxContents {
     kinds: latticeKinds(s, grid.discs),
   }
 }
+
+/** What the key lists: the box's kinds, or each different atom in them when
+ *  the teacher lists each atom (a lattice's kinds are atoms already). */
+export const keyKinds = (s: ParticleSettings, box: BoxContents) =>
+  s.layout === 'scattered' && s.keyList === 'atoms' ? atomKinds(box.kinds, s.atomNames) : box.kinds

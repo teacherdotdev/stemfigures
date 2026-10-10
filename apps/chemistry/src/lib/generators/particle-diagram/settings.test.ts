@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { RADIUS } from './particles'
-import { BOX_SIDE, boxContents, particleSettings } from './settings'
+import { BOX_SIDE, boxContents, keyKinds, particleSettings } from './settings'
 
 describe('key settings in the address', () => {
   it('are left out of the address at their defaults', () => {
@@ -92,5 +92,34 @@ describe('lattice settings in the address', () => {
   it('fill what a look leaves out from that look’s own default', () => {
     const s = particleSettings.fromParams(new URLSearchParams(`main=${encodeURIComponent('{"shade":"black"}')}`))
     expect(s.main).toEqual({ ...particleSettings.defaults.main, shade: 'black' })
+  })
+})
+
+describe('a key that lists each atom', () => {
+  const d = particleSettings.defaults
+  const gray = { size: 'l', shade: 'gray', charge: '' } as const
+  const white = { size: 's', shade: 'white', charge: '' } as const
+  const water = { count: 5, shape: 'bent', look: gray, outer: white, name: 'H₂O molecule' } as const
+  const s = { ...d, particles: [water], keyList: 'atoms' as const, atomNames: [{ look: white, name: 'H atom' }] }
+
+  it('lists the atoms instead of the kinds, with their own names', () => {
+    expect(keyKinds(s, boxContents(s)).map((k) => [k.look, k.name])).toEqual([
+      [gray, undefined],
+      [white, 'H atom'],
+    ])
+    expect(keyKinds({ ...s, keyList: 'particles' }, boxContents(s)).map((k) => k.name)).toEqual(['H₂O molecule'])
+  })
+
+  it('leaves the box as it is', () => {
+    expect(boxContents(s)).toEqual(boxContents({ ...s, keyList: 'particles' }))
+  })
+
+  it('doesn’t change a lattice’s key, which lists its atoms already', () => {
+    const lattice = { ...s, layout: 'lattice' as const }
+    expect(keyKinds(lattice, boxContents(lattice))).toEqual(boxContents(lattice).kinds)
+  })
+
+  it('travels in the address', () => {
+    expect(particleSettings.fromParams(new URLSearchParams(particleSettings.toQuery(s)))).toEqual(s)
   })
 })

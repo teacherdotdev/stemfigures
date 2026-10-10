@@ -161,6 +161,49 @@ export function tidyKinds(v: unknown): ParticleKind[] | undefined {
   return kinds.length ? kinds.slice(0, MAX_KINDS) : undefined
 }
 
+// A key of each atom -------------------------------------------------------
+
+/** What a key that lists each atom calls one of them. It goes with the look,
+ *  since that is what makes two kinds' atoms the same atom. */
+export interface AtomName {
+  look: Look
+  name: string
+}
+
+/** Two kinds can have at most this many different atoms between them. */
+export const MAX_ATOMS = 2 * MAX_KINDS
+
+export const sameLook = (a: Look, b: Look) => a.size === b.size && a.shade === b.shade && a.charge === b.charge
+
+/** Valid atom names, one per look, or undefined when `v` isn't a list. */
+export function tidyAtomNames(v: unknown): AtomName[] | undefined {
+  if (!Array.isArray(v)) return undefined
+  const names: AtomName[] = []
+  for (const item of v) {
+    if (!isObject(item) || !isObject(item.look) || typeof item.name !== 'string' || !item.name.trim()) continue
+    const look = tidyLook(item.look)
+    if (!names.some((n) => sameLook(n.look, look))) names.push({ look, name: item.name.slice(0, MAX_NAME) })
+  }
+  return names.slice(0, MAX_ATOMS)
+}
+
+/** Every different atom or ion the kinds are made of, as lone kinds for a key
+ *  that lists each atom: in the order they first appear (a kind's center
+ *  before its outer discs), each named from `names`. An atom in two kinds is
+ *  listed once, and so is a kind with a count of 0. */
+export function atomKinds(kinds: ParticleKind[], names: AtomName[]): ParticleKind[] {
+  const looks: Look[] = []
+  for (const kind of kinds) {
+    for (const look of isJoined(kind) ? [kind.look, kind.outer] : [kind.look]) {
+      if (!looks.some((l) => sameLook(l, look))) looks.push(look)
+    }
+  }
+  return looks.map((look) => {
+    const name = names.find((n) => sameLook(n.look, look))?.name
+    return { count: 0, shape: 'single', look: { ...look }, outer: { ...DEFAULT_OUTER }, ...(name ? { name } : {}) }
+  })
+}
+
 // Drawing ------------------------------------------------------------------
 
 /** One disc as drawn, centered at (x, y). */

@@ -11,9 +11,22 @@
   import ParticleFigure from './ParticleFigure.svelte'
   import ShapePicker from './ShapePicker.svelte'
   import { LATTICE_PATTERNS, LATTICE_SPACINGS, latticeRoom, type LatticePattern, type LatticeSpacing } from './lattice'
-  import { DEFAULT_OUTER, MAX_COUNT, MAX_KINDS, MAX_NAME, describeKind, describeLook, kindName, type ParticleKind } from './particles'
+  import {
+    DEFAULT_OUTER,
+    MAX_COUNT,
+    MAX_KINDS,
+    MAX_NAME,
+    atomKinds,
+    describeKind,
+    describeLook,
+    kindName,
+    sameLook,
+    type Look,
+    type ParticleKind,
+  } from './particles'
   import {
     BORDERS,
+    KEY_LISTS,
     LAYOUTS,
     MAX_LATTICE,
     MAX_NOTE,
@@ -22,6 +35,7 @@
     newSeed,
     particleSettings,
     type Border,
+    type KeyList,
     type Layout,
     type Show,
   } from './settings'
@@ -33,6 +47,7 @@
   const LAYOUT_NAMES: Record<Layout, string> = { scattered: 'Scattered', lattice: 'Lattice' }
   const BORDER_NAMES: Record<Border, string> = { single: 'Single', double: 'Double', none: 'None' }
   const SHOW_NAMES: Record<Show, string> = { box: 'Box only', both: 'Box and key', key: 'Key only' }
+  const KEY_LIST_NAMES: Record<KeyList, string> = { particles: 'Molecules', atoms: 'Each atom' }
   const PATTERN_NAMES: Record<LatticePattern, string> = {
     pure: 'One kind',
     alternate: 'Alternating',
@@ -59,6 +74,8 @@
   const lattice = $derived(s.layout === 'lattice')
   const counted = $derived(s.pattern === 'substitute' || s.pattern === 'interstitial')
   const particlesSummary = $derived(s.particles.map(describeKind).join(', '))
+  const atoms = $derived(atomKinds(s.particles, s.atomNames))
+  const keySummary = $derived(SHOW_NAMES[s.show] + (!lattice && s.keyList === 'atoms' ? ', each atom' : ''))
   const latticeSummary = $derived(
     `${PATTERN_NAMES[s.pattern]}, ${s.rows} × ${s.columns}, ${[s.main, ...(s.pattern === 'pure' ? [] : [s.second])].map(describeLook).join(' and ')}`,
   )
@@ -73,6 +90,21 @@
   function setName(kind: ParticleKind, value: string) {
     if (value.trim()) kind.name = value.slice(0, MAX_NAME)
     else delete kind.name
+  }
+
+  /** e.g. "Large light gray − ion", for an atom's name field. */
+  function atomLabel(atom: ParticleKind) {
+    const words = `${describeLook(atom.look)} ${kindName(atom).toLowerCase()}`
+    return words[0].toUpperCase() + words.slice(1)
+  }
+
+  /** Names are kept only for the atoms the kinds have now, so none linger
+   *  in the address. */
+  function setAtomName(look: Look, value: string) {
+    s.atomNames = atoms.flatMap((atom) => {
+      const name = sameLook(atom.look, look) ? value.slice(0, MAX_NAME) : (atom.name ?? '')
+      return name.trim() ? [{ look: { ...atom.look }, name }] : []
+    })
   }
 
   function addKind() {
@@ -196,7 +228,7 @@
         {/if}
       </Section>
     {/if}
-    <Section title="Key" summary={SHOW_NAMES[s.show]} icon={List}>
+    <Section title="Key" summary={keySummary} icon={List}>
       <p class="field-label">Show</p>
       <div class="segmented" role="radiogroup" aria-label="Show">
         {#each SHOWS as show (show)}
@@ -217,12 +249,36 @@
           </label>
         {/if}
       {:else}
-        {#each s.particles as kind, i (i)}
-          <label class="key-field">
-            <span>{kindName(kind)} {i + 1} name</span>
-            <input type="text" maxlength={MAX_NAME} placeholder={KEY_EXAMPLES[kindName(kind)]} value={kind.name ?? ''} oninput={(e) => setName(kind, e.currentTarget.value)} />
-          </label>
-        {/each}
+        <p class="field-label list">List</p>
+        <div class="segmented" role="radiogroup" aria-label="List">
+          {#each KEY_LISTS as list (list)}
+            <button type="button" role="radio" aria-checked={s.keyList === list} class:on={s.keyList === list} onclick={() => (s.keyList = list)}>
+              {KEY_LIST_NAMES[list]}
+            </button>
+          {/each}
+        </div>
+        {#if s.keyList === 'atoms'}
+          <p class="note">Each different atom once, for students to write formulas from.</p>
+          {#each atoms as atom, i (i)}
+            <label class="key-field">
+              <span>{atomLabel(atom)} name</span>
+              <input
+                type="text"
+                maxlength={MAX_NAME}
+                placeholder={atom.look.charge ? 'e.g. Na⁺ ion' : 'e.g. H atom'}
+                value={atom.name ?? ''}
+                oninput={(e) => setAtomName(atom.look, e.currentTarget.value)}
+              />
+            </label>
+          {/each}
+        {:else}
+          {#each s.particles as kind, i (i)}
+            <label class="key-field">
+              <span>{kindName(kind)} {i + 1} name</span>
+              <input type="text" maxlength={MAX_NAME} placeholder={KEY_EXAMPLES[kindName(kind)]} value={kind.name ?? ''} oninput={(e) => setName(kind, e.currentTarget.value)} />
+            </label>
+          {/each}
+        {/if}
       {/if}
       <label class="key-field">
         <span>Note</span>
@@ -272,6 +328,7 @@
   .note { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.82rem; }
   .warning { margin: 0.75rem 0 0; padding: 0.55rem 0.75rem; border-radius: 10px; background: var(--red-soft); color: #991b1b; font-size: 0.85rem; }
   .field-label { margin: 0 0 0.45rem; font-weight: 700; font-size: 0.9rem; }
+  .field-label.list { margin-top: 0.9rem; }
   .key-field { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.85rem; font-size: 0.9rem; font-weight: 700; }
   .key-field input { font-weight: 400; }
 </style>

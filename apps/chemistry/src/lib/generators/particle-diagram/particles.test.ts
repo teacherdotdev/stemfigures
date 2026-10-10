@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { RADIUS, chargeText, describeKind, kindName, particleDiscs, tidyKinds, type Look, type ParticleKind } from './particles'
+import {
+  RADIUS,
+  atomKinds,
+  chargeText,
+  describeKind,
+  kindName,
+  particleDiscs,
+  tidyAtomNames,
+  tidyKinds,
+  type Look,
+  type ParticleKind,
+} from './particles'
 
 const white: Look = { size: 's', shade: 'white', charge: '' }
 const ion: ParticleKind = { count: 4, shape: 'single', look: { size: 'l', shade: 'light', charge: '-' }, outer: white }
@@ -43,6 +54,54 @@ describe('particle kinds from the address or storage', () => {
   it('leaves out an empty or unusable key name, so kinds without one are unchanged', () => {
     for (const name of ['', '   ', 7, null]) expect(tidyKinds([{ ...ion, name }])).toEqual([ion])
     expect(JSON.stringify(tidyKinds([ion]))).toBe(JSON.stringify([ion]))
+  })
+})
+
+describe('a key of each atom', () => {
+  const gray: Look = { size: 'l', shade: 'gray', charge: '' }
+  const black: Look = { size: 'm', shade: 'black', charge: '' }
+  const looks = (kinds: ParticleKind[]) => kinds.map((k) => k.look)
+  // H₂O, H₂ and CO₂ (black C between two gray O, the same gray as water's O)
+  const hydrogen: ParticleKind = { count: 2, shape: 'pair', look: white, outer: white }
+  const co2: ParticleKind = { count: 4, shape: 'line', look: black, outer: gray }
+  const h2o: ParticleKind = { ...water, look: gray }
+
+  it('lists each different atom once, a center before its outer atoms', () => {
+    expect(looks(atomKinds([h2o], []))).toEqual([gray, white])
+    expect(looks(atomKinds([h2o, hydrogen, co2], []))).toEqual([gray, white, black])
+  })
+
+  it('lists them as lone atoms, drawn alone in the key', () => {
+    for (const atom of atomKinds([co2], [])) expect(particleDiscs(atom)).toHaveLength(1)
+  })
+
+  it('lists the atoms of a kind with a count of 0 too, and a lone kind’s look only', () => {
+    expect(looks(atomKinds([{ ...co2, count: 0 }, ion], []))).toEqual([black, gray, ion.look])
+  })
+
+  it('takes each atom’s name from the name given for its look', () => {
+    const names = [
+      { look: white, name: 'H atom' },
+      { look: gray, name: 'O atom' },
+      { look: { ...gray, shade: 'dark' as const }, name: 'Not drawn' },
+    ]
+    expect(atomKinds([h2o, co2], names).map((a) => a.name)).toEqual(['O atom', 'H atom', undefined])
+  })
+
+  it('tidies names from the address: one per look, never empty, clipped to 40 characters', () => {
+    expect(tidyAtomNames('x')).toBeUndefined()
+    expect(
+      tidyAtomNames([
+        { look: gray, name: 'O' },
+        { look: gray, name: 'Also O' },
+        { look: white, name: '  ' },
+        { look: 'x', name: 'H' },
+        { look: { shade: 'black' }, name: 'y'.repeat(50) },
+      ]),
+    ).toEqual([
+      { look: gray, name: 'O' },
+      { look: { size: 'm', shade: 'black', charge: '' }, name: 'y'.repeat(40) },
+    ])
   })
 })
 
