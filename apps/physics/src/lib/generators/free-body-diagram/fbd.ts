@@ -31,6 +31,8 @@ import { onAxis, type FbdSettings } from './settings'
 /** How long a force of length 1 is past the edge of the body. */
 export const UNIT = 90
 export const DOT_R = 6
+/** The dot when forces point the same way: a little bigger, so two arrows side by side start on it, shafts and all. */
+export const SIDE_DOT_R = 10
 /** How far apart forces pointing the same way are drawn, side by side: a little more than an arrowhead is wide. */
 export const SIDE_GAP = 16
 /** How far past the body's farthest corner an angle mark's arc is, and how much farther each further arc from the same line. */
@@ -123,8 +125,7 @@ function across(angle: number, mirror: boolean): Point {
 
 /** How far from the body's middle its edge is, going in direction `d`. */
 function toEdge(kind: BodyKind, w: number, h: number, d: Point) {
-  if (kind === 'dot') return DOT_R
-  if (kind === 'ball') return h / 2
+  if (kind === 'dot' || kind === 'ball') return h / 2
   return Math.min(Math.abs(d.x) > 1e-9 ? w / 2 / Math.abs(d.x) : Infinity, Math.abs(d.y) > 1e-9 ? h / 2 / Math.abs(d.y) : Infinity)
 }
 
@@ -172,8 +173,9 @@ function motionBeside(s: FbdSettings, around: ReturnType<typeof bounds>): Labele
 /** The figure with the body's middle at (0, 0). */
 function layout(s: FbdSettings): FbdFigure {
   const kind = s.body as BodyKind
-  const h = kind === 'dot' ? DOT_R * 2 : objectHeight(kind, s.bodySize)
-  const w = kind === 'dot' ? DOT_R * 2 : objectWidth(kind, s.bodySize)
+  const dotR = sameDirection(s.forces).length ? SIDE_DOT_R : DOT_R
+  const h = kind === 'dot' ? dotR * 2 : objectHeight(kind, s.bodySize)
+  const w = kind === 'dot' ? dotR * 2 : objectWidth(kind, s.bodySize)
   const middle = pt(0, 0)
 
   const offsets = sideOffsets(s.forces)
@@ -203,7 +205,7 @@ function layout(s: FbdSettings): FbdFigure {
   // Angle marks. The arc runs from the nearer half of the reference line to
   // the force, so it's never more than 90°, clear of the body's corners.
   // Arcs from the same half-line step outward so they don't lie on each other.
-  const outside = kind === 'dot' ? DOT_R : kind === 'ball' ? h / 2 : Math.hypot(w, h) / 2
+  const outside = kind === 'dot' || kind === 'ball' ? h / 2 : Math.hypot(w, h) / 2
   // Both are drawn from the force's tail, which is beside the middle for a
   // force beside others pointing the same way.
   const arcsFrom = new Map<number, number>()

@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { searchGenerators } from '$lib/generators'
 import { crosses, labelBox, overlaps } from '$lib/shared/layout'
-import { buildFbd, DOT_R, sameDirection, SIDE_GAP, UNIT } from './fbd'
+import { buildFbd, DOT_R, sameDirection, SIDE_DOT_R, SIDE_GAP, UNIT } from './fbd'
 import { componentLabel } from '$lib/shared/label'
+import { VECTOR_WIDTH } from '$lib/shared/vector'
 import { fbdSettings, STARTERS, starterForce, type FbdSettings, type Force } from './settings'
 
 const make = (over: Partial<FbdSettings> = {}) => buildFbd({ ...fbdSettings.defaults, ...over })
@@ -287,10 +288,17 @@ describe('forces pointing the same way', () => {
 
   test('each keeps its own length', () => {
     const f = make({ forces: [force(90, 1, 'F_N'), force(90, 0.5, 'T'), force(270, 1, 'F_g')] })
-    expect(length(f.forces[0].v) - DOT_R).toBeCloseTo(UNIT)
-    expect(length(f.forces[1].v) - DOT_R).toBeCloseTo(UNIT * 0.5)
+    expect(length(f.forces[0].v) - SIDE_DOT_R).toBeCloseTo(UNIT)
+    expect(length(f.forces[1].v) - SIDE_DOT_R).toBeCloseTo(UNIT * 0.5)
     // A force pointing another way stays on the middle.
     expect(sideways(f, 2)).toBeCloseTo(0)
+  })
+
+  test('the dot grows a little, so two side by side start on it', () => {
+    expect(make({ forces: [force(90, 1, 'F_N'), force(270, 1, 'F_g')] }).body.width).toBe(DOT_R * 2)
+    const f = make({ forces: [force(90, 1, 'F_N'), force(90, 0.6, 'T')] })
+    expect(f.body.width).toBe(SIDE_DOT_R * 2)
+    expect(SIDE_DOT_R).toBeGreaterThanOrEqual(SIDE_GAP / 2 + VECTOR_WIDTH / 2)
   })
 
   test('three: one on the middle and one each side', () => {
