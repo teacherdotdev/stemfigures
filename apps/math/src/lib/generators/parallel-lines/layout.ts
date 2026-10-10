@@ -75,6 +75,12 @@ export function readLines(s: Settings) {
 /** The figure laid out for LinesFigure.svelte, with what can be pointed at on it. */
 export type LinesLayout = ReturnType<typeof buildLines>
 export type AngleSpot = LinesLayout['angles'][number]
+/**
+ * What LinesFigure.svelte draws and PickLayer.svelte points at: this figure,
+ * or any other made of lines and the angles between them (the Angles
+ * Generator's rays), whose lines can be of other kinds.
+ */
+export type Drawing = Omit<LinesLayout, 'segments'> & { segments: (Omit<LinesLayout['segments'][number], 'kind'> & { kind: string })[] }
 
 export function buildLines(s: Settings) {
   const FS = BASE_FS * LABEL_SCALE[s.labelSize]

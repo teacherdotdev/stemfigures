@@ -8,18 +8,19 @@
   // picked farther out. `ghost` is an
   // angle shown with its measure (the one a transversal's value sets, while
   // it's being changed), and `selected` the part whose popup is open.
-  import type { LinesLayout, Part, Vec } from './layout.js'
+  import type { Drawing, Part, Vec } from './layout.js'
 
   let {
     figure, ghost = null, selected = null, onpick,
   }: {
-    figure: LinesLayout
+    figure: Drawing
     ghost?: string | null
     selected?: Part | null
     onpick: (part: Part, at: { x: number; y: number }) => void
   } = $props()
 
   const BLUE = '#2563eb'
+  const LINE_NAMES: Record<string, string> = { p: 'Parallel line', t: 'Transversal', r: 'Ray' }
   let svg = $state<SVGSVGElement>()
   let hover = $state<Part | null>(null)
   const f = $derived(figure.frame)
@@ -75,7 +76,7 @@
     {@const part = { kind: 'line', key: g.id } as Part}
     <line
       x1={g.from[0]} y1={g.from[1]} x2={g.to[0]} y2={g.to[1]} stroke="transparent" stroke-width="16" stroke-linecap="round"
-      class="hit" role="button" tabindex="0" aria-label={g.kind === 't' ? 'Transversal' : 'Parallel line'}
+      class="hit" role="button" tabindex="0" aria-label={LINE_NAMES[g.kind] ?? 'Line'}
       onclick={() => pick(part, mid(g))}
       onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, mid(g))}
     />
@@ -93,7 +94,7 @@
     {@const part = { kind: 'point', key: p.key } as Part}
     <circle
       cx={p.at[0]} cy={p.at[1]} r="8" fill="transparent" class="hit" role="button" tabindex="0"
-      aria-label={p.line ? 'Point near the end of a line' : 'Point where lines cross'}
+      aria-label={p.line ? 'Point near the end of a line' : p.key === 'v' ? 'Point at the vertex' : 'Point where lines cross'}
       onclick={() => pick(part, p.at)}
       onpointerenter={(e) => enter(e, part)} onpointerleave={() => leave(part)} onkeydown={(e) => key(e, part, p.at)}
     />

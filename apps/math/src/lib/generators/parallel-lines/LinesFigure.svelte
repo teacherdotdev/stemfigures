@@ -5,9 +5,9 @@
   // are drawn over it by PickLayer.svelte, so they never reach an export.
   import FigureLabels from '$lib/shapes/FigureLabels.svelte'
   import { INK } from '$lib/shapes/parts.js'
-  import { DOT, type LinesLayout, type Vec } from './layout.js'
+  import { DOT, type Drawing, type Vec } from './layout.js'
 
-  let { figure, svg = $bindable(), label = 'Parallel lines cut by a transversal' }: { figure: LinesLayout; svg?: SVGSVGElement; label?: string } = $props()
+  let { figure, svg = $bindable(), label = 'Parallel lines cut by a transversal' }: { figure: Drawing; svg?: SVGSVGElement; label?: string } = $props()
 
   const f = $derived(figure.frame)
   const pts = (list: Vec[]) => list.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')

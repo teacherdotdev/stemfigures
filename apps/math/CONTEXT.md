@@ -242,6 +242,28 @@ _Avoid_: Angle number (angles aren't numbered unless the teacher types the numbe
 A light color filling one angle near its crossing, so the teacher can point at an angle pair ("what is the relationship between the shaded angles?"). It's set per angle and never follows from the measures.
 _Avoid_: Highlight, fill, color (alone)
 
+### Angles
+
+**Angles**:
+A figure of rays out from one vertex, with the angles between them labeled for students: a single angle, adjacent angles, angles on a line or around a point, or vertical angles. Its generator is the Angles Generator. A figure needing a second crossing is a **Parallel Lines and Transversal**.
+_Avoid_: Angle (alone; that's one angle in the figure), angle diagram, angle relationships (fine as search words)
+
+**Ray** (in this figure):
+One of the 2 to 6 lines out from the vertex, all the same length, set by its direction. A **two-sided** ray also runs straight back through the vertex, making a line, and still counts as one ray. No two rays point the same way. A point can go at the vertex or near the end of a ray (a two-sided ray has two ends), as on a Parallel Lines and Transversal.
+_Avoid_: Line (alone), arm, side
+
+**Baseline**:
+The first ray, pointing right before the figure is turned, which every other ray's direction is measured from.
+_Avoid_: Base ray, initial side (fine in teaching), x-axis
+
+**Direction**:
+A ray's angle from the baseline, 0° to 360° counterclockwise, as a protractor reads it. It only places the ray: an angle's measure is the gap between neighboring rays, never a direction.
+_Avoid_: Heading, bearing, rotation
+
+**Reflex angle**:
+The angle over 180° that wraps around the outside, such as the 300° beside a 60° angle. It's an angle like any other, so it can be labeled, marked and shaded.
+_Avoid_: Exterior angle (a shape's is different), outside angle
+
 ### Data displays
 
 **Data set**:

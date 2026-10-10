@@ -125,6 +125,21 @@ export const MATH: CatalogEntry[] = [
     ],
   },
   {
+    id: 'angles',
+    site: 'math',
+    name: 'Angles Generator',
+    path: '/angles',
+    blurb: 'Rays out from one vertex, from a single angle to angles around a point, labeled right on the figure.',
+    description:
+      'Make a printable angle diagram for your class: a single angle of any size, adjacent angles, angles on a straight line, angles around a point or vertical angles. Set each ray’s direction from the baseline, run any ray through the vertex as a line, then click an angle to label it with its measure or an expression like 2x + 10, mark or shade it, or name points for ∠ABC, and copy it into a worksheet or test.',
+    keywords: [
+      'angle', 'angles', 'angle generator', 'angle relationships', 'angle pairs', 'complementary angles', 'supplementary angles',
+      'vertical angles', 'adjacent angles', 'linear pair', 'angles on a straight line', 'angles around a point', 'reflex angle',
+      'right angle', 'acute angle', 'obtuse angle', 'straight angle', 'angle addition', 'angle bisector', 'missing angles',
+      'protractor', 'rays', 'vertex', 'naming angles', 'geometry', 'diagram', 'labels', 'printable',
+    ],
+  },
+  {
     id: 'parallel-lines',
     site: 'math',
     name: 'Parallel Lines and Transversal Generator',
