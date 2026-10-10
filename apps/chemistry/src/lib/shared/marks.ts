@@ -13,8 +13,9 @@ export interface Mark {
 
 export function marks({ max, labelEvery, minorEvery, from = 0 }: { max: number; labelEvery: number; minorEvery: number; from?: number }): Mark[] {
   const perLabel = Math.round(labelEvery / minorEvery)
-  // A medium mark halfway between numbers, when halfway falls on a mark.
-  const perMedium = perLabel % 2 === 0 ? perLabel / 2 : 0
+  // A medium mark halfway between numbers, when halfway falls on a mark
+  // and isn't the only mark between them.
+  const perMedium = perLabel % 2 === 0 && perLabel > 2 ? perLabel / 2 : 0
   // Numbered from where the scale starts, so one starting at 10 mL reads
   // 10, 30, 50…
   const count = Math.round((max - from) / minorEvery)
