@@ -81,7 +81,8 @@ export function findMistakes({ structure: s, correct, name, rule, formalCharges,
   s.atoms.forEach((atom, i) => {
     const n = electronsAround(s, i)
     const m = expected(i)
-    if (n === m) return
+    // An atom on its own: the count of valence electrons already says it.
+    if (n === m || s.atoms.length === 1) return
     const el = atom.element
     let say: Say
     if (n > m && !canExpand(el) && n > octetOf(el))
@@ -129,7 +130,7 @@ export function findMistakes({ structure: s, correct, name, rule, formalCharges,
     mistakes.push(...sayAbout(s, labels))
   }
   if (s.charge !== 0 && !hasBrackets(s)) mistakes.push('An ion’s structure goes in square brackets.')
-  if (s.charge === 0 && hasBrackets(s)) mistakes.push('A molecule with no charge doesn’t go in brackets.')
+  if (s.charge === 0 && hasBrackets(s)) mistakes.push(`${s.atoms.length === 1 ? 'An atom' : 'A molecule'} with no charge doesn’t go in brackets.`)
   const label = shownCharge(s)
   if (label !== s.charge)
     mistakes.push(

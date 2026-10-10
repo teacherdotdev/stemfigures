@@ -26,13 +26,15 @@
   const label = $derived.by(() => {
     const r = figure.resolved
     if (!r.ok) return 'No Lewis structure'
-    const what = figure.shown.length > 1 ? `The ${figure.shown.length} resonance structures of ${r.name}` : `A Lewis structure of ${r.name}`
+    const alone = r.formula.atoms.length === 1
     const key =
       figure.key.kind === 'mistakes'
         ? `. Mistakes: ${figure.key.mistakes.join(' ') || 'none'}`
         : figure.key.kind === 'structures'
-          ? ', with its full structure as the answer key'
+          ? `, with its ${alone ? 'electrons' : 'full structure'} as the answer key`
           : ''
+    if (alone) return `A Lewis dot diagram of ${r.name}${settings.scaffold === 'skeleton' ? ', without its electrons' : ''}${key}`
+    const what = figure.shown.length > 1 ? `The ${figure.shown.length} resonance structures of ${r.name}` : `A Lewis structure of ${r.name}`
     const dots = settings.bondStyle === 'dots' && settings.scaffold !== 'skeleton' ? ', with bonds drawn as dots' : ''
     return what + SCAFFOLD_WORDS[settings.scaffold] + dots + key
   })

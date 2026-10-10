@@ -13,6 +13,9 @@
 // Under the fewest-formal-charges rule, step 4 then also lets atoms in
 // period 3 and lower go past an octet when that makes the formal charges
 // smaller (see CONTEXT.md "Structure rule").
+//
+// An atom on its own (N, Cl⁻, Ca²⁺) keeps its valence electrons, with the
+// ones an anion gains and without the ones a cation loses.
 
 import { ELEMENTS, HALOGENS, canExpand, octetOf } from './elements'
 import type { Formula } from './formula'
@@ -35,9 +38,11 @@ export type Central = { ok: true; central: number } | { ok: false; reason: 'seve
 const electronegativity = (symbol: string) => ELEMENTS[symbol].electronegativity
 
 /** The index of a formula's central atom: the least electronegative atom
- *  other than H, of which there must be only one. */
+ *  other than H, of which there must be only one. An atom on its own is its
+ *  own central atom. */
 export function findCentral(f: Formula): Central {
   const { atoms } = f
+  if (atoms.length === 1) return { ok: true, central: 0 }
   if (atoms.length === 2) {
     const [a, b] = atoms
     if (a === 'H') return { ok: true, central: b === 'H' ? 0 : 1 }
@@ -86,6 +91,8 @@ export function correctStructures(sk: Skeleton, rule: Rule, strict = true): Stru
   const degree = atoms.map((_, i) => bonds.filter(([a, b]) => a === i || b === i).length)
   const inner = (i: number) => degree[i] >= 2 || i === sk.central
   const total = atoms.reduce((n, a) => n + ELEMENTS[a].valence, 0) - sk.charge
+  if (atoms.length === 1)
+    return total >= 0 && total <= octetOf(atoms[0]) ? [{ atoms: [{ element: atoms[0], x: 0, y: 0, lone: total }], bonds: [], charge: sk.charge }] : []
 
   // Steps 1 to 3.
   let left = total - 2 * bonds.length

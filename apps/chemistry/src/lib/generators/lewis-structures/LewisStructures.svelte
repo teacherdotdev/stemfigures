@@ -1,6 +1,6 @@
 <script lang="ts">
   // Lewis Structures: type a formula (or pick a molecule from the list) and
-  // get its correct Lewis structure; then make a "complete this" question
+  // get its correct Lewis structure, or an atom's or ion's on its own; then make a "complete this" question
   // from it, or change it into a wrong one for a "find the mistake" question.
   import { tick } from 'svelte'
   import { Atom, Eye, KeyRound, Minus, PencilLine, Plus, RotateCcw, SquareDashed, Type } from '@lucide/svelte'
@@ -16,7 +16,7 @@
   import { MAX_LONE, setChange, type Change } from './changes'
   import { BOND_STYLES, type BondStyle } from './drawing'
   import type { Selection } from './figureLayout'
-  import { chargeText, formulaText, parseFormula, signed } from './formula'
+  import { chargeText, formulaText, ionMeant, parseFormula, signed } from './formula'
   import { SHAPES, type Shape } from './layout'
   import { LISTED } from './listed'
   import { centralChoices } from './resolve'
@@ -59,6 +59,15 @@
   const current = $derived(result.changed ? result.shown[0] : result.start)
   const centrals = $derived(found ? centralChoices(found) : [])
   const autoCentral = $derived(found?.central !== undefined ? found.formula.atoms[found.central] : '')
+  /** An atom or ion on its own, with no bonds and no formal charges. */
+  const alone = $derived(found?.formula.atoms.length === 1)
+  const electronWord = $derived(alone ? 'valence electron' : 'lone electron')
+  /** The ion a formula like N3- may have been meant as, since it's read as three N atoms. */
+  const meant = $derived.by(() => {
+    const parsed = parseFormula(s.formula)
+    const ion = parsed.ok ? ionMeant(parsed.formula.tokens, parsed.formula.charge) : undefined
+    return ion && parsed.ok ? { ...ion, read: formulaText(parsed.formula) } : undefined
+  })
 
   /** "O 2" when there's more than one O, "S" when there's only one. */
   function atomName(i: number) {
@@ -166,7 +175,7 @@
 
   const structureSummary = $derived(found ? (found.listed ? `${found.name}, ${found.listed.names[0]}` : found.name) : 'No structure')
   const lookSummary = $derived(
-    [SHAPE_NAMES[s.shape], s.bondStyle === 'dots' ? 'bonds as dots' : '', s.formalCharges ? 'formal charges' : '', found?.ruleMatters ? RULE_NAMES[s.rule].toLowerCase() : '', forms > 1 && drawn.resonance === 'all' ? 'all resonance structures' : '']
+    [SHAPE_NAMES[s.shape], s.bondStyle === 'dots' ? 'bonds as dots' : '', drawn.formalCharges ? 'formal charges' : '', found?.ruleMatters ? RULE_NAMES[s.rule].toLowerCase() : '', forms > 1 && drawn.resonance === 'all' ? 'all resonance structures' : '']
       .filter(Boolean)
       .join(', '),
   )
@@ -198,8 +207,8 @@
         <span class="field-head">
           Formula or name
           <HelpTip id="formula-tip" label="How to type a formula">
-            Type a formula like CH4, NO3- or SO4 2-, with a space or ^ before a charge of 2 or more. You can also type a name from the list, like
-            ethanol.
+            Type a formula like CH4, NO3- or SO4 2-, or one atom or ion like N or Ca 2+, with a space or ^ before a charge of 2 or more. You can
+            also type a name from the list, like ethanol.
           </HelpTip>
         </span>
         <input type="text" maxlength={MAX_FORMULA} value={s.formula} oninput={setFormula} spellcheck="false" autocomplete="off" />
@@ -227,8 +236,19 @@
         </div>
       {:else}
         <p class="note">
-          {r.listed ? `From the list of structures with more than one central atom.` : `Built around ${autoCentral} as the central atom.`}
+          {r.listed
+            ? `From the list of structures with more than one central atom.`
+            : !alone
+              ? `Built around ${autoCentral} as the central atom.`
+              : r.formula.charge < 0
+                ? 'One ion, with the electrons it gains, in brackets with its charge.'
+                : r.formula.charge > 0
+                  ? 'One ion, without the electrons it loses, in brackets with its charge.'
+                  : 'One atom, its valence electrons one to a side, then paired.'}
         </p>
+      {/if}
+      {#if meant}
+        <p class="note">Read as {meant.read}. For the {meant.name} ion, type {meant.typed}.</p>
       {/if}
       <label class="field">
         <span class="field-head">Or pick from the list</span>
@@ -248,9 +268,12 @@
       <p class="field-label spaced">Bonds</p>
       {@render segmented('Bonds', BOND_STYLES, s.bondStyle, BOND_STYLE_NAMES, (v) => (s.bondStyle = v))}
       <p class="note">{s.bondStyle === 'dots' ? 'Each shared pair as two dots between the atoms.' : 'Each shared pair as a line between the atoms.'}</p>
-      <label class="check">
-        <input type="checkbox" bind:checked={s.formalCharges} />
-        <span><strong>Formal charges</strong><small>Label each atom whose formal charge isn’t 0.</small></span>
+      <label class="check" class:off={alone}>
+        <input type="checkbox" bind:checked={s.formalCharges} disabled={alone} />
+        <span>
+          <strong>Formal charges</strong>
+          <small>{alone ? 'Not for one atom or ion: its charge is written after it.' : 'Label each atom whose formal charge isn’t 0.'}</small>
+        </span>
       </label>
       {#if found?.ruleMatters}
         <p class="field-label spaced">
@@ -297,7 +320,7 @@
             aria-checked={drawn.scaffold === scaffold}
             class="chip small"
             class:on={drawn.scaffold === scaffold}
-            disabled={result.changed && scaffold !== 'full'}
+            disabled={(result.changed && scaffold !== 'full') || (alone && scaffold === 'bonds')}
             onclick={() => (s.scaffold = scaffold)}
           >
             {SCAFFOLD_NAMES[scaffold]}
@@ -305,7 +328,11 @@
         {/each}
       </div>
       <p class="note">
-        {result.changed ? 'A changed structure is always drawn in full. Reset it to make a “complete this” question.' : SCAFFOLD_NOTES[drawn.scaffold]}
+        {result.changed
+          ? 'A changed structure is always drawn in full. Reset it to make a “complete this” question.'
+          : alone && drawn.scaffold === 'skeleton'
+            ? 'The symbol alone, for students to add the electrons.'
+            : SCAFFOLD_NOTES[drawn.scaffold]}
       </p>
     </Section>
 
@@ -343,15 +370,15 @@
               >
                 <strong>{atomName(i)}</strong>
                 <span class="stepper">
-                  <button type="button" class="icon-btn" aria-label="Fewer lone electrons on {atomName(i)}" disabled={atom.lone <= 0} onclick={() => change({ kind: 'lone', atom: i, lone: atom.lone - 1 })}>
+                  <button type="button" class="icon-btn" aria-label="Fewer {electronWord}s on {atomName(i)}" disabled={atom.lone <= 0} onclick={() => change({ kind: 'lone', atom: i, lone: atom.lone - 1 })}>
                     <Minus size={16} />
                   </button>
-                  <span class="count" aria-live="polite">{plural(atom.lone, 'lone electron')}</span>
-                  <button type="button" class="icon-btn" aria-label="More lone electrons on {atomName(i)}" disabled={atom.lone >= MAX_LONE} onclick={() => change({ kind: 'lone', atom: i, lone: atom.lone + 1 })}>
+                  <span class="count" aria-live="polite">{plural(atom.lone, electronWord)}</span>
+                  <button type="button" class="icon-btn" aria-label="More {electronWord}s on {atomName(i)}" disabled={atom.lone >= MAX_LONE} onclick={() => change({ kind: 'lone', atom: i, lone: atom.lone + 1 })}>
                     <Plus size={16} />
                   </button>
                 </span>
-                {#if s.formalCharges}
+                {#if drawn.formalCharges}
                   <label class="inline small-label">
                     <span>Formal charge</span>
                     <select value={String(shownFormalCharge(current, i))} onchange={(e) => change({ kind: 'label', atom: i, label: Number(e.currentTarget.value) })}>
@@ -362,7 +389,7 @@
               </div>
             {/each}
 
-            <p class="part">Bonds</p>
+            {#if current.bonds.length}<p class="part">Bonds</p>{/if}
             {#each current.bonds as bond, k (k)}
               <div
                 class="row"

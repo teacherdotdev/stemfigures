@@ -78,3 +78,50 @@ describe('drawing a structure', () => {
     expect(d.lines).toHaveLength(5)
   })
 })
+
+describe('drawing an atom on its own', () => {
+  /** Dots on each side of the symbol: right, left, top, bottom. */
+  function sides(text: string) {
+    const d = drawStructure(placed(text))
+    const [t] = d.symbols
+    const count = (on: (p: { x: number; y: number }) => boolean) => d.dots.filter(on).length
+    return [
+      count((p) => p.x > t.x + t.w / 2),
+      count((p) => p.x < t.x - t.w / 2),
+      count((p) => p.y < t.y - t.h / 2),
+      count((p) => p.y > t.y + t.h / 2),
+    ]
+  }
+
+  it('puts its electrons one to a side, then pairs them', () => {
+    expect(sides('Ca')).toEqual([1, 1, 0, 0])
+    expect(sides('C')).toEqual([1, 1, 1, 1])
+    expect(sides('N')).toEqual([2, 1, 1, 1])
+    expect(sides('P')).toEqual([2, 1, 1, 1])
+    expect(sides('O')).toEqual([2, 2, 1, 1])
+    expect(sides('Ne')).toEqual([2, 2, 2, 2])
+  })
+
+  it('pairs the two electrons of He and of the hydride ion', () => {
+    expect(sides('He')).toEqual([2, 0, 0, 0])
+    expect(sides('H-')).toEqual([2, 0, 0, 0])
+    expect(sides('H')).toEqual([1, 0, 0, 0])
+  })
+
+  it('draws an anion with its octet and a cation with no dots, each in brackets with its charge', () => {
+    for (const [text, dots, charge] of [
+      ['N 3-', 8, '3−'],
+      ['Cl-', 8, '−'],
+      ['O 2-', 8, '2−'],
+      ['Ca 2+', 0, '2+'],
+    ] as const) {
+      const d = drawStructure(placed(text))
+      expect(d.dots, text).toHaveLength(dots)
+      expect(d.brackets, text).toBeDefined()
+      expect(d.charge?.text, text).toBe(charge)
+      expect(finite(d) && inside(d), text).toBe(true)
+    }
+    expect(drawStructure(placed('N')).brackets).toBeUndefined()
+  })
+})
+

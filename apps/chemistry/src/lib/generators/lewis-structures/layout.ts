@@ -8,7 +8,9 @@
 // side (CH₂Cl₂'s Cl atoms next to each other, not opposite). Lone electrons then go
 // on the free sides of each symbol, or into the widest gaps around it,
 // whatever the structure, so a changed or impossible one still draws cleanly.
+// An atom on its own has its electrons one to a side, then paired.
 
+import { octetOf } from './elements'
 import type { Structure } from './structure'
 
 export const SHAPES = ['flat', 'shaped'] as const
@@ -184,6 +186,27 @@ export function loneDirections(s: Structure, i: number): number[] {
     }
   }
   return best
+}
+
+/** An atom's electrons by side, `electrons` being 1 or 2. */
+export type Group = { direction: number; electrons: number }
+
+/** The sides an atom on its own fills, one electron each before any pairs. */
+const FILL_ORDER = [0, 180, 270, 90]
+
+/** An atom's electron groups: its lone pairs, with an odd electron alone
+ *  last; or for an atom bonded to nothing, its electrons one to a side
+ *  (right, left, top, bottom) and then paired, as textbooks draw N with a
+ *  pair and three lone electrons. H and He pair their two. */
+export function electronGroups(s: Structure, i: number): Group[] {
+  const { element, lone } = s.atoms[i]
+  if (s.bonds.some((b) => b.a === i || b.b === i)) {
+    const directions = loneDirections(s, i)
+    return directions.map((direction, g) => ({ direction, electrons: lone % 2 === 1 && g === directions.length - 1 ? 1 : 2 }))
+  }
+  const sides = FILL_ORDER.map((direction) => ({ direction, electrons: 0 }))
+  for (let e = 0; e < Math.min(lone, 2 * sides.length); e++) sides[octetOf(element) === 2 && e < 2 ? 0 : e % sides.length].electrons++
+  return sides.filter((g) => g.electrons)
 }
 
 /** Where an atom's formal charge goes: a corner of the symbol clear of its
