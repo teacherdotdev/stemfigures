@@ -49,6 +49,14 @@ export interface Mark {
   blank?: number
 }
 
+/** A number on an axis. */
+export interface Numeral {
+  x: number
+  y: number
+  text: string
+  anchor: 'start' | 'middle' | 'end'
+}
+
 /** A word on the figure: crest, trough, compression or rarefaction. */
 export interface Note {
   label: Label
@@ -62,7 +70,7 @@ export interface WaveFigure {
   fs: number
   labelSize: number
   /** the graph's grid, axes, numbers and axis titles, moved down under the chart title and the longitudinal wave; null without axes */
-  graph: (GridLayout & { gridlines: boolean; yDrawn: boolean; ticks: Segment[] }) | null
+  graph: (Omit<GridLayout, 'numbers'> & { numbers: Numeral[]; gridlines: boolean; yDrawn: boolean; ticks: Segment[] }) | null
   title: { x: number; y: number; text: string } | null
   titleBlank: Segment | null
   /** the dashed rest line a transverse wave drawn without axes swings about */
@@ -312,10 +320,37 @@ export function buildWave(s: WaveSettings): WaveFigure {
   const g = moved({ ...g0, numbers: g0.numbers.map((n) => (crossed(n) ? { ...n, x: g0.grid.x, anchor: 'middle' as const } : n)) }, dx, dy)
   const X = (v: number) => round(g0.px({ x: v, y: 0 }).x + dx)
   const Y = (v: number) => round(g0.px({ x: 0, y: v }).y + dy)
-  const width = g.width
-  const height = round(g.height + dy)
   const unit = { x: CELL / axes.x.step, y: CELL / axes.y.step }
   const midX = g.grid.x + g.grid.w / 2
+
+  // Under the axis, the wave runs through the x-axis's numbers just before it rises through the axis and just
+  // after it falls. A number there moves the least it can, keeping beside its line, to clear it.
+  const row = g.xAxis.y + g.fs + 6
+  const across = transverse && g.xAxis.y < g.grid.y + g.grid.h - 0.5
+  /** How far from where it crosses the axis the wave is `depth` pixels below it. */
+  const off = (depth: number) => (Math.asin(Math.min(1, depth / (A * unit.y))) * repeat * unit.x) / (2 * Math.PI)
+  const zones: [number, number][] = []
+  for (let k = 0; (k * repeat) / 2 <= end + 1e-9; k++) {
+    const c = X((k * repeat) / 2)
+    const [near, far] = [off(6), off(g.fs + 6)]
+    // The wave starts at 0 and ends at `end`, so there's none before or after.
+    if (k % 2) zones.push([c + near, Math.min(c + far, X(end))])
+    else if (k > 0) zones.push([c - far, c - near])
+  }
+  const numbers = g.numbers.map((n): Numeral => {
+    if (!across || n.anchor !== 'middle' || Math.abs(n.y - row) > 0.5) return n
+    const w = n.text.length * g.fs * 0.6
+    const left = n.x - w / 2
+    const hits = (l: number) => zones.some(([a, b]) => l < b && l + w > a)
+    const moves = [0, ...zones.flatMap(([a, b]) => [b + 2 - left, a - 2 - (left + w)])]
+      .filter((d) => Math.abs(d) <= w / 2 + 6 && !hits(left + d))
+      .sort((a, b) => Math.abs(a) - Math.abs(b))
+    const d = moves[0]
+    if (!d) return n
+    return d > 0 ? { ...n, x: round(left + d), anchor: 'start' } : { ...n, x: round(left + w + d), anchor: 'end' }
+  })
+  const width = round(Math.max(g.width, ...numbers.map((n) => (n.anchor === 'start' ? n.x + n.text.length * g.fs * 0.6 + 4 : 0))))
+  const height = round(g.height + dy)
 
   const ticks: Segment[] = []
   if (s.axes && (!s.gridlines || !transverse)) {
@@ -426,7 +461,7 @@ export function buildWave(s: WaveSettings): WaveFigure {
     height,
     fs,
     labelSize: ls,
-    graph: s.axes ? { ...g, gridlines: s.gridlines && transverse, yDrawn: transverse, ticks } : null,
+    graph: s.axes ? { ...g, numbers, width, gridlines: s.gridlines && transverse, yDrawn: transverse, ticks } : null,
     title: titleText ? { x: midX, y: titleY, text: titleText } : null,
     titleBlank:
       titleRow && !titleText ? { x1: midX - Math.min(130, g.grid.w / 2), y1: titleY, x2: midX + Math.min(130, g.grid.w / 2), y2: titleY } : null,

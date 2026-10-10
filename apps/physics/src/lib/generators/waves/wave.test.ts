@@ -5,12 +5,13 @@ import { buildWave, fitX, fitY, lineXs } from './wave'
 const build = (query: string) => buildWave(waveSettings.fromParams(new URLSearchParams(query)))
 const settingsOf = (query: string) => waveSettings.fromParams(new URLSearchParams(query))
 
-/** The axis's numbers as drawn: where each is and the value it says. */
+/** The axis's numbers as drawn: the line each is beside and the value it says. */
 function numbersOn(f: ReturnType<typeof build>, axis: 'x' | 'y') {
   const g = f.graph!
   const value = (text: string) => Number(text.replace('−', '-'))
+  const line = (x: number) => g.vLines.reduce((a, b) => (Math.abs(b - x) < Math.abs(a - x) ? b : a))
   return axis === 'x'
-    ? g.numbers.filter((n) => Math.abs(n.y - (g.xAxis.y + g.fs + 6)) < 0.5 && n.anchor === 'middle').map((n) => ({ at: n.x, value: value(n.text) }))
+    ? g.numbers.filter((n) => Math.abs(n.y - (g.xAxis.y + g.fs + 6)) < 0.5).map((n) => ({ at: line(n.x), value: value(n.text) }))
     : g.numbers.filter((n) => n.anchor === 'end' && Math.abs(n.x - (g.yAxis.x - 6)) < 0.5).map((n) => ({ at: n.y, value: value(n.text) }))
 }
 
@@ -103,6 +104,27 @@ describe('measuring the wave on its axes', () => {
     expect(off.crests[1].x - off.crests[0].x).toBeCloseTo(on.crests[1].x - on.crests[0].x, 6)
     expect(off.rest!.y1).toBe(off.crests[0].y + 3 * on.unit.y)
     expect(on.rest).toBeNull()
+  })
+
+  test('a number where the wave crosses the axis moves beside its line, to the side the wave isn’t', () => {
+    for (const q of ['', 'xAxis=time&period=0.5&cycles=4&amplitude=4', 'amplitude=0.5&wavelength=0.2&cycles=4', 'wavelength=3&cycles=3&labelSize=large']) {
+      const s = settingsOf(q)
+      const f = buildWave(s)
+      const g = f.graph!
+      const repeatPx = f.crests[1].x - f.crests[0].x
+      const row = g.numbers.filter((n) => Math.abs(n.y - (g.xAxis.y + g.fs + 6)) < 0.5 && n.anchor !== 'end')
+      expect(row.some((n) => n.anchor === 'start'), q).toBe(true)
+      for (const n of row) {
+        const width = n.text.length * g.fs * 0.6
+        const left = n.anchor === 'start' ? n.x : n.x - width / 2
+        // Under the axis, the wave never runs through the number's line of text.
+        for (let x = left; x <= left + width; x++) {
+          const depth = -s.amplitude * f.unit.y * Math.sin((2 * Math.PI * (x - g.yAxis.x)) / repeatPx)
+          expect(depth > 6 && depth < g.fs + 6, `${q}: ${n.text} at ${x}`).toBe(false)
+        }
+        expect(left + width, q).toBeLessThanOrEqual(f.width)
+      }
+    }
   })
 
   test('gridlines give way to tick marks', () => {
