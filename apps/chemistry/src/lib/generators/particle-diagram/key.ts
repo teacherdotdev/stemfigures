@@ -5,7 +5,7 @@
 // sit in the figure for each Show setting. See CONTEXT.md "Key".
 
 import { plainText, textRuns } from './keyText'
-import { describeParticle, particleDiscs, type Disc, type ParticleKind } from './particles'
+import { describeParticle, discBounds, particleDiscs, type Disc, type ParticleKind } from './particles'
 import { BOX_SIDE, type Show } from './settings'
 
 /** Space inside the key's border. */
@@ -53,16 +53,6 @@ export function textSpans(text: string, size: number): Span[] {
 
 /** About how wide pieces of text are, each at its own size. */
 export const spansWidth = (spans: Span[]) => spans.reduce((w, s) => w + textWidth(s.text, s.size), 0)
-
-/** How far a drawing's discs reach in each direction. */
-export function discBounds(discs: Disc[]) {
-  return {
-    left: Math.min(...discs.map((d) => d.x - d.r)),
-    right: Math.max(...discs.map((d) => d.x + d.r)),
-    top: Math.min(...discs.map((d) => d.y - d.r)),
-    bottom: Math.max(...discs.map((d) => d.y + d.r)),
-  }
-}
 
 export interface KeyLine {
   name: string

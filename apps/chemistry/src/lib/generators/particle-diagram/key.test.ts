@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { KEY_GAP, KEY_PAD, NAME_GAP, SCRIPT, discBounds, figureLayout, keyLabel, keyLayout, spansWidth, textSpans, textWidth } from './key'
-import { DEFAULT_OUTER, RADIUS, particleDiscs, type ParticleKind } from './particles'
+import { KEY_GAP, KEY_PAD, NAME_GAP, SCRIPT, figureLayout, keyLabel, keyLayout, spansWidth, textSpans, textWidth } from './key'
+import { DEFAULT_OUTER, RADIUS, discBounds, particleDiscs, type ParticleKind } from './particles'
 import { BOX_SIDE } from './settings'
 
 const alone = { shape: 'single', outer: DEFAULT_OUTER } as const

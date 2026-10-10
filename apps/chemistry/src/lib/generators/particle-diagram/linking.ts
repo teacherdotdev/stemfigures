@@ -12,20 +12,25 @@ const SHAPE_WORDS = SHAPES.map((s) => `${s} (${SHAPE_NAMES[s].toLowerCase()})`).
 export const particleLinking = describeLinking(particleSettings, {
   id: 'particle-diagram',
   summary:
-    'Atoms, ions and molecules drawn as plain discs, either scattered at random in a fixed square box (layout=scattered, from the particles list) or packed in a lattice (layout=lattice, from main and second). An optional key beside the box names each kind.',
+    'Atoms, ions and molecules drawn as plain discs, either in a fixed square box as a gas, liquid or solid (layout=scattered, from the particles list and state) or packed in a lattice (layout=lattice, from main and second). An optional key beside the box names each kind.',
   notes: [
     `particles is a URL-encoded JSON array of 1 to ${MAX_KINDS} particle kinds, each {"count":0–${MAX_COUNT},"shape":…,"look":LOOK,"outer":LOOK,"name":"…"}. shape is one of ${SHAPE_WORDS}; look is the center (or only) disc and outer every disc around it. A look is ${LOOK}. A missing count is 1, a missing look is medium white with no charge, a missing outer is small white with no charge, and name (up to ${MAX_NAME} characters) is what the key calls the kind. A kind with count 0 appears only in the key. Particles that don’t fit in the box are left out.`,
     'Key names (name, mainName, secondName, atomNames) and keyNote can have subscripts and superscripts: _ before a subscript and ^ before a superscript, with braces around more than one character, so H_2O is H₂O and SO_4^{2-} is SO₄²⁻ (a hyphen in a superscript is drawn as a minus sign).',
     'seed picks the random positions (and, in a lattice, which sites get the second kind); the same seed always gives the same figure.',
     `In a lattice, pattern=pure uses main only; alternate alternates main and second like an ionic solid; substitute swaps secondCount sites for second (room for rows × columns); interstitial puts secondCount second atoms in the gaps between four (room for (rows − 1) × (columns − 1), e.g. ${latticeRoom({ pattern: 'interstitial', rows: 4, columns: 5 })} in a 4 × 5 lattice).`,
-    'border applies to the scattered box and latticeBorder to the lattice (none by default).',
+    'border applies to the box of particles and latticeBorder to the lattice (none by default).',
     `With keyList=atoms the key lists each different atom or ion in the particle kinds once (a molecule’s center before its outer atoms), instead of each kind whole. Their names are atomNames, a URL-encoded JSON array of up to ${MAX_ATOMS} {"look":LOOK,"name":"…"}, each naming the atom drawn with that look; an atom with no name in it is listed without one.`,
   ],
   params: {
-    layout: { what: 'How the particles are arranged.', values: 'scattered: at random in a box, for a gas, liquid or solution; lattice: packed in a grid, for a solid' },
-    particles: { what: 'The particle kinds scattered in the box, as JSON (see notes).', when: 'layout=scattered' },
+    layout: { what: 'How the particles are arranged.', values: 'scattered: in a box, as state says (scattered from when every box was a gas); lattice: packed in a grid, for an ionic solid or alloy' },
+    state: {
+      what: 'How the particles sit in the box.',
+      when: 'layout=scattered',
+      values: 'gas: spread out at random, also for a solution; liquid: close together but jumbled, settled at the bottom; solid: in rows from the bottom up, all turned the same way',
+    },
+    particles: { what: 'The particle kinds in the box, as JSON (see notes).', when: 'layout=scattered' },
     seed: { what: 'Which random arrangement is drawn. Rounded to a whole number.' },
-    border: { what: 'The scattered box’s border.', when: 'layout=scattered' },
+    border: { what: 'The box’s border.', when: 'layout=scattered' },
     pattern: { what: 'The lattice’s pattern.', when: 'layout=lattice', values: 'pure: one kind (a pure metal); alternate: alternating (an ionic solid); substitute: substitutional alloy; interstitial: interstitial alloy' },
     rows: { what: 'The lattice’s rows. Rounded to a whole number.', when: 'layout=lattice' },
     columns: { what: 'The lattice’s columns. Rounded to a whole number.', when: 'layout=lattice' },

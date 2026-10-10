@@ -136,7 +136,7 @@ _Avoid_: Solution, label
 ### Particle diagrams
 
 **Particle diagram**:
-A figure of atoms, ions and molecules scattered in a box or packed in a lattice, as in AP Chemistry's particulate-level questions. The generator is Particle Diagram.
+A figure of atoms, ions and molecules in a box, as a gas, liquid or solid, or packed in a lattice, as in AP Chemistry's particulate-level questions. The generator is Particle Diagram.
 _Avoid_: Particulate diagram (fine in search keywords), particle model
 
 **Particle**:
@@ -160,19 +160,23 @@ Ions joined together, drawn like a molecule but named honestly, e.g. an Na⁺Cl�
 _Avoid_: Molecule (for joined ions), formula unit
 
 **Layout**:
-How a particle diagram's particles are arranged: scattered at random in the box, or in a lattice.
+How a particle diagram's particles are arranged: in the box, as its state says, or in a lattice.
 _Avoid_: Arrangement, mode
+
+**State**:
+How the particles in a box sit: a gas, spread out at random without touching (every box was this before states, and a solution's particles are drawn this way too); a liquid, dropped in one at a time to settle close together but jumbled at the bottom, never overlapping; or a solid, in rows from the bottom up, all turned the same way, each in a cell as big as the biggest particle. A solid in a box isn't a lattice: it is made of the particle kinds, so the same molecules can be shown in each state.
+_Avoid_: Phase (fine in help text), mode
 
 **Lattice**:
 A square grid of touching or evenly spaced atoms or ions, drawn for a solid, in one of four patterns: one kind (a pure metal), alternating (an ionic solid), substitutional (an alloy with some atoms swapped for another kind) or interstitial (an alloy with small atoms in the gaps).
 _Avoid_: Grid, crystal (fine in search keywords), array
 
 **Box**:
-The container a particle diagram is drawn in, with a single, double or no border. For scattered particles it is always the same square, never sized to the particles, so answer choices made one at a time line up; atom size is what sets how crowded it looks, and particles that don't fit are left out and the settings say so. Around a lattice it just fits the lattice, and has no border unless the teacher adds one. A figure is one box, with an optional chart title but no caption, choice letter or answer key.
+The container a particle diagram is drawn in, with a single, double or no border. For particles, in any state, it is always the same square, never sized to the particles, so answer choices made one at a time line up; atom size is what sets how crowded it looks, and particles that don't fit are left out and the settings say so. Around a lattice it just fits the lattice, and has no border unless the teacher adds one. A figure is one box, with an optional chart title but no caption, choice letter or answer key.
 _Avoid_: Container, vessel, frame
 
 **Key**:
-An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. For scattered particles it can list each atom instead: every different atom or ion in the kinds drawn alone once, with its own name, so students write the formulas (an atom's look is what makes it the same atom in two kinds). Names and the note can have subscripts and superscripts, typed H_2O and SO_4^{2-}. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.
+An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. For particles in a box it can list each atom instead: every different atom or ion in the kinds drawn alone once, with its own name, so students write the formulas (an atom's look is what makes it the same atom in two kinds). Names and the note can have subscripts and superscripts, typed H_2O and SO_4^{2-}. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.
 _Avoid_: Legend
 
 ### Lewis structures

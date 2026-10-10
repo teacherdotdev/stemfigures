@@ -37,6 +37,22 @@ describe('what the box holds', () => {
     expect(box.discs).toHaveLength(8)
   })
 
+  it('a liquid or solid: the same fixed square, its particles arranged for the state', () => {
+    for (const state of ['liquid', 'solid'] as const) {
+      const box = boxContents({ ...d, state })
+      expect(box).toMatchObject({ width: BOX_SIDE, height: BOX_SIDE, border: 'single', kinds: d.particles })
+      expect(box.discs).toHaveLength(8)
+      expect(box.discs).not.toEqual(boxContents(d).discs)
+    }
+  })
+
+  it('a state travels in the address, and an address without one is a gas', () => {
+    const s = { ...d, state: 'liquid' as const }
+    expect(particleSettings.toQuery(s)).toBe('state=liquid')
+    expect(particleSettings.fromParams(new URLSearchParams('state=liquid'))).toEqual(s)
+    expect(particleSettings.fromParams(new URLSearchParams('seed=4')).state).toBe('gas')
+  })
+
   it('a lattice: a box that just fits the grid, with no border unless one is added', () => {
     const s = { ...d, layout: 'lattice' as const, pattern: 'pure' as const, rows: 2, columns: 3 }
     const box = boxContents(s)

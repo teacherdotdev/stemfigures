@@ -314,11 +314,11 @@ export const COPY: Record<string, GeneratorCopy> = {
   'particle-diagram': {
     heading: 'Particle diagrams of atoms, ions and molecules',
     intro: [
-      'Particle Diagram draws the particulate-level pictures used in AP Chemistry: atoms, ions and molecules scattered at random in a box, for a gas, liquid or solution, or packed in a lattice, for a solid. Choose up to four kinds of particle and how many of each. Each atom has a size and a gray shade, an ion carries its charge written in its middle, and a molecule is a center atom with outer atoms touching it, in shapes like Cl₂, H₂O or CCl₄.',
-      'Scattered particles always go in the same size box, so four answer choices made one at a time line up on the page. A key beside the box shows each kind with the name you type, and it can go with the box, be left off, or be shown alone, so several answer choices can share one key.',
+      'Particle Diagram draws the particulate-level pictures used in AP Chemistry: atoms, ions and molecules in a box, spread out as a gas or solution, close together as a liquid or in rows as a solid, or packed in a lattice for an ionic solid or alloy. Choose up to four kinds of particle and how many of each. Each atom has a size and a gray shade, an ion carries its charge written in its middle, and a molecule is a center atom with outer atoms touching it, in shapes like Cl₂, H₂O or CCl₄.',
+      'The box of particles is always the same size, so four answer choices made one at a time line up on the page. A key beside the box shows each kind with the name you type, and it can go with the box, be left off, or be shown alone, so several answer choices can share one key.',
     ],
     settings: [
-      'Layout: scattered in a box, or a lattice of up to 12 rows and 12 columns',
+      'Layout: particles in a box as a gas, liquid or solid, or a lattice of up to 12 rows and 12 columns',
       'Up to four kinds of particle, 0 to 60 of each, each alone or joined as a pair, bent, in a line, three around or four around',
       'Each atom’s size (XS to XL), shade (white to black) and charge (+, −, 2+, 2−, 3+ or 3−)',
       'Lattice patterns: one kind (a pure metal), alternating (an ionic solid), substitutional or interstitial (alloys), touching or spaced',
@@ -331,7 +331,11 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'How do I make four answer choices that line up?',
-        a: 'Make each choice one at a time and copy it into your document. Scattered particles always go in the same square box, so the choices come out the same size. Set the key to Key only to make one shared key for all of them.',
+        a: 'Make each choice one at a time and copy it into your document. Particles always go in the same square box, whatever their state, so the choices come out the same size. Set the key to Key only to make one shared key for all of them.',
+      },
+      {
+        q: 'Can it show solids, liquids and gases?',
+        a: 'Yes. Pick the box’s state: Gas spreads the particles out at random, Liquid settles them close together but jumbled at the bottom, and Solid packs them in rows at the bottom, all turned the same way. Keep the same particles and change only the state to compare the three.',
       },
       {
         q: 'Can I show an ionic solid or an alloy?',

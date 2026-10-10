@@ -170,7 +170,8 @@ export interface AtomName {
   name: string
 }
 
-/** Two kinds can have at most this many different atoms between them. */
+/** The most different atoms the kinds can have between them: a center and
+ *  an outer look each. */
 export const MAX_ATOMS = 2 * MAX_KINDS
 
 export const sameLook = (a: Look, b: Look) => a.size === b.size && a.shade === b.shade && a.charge === b.charge
@@ -241,4 +242,14 @@ export function particleDiscs(kind: ParticleKind, angle = 0): Disc[] {
     return { ...kind.outer, x: distance * Math.cos(a), y: distance * Math.sin(a), r: RADIUS[kind.outer.size] }
   })
   return [...outer, center]
+}
+
+/** How far a drawing's discs reach in each direction. */
+export function discBounds(discs: Disc[]) {
+  return {
+    left: Math.min(...discs.map((d) => d.x - d.r)),
+    right: Math.max(...discs.map((d) => d.x + d.r)),
+    top: Math.min(...discs.map((d) => d.y - d.r)),
+    bottom: Math.max(...discs.map((d) => d.y + d.r)),
+  }
 }

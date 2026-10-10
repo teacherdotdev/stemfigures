@@ -1,7 +1,8 @@
 <script lang="ts">
   // Particle Diagram: list the kinds of atoms, ions, molecules and ion
-  // clusters, say how many of each, and get a box with them scattered in it;
-  // or pick one or two atoms or ions and get them packed in a lattice.
+  // clusters, say how many of each, and get a box of them as a gas, liquid
+  // or solid; or pick one or two atoms or ions and get them packed in a
+  // lattice.
   import { Atom, Dices, Grid3x3, LayoutGrid, List, Plus, Square, Trash2, Type } from '@lucide/svelte'
   import GeneratorPage from '$shared/GeneratorPage.svelte'
   import LabelField from '$shared/LabelField.svelte'
@@ -11,6 +12,7 @@
   import ParticleFigure from './ParticleFigure.svelte'
   import ShapePicker from './ShapePicker.svelte'
   import { LATTICE_PATTERNS, LATTICE_SPACINGS, latticeRoom, type LatticePattern, type LatticeSpacing } from './lattice'
+  import { STATES, type State } from './layout'
   import {
     DEFAULT_OUTER,
     MAX_COUNT,
@@ -44,7 +46,13 @@
   const s = gen.s
   let svg = $state<SVGSVGElement>()
 
-  const LAYOUT_NAMES: Record<Layout, string> = { scattered: 'Scattered', lattice: 'Lattice' }
+  const LAYOUT_NAMES: Record<Layout, string> = { scattered: 'In a box', lattice: 'Lattice' }
+  const STATE_NAMES: Record<State, string> = { gas: 'Gas', liquid: 'Liquid', solid: 'Solid' }
+  const STATE_NOTES: Record<State, string> = {
+    gas: 'Spread out at random, for a gas or the particles in a solution.',
+    liquid: 'Close together but jumbled, settled at the bottom.',
+    solid: 'Packed in rows at the bottom, all turned the same way.',
+  }
   const BORDER_NAMES: Record<Border, string> = { single: 'Single', double: 'Double', none: 'None' }
   const SHOW_NAMES: Record<Show, string> = { box: 'Box only', both: 'Box and key', key: 'Key only' }
   const KEY_LIST_NAMES: Record<KeyList, string> = { particles: 'Molecules', atoms: 'Each atom' }
@@ -132,7 +140,7 @@
 
 <GeneratorPage name="Particle Diagram" filename="particle-diagram" settingsWidth={27} {gen} {svg}>
   {#snippet settings()}
-    <Section title="Layout" summary={LAYOUT_NAMES[s.layout]} icon={LayoutGrid} open>
+    <Section title="Layout" summary={lattice ? LAYOUT_NAMES[s.layout] : `${LAYOUT_NAMES[s.layout]}, ${STATE_NAMES[s.state].toLowerCase()}`} icon={LayoutGrid} open>
       <div class="segmented" role="radiogroup" aria-label="Layout">
         {#each LAYOUTS as layout (layout)}
           <button type="button" role="radio" aria-checked={s.layout === layout} class:on={s.layout === layout} onclick={() => (s.layout = layout)}>
@@ -140,7 +148,19 @@
           </button>
         {/each}
       </div>
-      <p class="note">{lattice ? 'Atoms or ions packed in a grid, for a solid.' : 'Particles placed at random in the box, for a gas, liquid or solution.'}</p>
+      {#if lattice}
+        <p class="note">Atoms or ions packed in a grid, for a solid.</p>
+      {:else}
+        <p class="field-label spaced">State</p>
+        <div class="segmented" role="radiogroup" aria-label="State">
+          {#each STATES as state (state)}
+            <button type="button" role="radio" aria-checked={s.state === state} class:on={s.state === state} onclick={() => (s.state = state)}>
+              {STATE_NAMES[state]}
+            </button>
+          {/each}
+        </div>
+        <p class="note">{STATE_NOTES[s.state]}</p>
+      {/if}
     </Section>
     {#if lattice}
       <Section title="Lattice" summary={latticeSummary} icon={Grid3x3} open>
@@ -249,7 +269,7 @@
           </label>
         {/if}
       {:else}
-        <p class="field-label list">List</p>
+        <p class="field-label spaced">List</p>
         <div class="segmented" role="radiogroup" aria-label="List">
           {#each KEY_LISTS as list (list)}
             <button type="button" role="radio" aria-checked={s.keyList === list} class:on={s.keyList === list} onclick={() => (s.keyList = list)}>
@@ -329,7 +349,7 @@
   .note { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.82rem; }
   .warning { margin: 0.75rem 0 0; padding: 0.55rem 0.75rem; border-radius: 10px; background: var(--red-soft); color: #991b1b; font-size: 0.85rem; }
   .field-label { margin: 0 0 0.45rem; font-weight: 700; font-size: 0.9rem; }
-  .field-label.list { margin-top: 0.9rem; }
+  .field-label.spaced { margin-top: 0.9rem; }
   .key-field { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.85rem; font-size: 0.9rem; font-weight: 700; }
   .key-field input { font-weight: 400; }
 </style>

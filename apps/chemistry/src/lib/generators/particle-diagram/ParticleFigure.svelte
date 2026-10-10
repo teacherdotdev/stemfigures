@@ -1,12 +1,13 @@
 <script lang="ts">
-  // The Particle Diagram figure: the box with its particles scattered or its
-  // lattice, its key to the right, or both, as Show says. `box` is what the
-  // box holds for these settings, worked out by whoever shows the figure,
-  // since the page also reports what didn't fit.
+  // The Particle Diagram figure: the box with its particles or its lattice,
+  // its key to the right, or both, as Show says. `box` is what the box holds
+  // for these settings, worked out by whoever shows the figure, since the
+  // page also reports what didn't fit.
   import FigureFrame from '$lib/shared/FigureFrame.svelte'
   import Discs from './Discs.svelte'
   import KeyDrawing from './KeyDrawing.svelte'
   import { figureLayout, keyLabel, keyLayout } from './key'
+  import type { State } from './layout'
   import { describeKind, describeParticle } from './particles'
   import { DOUBLE_INSET, keyKinds, type BoxContents, type ParticleSettings } from './settings'
 
@@ -16,6 +17,9 @@
   const key = $derived(keyLayout(listed, settings.keyNote))
   const layout = $derived(figureLayout(settings.show, key, box))
 
+  /** How a box's state reads after what's in it; a gas reads as boxes always did. */
+  const STATE_WORDS: Record<State, string> = { gas: '', liquid: ', close together at the bottom as a liquid', solid: ', packed in rows as a solid' }
+
   const boxLabel = $derived(
     settings.layout === 'lattice'
       ? `A particle diagram: a lattice of ${box.kinds.map((k) => `${describeParticle(k)}s`).join(' and ')}`
@@ -24,7 +28,7 @@
             .filter((k) => k.count)
             .map(describeKind)
             .join(', ') || 'an empty box'
-        }`,
+        }${STATE_WORDS[settings.state]}`,
   )
   const label = $derived(
     settings.show === 'box'

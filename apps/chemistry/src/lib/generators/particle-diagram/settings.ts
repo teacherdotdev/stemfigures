@@ -2,7 +2,7 @@
 
 import { choice, defineSettings, json, number, text } from '$lib/shared/settings'
 import { LATTICE_PATTERNS, LATTICE_SPACINGS, lattice, latticeRoom } from './lattice'
-import { scatter } from './layout'
+import { STATES, arrange } from './layout'
 import {
   DEFAULT_OUTER,
   MAX_NAME,
@@ -17,7 +17,8 @@ import {
   type ParticleKind,
 } from './particles'
 
-/** Particles scattered at random in the box, or packed in a lattice. */
+/** Particles in the box, as a gas, liquid or solid (see `state`), or packed
+ *  in a lattice. Called scattered from before boxes had states. */
 export const LAYOUTS = ['scattered', 'lattice'] as const
 export type Layout = (typeof LAYOUTS)[number]
 
@@ -59,6 +60,8 @@ const look = (fallback: Look) => json(fallback, (v) => (isObject(v) ? tidyLook(v
 export const particleSettings = defineSettings(
   {
     layout: choice(LAYOUTS, 'scattered'),
+    // boxes from before states were a gas: scattered at random
+    state: choice(STATES, 'gas'),
     particles: json(DEFAULT_KINDS, tidyKinds),
     seed: number({ min: 1, max: MAX_SEED, fallback: 2 }),
     border: choice(BORDERS, 'single'),
@@ -94,11 +97,11 @@ export type ParticleSettings = typeof particleSettings.defaults
 /** A seed for a new random layout. */
 export const newSeed = () => 1 + Math.floor(Math.random() * MAX_SEED)
 
-/** The particles scattered in the box for these settings, inside the inner
- *  line of a double border, and how many didn't fit. */
+/** The particles in the box for these settings, arranged for its state
+ *  inside the inner line of a double border, and how many didn't fit. */
 export function boxParticles(s: ParticleSettings) {
   const inset = s.border === 'double' ? DOUBLE_INSET : 0
-  const { discs, missing } = scatter(s.particles, BOX_SIDE - 2 * inset, BOX_SIDE - 2 * inset, s.seed)
+  const { discs, missing } = arrange(s.state, s.particles, BOX_SIDE - 2 * inset, BOX_SIDE - 2 * inset, s.seed)
   return { discs: discs.map((d) => ({ ...d, x: d.x + inset, y: d.y + inset })), missing }
 }
 
@@ -128,8 +131,8 @@ export interface BoxContents {
   kinds: ParticleKind[]
 }
 
-/** Everything in the box for these settings: the fixed square of scattered
- *  particles, or a lattice with a box just fitting it. */
+/** Everything in the box for these settings: the fixed square of particles,
+ *  or a lattice with a box just fitting it. */
 export function boxContents(s: ParticleSettings): BoxContents {
   if (s.layout === 'scattered') return { width: BOX_SIDE, height: BOX_SIDE, border: s.border, ...boxParticles(s), kinds: s.particles }
   const grid = lattice(s)
