@@ -59,7 +59,7 @@
   }
   const BORDER_NAMES: Record<Border, string> = { single: 'Single', double: 'Double', none: 'None' }
   const SHOW_NAMES: Record<Show, string> = { box: 'Box only', both: 'Box and key', key: 'Key only' }
-  const KEY_LIST_NAMES: Record<KeyList, string> = { particles: 'Molecules', atoms: 'Each atom' }
+  const KEY_LIST_NAMES: Record<KeyList, string> = { particles: 'Each particle', atoms: 'Each atom' }
   const PATTERN_NAMES: Record<LatticePattern, string> = {
     pure: 'One kind',
     alternate: 'Alternating',
@@ -242,10 +242,7 @@
           <div class="kind">
             <div class="kind-head">
               <strong>{name}</strong>
-              {#if two}
-                {@render numberField('Before', kind.count, 0, MAX_COUNT, (v) => (kind.count = v))}
-                {@render numberField('After', afterCount(kind), 0, MAX_COUNT, (v) => (kind.after = v))}
-              {:else}
+              {#if !two}
                 <label class="number">
                   <span>How many</span>
                   <input
@@ -264,6 +261,12 @@
                 </button>
               {/if}
             </div>
+            {#if two}
+              <div class="numbers counts">
+                {@render numberField('Before', kind.count, 0, MAX_COUNT, (v) => (kind.count = v))}
+                {@render numberField('After', afterCount(kind), 0, MAX_COUNT, (v) => (kind.after = v))}
+              </div>
+            {/if}
             <ShapePicker bind:shape={kind.shape} {name} />
             {#if kind.shape === 'single'}
               <LookSettings bind:look={kind.look} {name} />
@@ -375,11 +378,12 @@
   .kind { padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
   .kind:first-child { padding-top: 0.35rem; }
   .kind-head { display: flex; align-items: center; gap: 0.75rem; }
-  .kind-head strong { flex: 1; font-size: 0.92rem; }
+  .kind-head strong { flex: 1; font-size: 0.92rem; white-space: nowrap; }
   .part { margin: 0.9rem 0 0; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
   .number { display: flex; align-items: center; gap: 0.45rem; font-size: 0.84rem; color: var(--muted); }
   .number input { width: 4.2rem; font-variant-numeric: tabular-nums; }
   .numbers { display: flex; flex-wrap: wrap; gap: 0.6rem 1.1rem; margin-top: 0.8rem; }
+  .numbers.counts { margin-top: 0.55rem; }
   .spacing { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.8rem; }
   .spacing .segmented { flex: 1; }
   .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }

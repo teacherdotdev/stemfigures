@@ -355,7 +355,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'Can the key show each atom on its own, for writing formulas?',
-        a: 'Yes. Set the key’s List to Each atom and it shows every different atom once, drawn alone with its own name, instead of each molecule whole. An atom in two kinds of molecule, like the O in H₂O and CO₂, is listed once. Students can then work out each molecule’s formula from the box.',
+        a: 'Yes. Set the key’s List to Each atom instead of Each particle and it shows every different atom once, drawn alone with its own name, rather than each molecule whole. An atom in two kinds of molecule, like the O in H₂O and CO₂, is listed once. Students can then work out each molecule’s formula from the box.',
       },
       {
         q: 'Can a kind of particle appear in the key but not in the box?',

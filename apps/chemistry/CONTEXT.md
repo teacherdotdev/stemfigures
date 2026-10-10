@@ -180,7 +180,7 @@ The two boxes of a before-and-after figure, side by side with an arrow from the 
 _Avoid_: Reactants box, products box, start/end
 
 **Key**:
-An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. For particles in a box it can list each atom instead: every different atom or ion in the kinds drawn alone once, with its own name, so students write the formulas (an atom's look is what makes it the same atom in two kinds). Names and the note can have subscripts and superscripts, typed H_2O and SO_4^{2-}. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.
+An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. For particles in a box its List can be each particle, as above, or each atom: every different atom or ion in the kinds drawn alone once, with its own name, so students write the formulas (an atom's look is what makes it the same atom in two kinds). Names and the note can have subscripts and superscripts, typed H_2O and SO_4^{2-}. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.
 _Avoid_: Legend
 
 ### Lewis structures
