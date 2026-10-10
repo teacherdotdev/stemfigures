@@ -1,4 +1,4 @@
-// Lays out a Motion Graphs figure for MotionGraphs.svelte to draw: one
+// Lays out a Motion Graph figure for MotionGraphs.svelte to draw: one
 // graph, or position, velocity and acceleration stacked on the same time
 // axis, each a $shared/graph grid fitted to the motion, with its lines,
 // lettered boundaries and the tangent on it. Axis titles are drawn here

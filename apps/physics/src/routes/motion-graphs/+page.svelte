@@ -1,6 +1,6 @@
 <script lang="ts">
-  // Motion Graphs' page: its search engine details, the generator, and its
-  // About drawer.
+  // The Motion Graph Generator's page: its search engine details, the
+  // generator, and its About drawer.
   import { findGenerator } from '$lib/generators/index'
   import Generator from '$lib/generators/motion-graphs/Generator.svelte'
   import GeneratorAbout from '$lib/site/GeneratorAbout.svelte'

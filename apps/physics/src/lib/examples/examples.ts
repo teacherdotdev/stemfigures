@@ -49,7 +49,7 @@ const force = (angle: number, length: number, label: string, more: Partial<Force
   ...more,
 })
 
-/** A Motion Graphs segment. */
+/** A Motion Graph segment. */
 const segment = (kind: Segment['kind'], size: Segment['size'], duration: number, dir: Segment['dir'] = 'forward'): Segment => ({ kind, size, duration, dir })
 
 /** A Vector Diagram vector, with its other fields at their defaults. */

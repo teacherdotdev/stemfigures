@@ -152,6 +152,28 @@ _Avoid_: Coordinate system
 
 On a Vector Diagram, an **angle mark** is drawn at the arrow's tail and a **component** pair runs head to tail from it (along the horizontal, then the vertical to the tip), for any vector or the resultant. Both are off by default.
 
+### Motion Graph
+
+**Motion Graph**:
+A figure of one motion along a line: its position–time, velocity–time or acceleration–time graph, or all three stacked on the same time axis. Its generator is the Motion Graph Generator. Every graph is worked out from the velocity–time graph, so they always match.
+_Avoid_: Kinematics graph, x–t graph, distance–time graph (all fine as search words)
+
+**Segment**:
+One stretch of the motion, up to six in a row: at rest, constant velocity forward or back, speeding up or slowing down, slow, medium or fast, for 1 to 10 seconds. It is a straight line on the velocity–time graph. Speeding up and slowing down carry on from the velocity before them, and slowing down stops at rest rather than turning around.
+_Avoid_: Section, phase, interval
+
+**Segment end**:
+Where a segment starts or ends, lettered A, B, C… from the start, for questions like "what is the cart doing between B and C?". The letters are the same on every graph.
+_Avoid_: Point (that's a circuit's), node
+
+**Tangent**:
+A dashed line touching the position–time graph at a chosen time. Its slope is the instantaneous velocity there.
+_Avoid_: Slope line
+
+**Ranges**:
+Each axis's From, To and Count by. They are fitted to the motion unless the teacher sets them, to make several graphs on a worksheet match. Stacked graphs share the time axis's range; each has its own up its side.
+_Avoid_: Scale, window, zoom
+
 ### Circuit Diagram
 
 **Circuit Diagram**:

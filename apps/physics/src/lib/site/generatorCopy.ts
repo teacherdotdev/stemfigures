@@ -232,7 +232,7 @@ export const COPY: Record<string, GeneratorCopy> = {
   'motion-graphs': {
     heading: 'Position–time, velocity–time and acceleration–time graphs',
     intro: [
-      'Motion Graphs draws the graphs of an object moving along a line, built from up to six segments. Each segment is at rest, moving at a constant velocity forward or back, speeding up or slowing down, for 1 to 10 seconds, slow, medium or fast. The numbers are worked out for you: the velocity–time graph is straight lines, and the position–time and acceleration–time graphs come from it exactly, so all three always match.',
+      'The Motion Graph Generator draws the graphs of an object moving along a line, built from up to six segments. Each segment is at rest, moving at a constant velocity forward or back, speeding up or slowing down, for 1 to 10 seconds, slow, medium or fast. The numbers are worked out for you: the velocity–time graph is straight lines, and the position–time and acceleration–time graphs come from it exactly, so all three always match.',
       'Show the position–time, velocity–time or acceleration–time graph, or all three stacked on the same time axis, for questions that match one graph to another. Letter the segment ends A, B, C… for questions like “what is the cart doing between B and C?”, hide the numbers to show only the shapes, and draw a tangent on the position–time graph for instantaneous velocity.',
     ],
     settings: [
@@ -266,7 +266,7 @@ export const COPY: Record<string, GeneratorCopy> = {
         a: 'Its slope is the instantaneous velocity at the time it touches the position–time graph. Where the graph is curved, students can find the velocity there from the tangent’s rise over run; the settings panel shows the answer.',
       },
     ],
-    imageAlt: 'A printable position–time graph of a cart that speeds up, moves at a constant velocity, slows down and stops, with its segment ends lettered A to E, made with Motion Graphs',
+    imageAlt: 'A printable position–time graph of a cart that speeds up, moves at a constant velocity, slows down and stops, with its segment ends lettered A to E, made with the Motion Graph Generator',
     educationalLevel: ['Middle school', 'High school', 'AP Physics'],
   },
 

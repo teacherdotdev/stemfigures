@@ -78,7 +78,7 @@ export const PHYSICS: CatalogEntry[] = [
   {
     id: 'motion-graphs',
     site: 'physics',
-    name: 'Motion Graphs',
+    name: 'Motion Graph Generator',
     path: '/motion-graphs',
     blurb: 'Position, velocity and acceleration against time, built segment by segment.',
     description:

@@ -1,5 +1,5 @@
-// Every choice the teacher makes on Motion Graphs, with its default: a cart
-// that speeds up, cruises, slows down and stops, on a position–time graph.
+// Every choice the teacher makes on the Motion Graph Generator, with its
+// default: a cart that speeds up, cruises, slows down and stops, on a position–time graph.
 // The motion is picked by shape, segment by segment; ./motion works out its
 // numbers.
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  // Motion Graphs: the motion segment by segment, the graphs, marks, titles
+  // The Motion Graph Generator: the motion segment by segment, the graphs, marks, titles
   // and grid on the left, the figure on the right. Settings live in the page
   // address. The grids and axes are $shared/graph's, the same as Chemistry's
   // titration curve and Biology's population growth.
@@ -58,7 +58,7 @@
   })
 </script>
 
-<GeneratorPage name="Motion Graphs" filename="motion-graphs" {gen} settingsWidth={26} bind:labelSize={gen.s.labelSize}>
+<GeneratorPage name="Motion Graph Generator" filename="motion-graphs" {gen} settingsWidth={26} bind:labelSize={gen.s.labelSize}>
   {#snippet settings()}
     <Section title="Motion" icon={Route} summary={motionSummary}>
       {#each gen.s.segments as seg, i (seg)}

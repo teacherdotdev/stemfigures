@@ -1,5 +1,5 @@
 <script lang="ts">
-  // A Motion Graphs figure: one graph, or three stacked on the same time axis,
+  // A Motion Graph figure: one graph, or three stacked on the same time axis,
   // each the shared graph grid drawn as an SVG inside this one, with each
   // segment's line, dotted joins where velocity or acceleration jumps, the
   // tangent, and letters at the boundaries; the chart title above.
