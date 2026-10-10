@@ -19,6 +19,8 @@ import { readQuadrilateral } from '$lib/shapes/quadrilateral/settings.js'
 import { family as kite } from './kite/family.js'
 import { family as parallelogram } from './parallelogram/family.js'
 import { family as rectangle } from './rectangle/family.js'
+import { buildAngles } from './angles/layout.js'
+import * as angles from './angles/settings.js'
 import { buildLines, readLines } from './parallel-lines/layout.js'
 import * as parallel from './parallel-lines/settings.js'
 import { buildPolygon } from './regular-polygon/layout.js'
@@ -161,6 +163,17 @@ const PARALLEL = [
   lines(['t', 't1|name=t|angle=5|pos=0']),
 ]
 
+const ANGLES = [
+  '',
+  lines(['r', 'r1|dir=0|twoSided=1'], ['r', 'r2|dir=90'], ['r', 'r3|dir=32'], ['r', 'r4|dir=148'], ['a', 'r1+~r3+|label=text|text=y°'], ['a', 'r3+~r2+|label=measure'], ['a', 'r2+~r4+|label=text|text=x°'], ['a', 'r4+~r1-|mark=1'], ['pt', 'v|name=G']),
+  lines(['r', 'r1|dir=0|twoSided=1'], ['r', 'r2|dir=90'], ['a', 'r1+~r2+|label=measure|mark=right'], ['a', 'r2+~r1-|label=text|text=x°|mark=right']),
+  lines(['r', 'r1|dir=0|twoSided=1'], ['r', 'r2|dir=50|twoSided=1'], ['a', 'r1+~r2+|label=text|text=2x+10|mark=2'], ['a', 'r1-~r2-|label=measure|mark=2'], ['a', 'r2+~r1-|shade=1']),
+  lines(['r', 'r1|dir=0|endCap=circle'], ['r', 'r2|dir=45|endCap=circle'], ['a', 'r2+~r1+|label=measure|shade=4'], ['pt', 'v|name=G'], ['pt', 'r1:end|name=F'], ['pt', 'r2:end|name=H']),
+  lines(['turn', '30'], ['labelSize', 'large'], ['r', 'r1|dir=0'], ['r', 'r2|dir=40'], ['r', 'r3|dir=80|style=dashed'], ['a', 'r1+~r2+|mark=1'], ['a', 'r2+~r3+|mark=1']),
+  lines(['r', 'r1|dir=0'], ['r', 'r2|dir=180'], ['a', 'r1+~r2+|label=measure']),
+  lines(['r', 'r1|dir=0|twoSided=1'], ['r', 'r2|dir=180']),
+]
+
 const data = (...rows: string[]) => rows.map((r) => `data=${encodeURIComponent(r)}`).join('&')
 
 const BOX = [
@@ -275,6 +288,14 @@ describe('parallel lines and a transversal', () => {
     const s = parallel.settingsFromParams(params(q))
     const figure = buildLines(s)
     expect({ query: parallel.settingsToQuery(s), problems: readLines(s).problems, figure }).toMatchSnapshot()
+  })
+})
+
+describe('angles', () => {
+  test.each(ANGLES)('%s', (q) => {
+    const s = angles.settingsFromParams(params(q))
+    const figure = buildAngles(s)
+    expect({ query: angles.settingsToQuery(s), problems: angles.readRays(s).problems, figure }).toMatchSnapshot()
   })
 })
 
