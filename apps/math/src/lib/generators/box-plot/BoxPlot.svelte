@@ -49,6 +49,7 @@
   {#each g.boxes as b}
     <g stroke={INK} stroke-width="2.4" fill="none">
       {#each b.whiskers as w}<line x1={w.x1} y1={b.mid} x2={w.x2} y2={b.mid} />{/each}
+      {#each b.caps as c}<line x1={c.x} y1={c.y1} x2={c.x} y2={c.y2} />{/each}
       <rect x={b.box.x} y={b.box.y} width={b.box.w} height={b.box.h} fill="#fff" />
       <line x1={b.median} y1={b.box.y} x2={b.median} y2={b.box.y + b.box.h} />
     </g>

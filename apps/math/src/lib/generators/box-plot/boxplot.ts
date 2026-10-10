@@ -25,6 +25,7 @@ const AXIS_GAP = 24 // from the lowest box down to the line
 const LABEL_GAP = 7 // from a box's top up to its labels' baseline
 const LABEL_SPACE = 8 // least room between two labels side by side
 const R = 4.5 // outlier dot radius
+const CAP = BOX_H / 4 // half height of the line across a whisker's end
 const EPS = 1e-9
 
 
@@ -119,6 +120,9 @@ export function buildPlot(s: Settings) {
         { x1: x(q3), x2: x(p.whiskers!.hi) },
       ],
       mid,
+      // Upright lines across the whiskers' ends, at the minimum and maximum
+      // (or the last values short of the outliers).
+      caps: s.whiskerCaps ? [x(p.whiskers!.lo), x(p.whiskers!.hi)].map((cx) => ({ x: cx, y1: mid - CAP, y2: mid + CAP })) : [],
       outliers: p.outliers.map((v) => x(v)),
       labels: parts.map((q) => ({ x: q.x - q.box.w / 2, y: top - LABEL_GAP - q.box.desc - q.level * labelRow, box: q.box })),
     }

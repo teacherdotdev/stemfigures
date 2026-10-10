@@ -173,6 +173,10 @@
             <input type="checkbox" bind:checked={s.outliers} />
             <span>Show outliers <span class="hint">values more than 1.5 box widths past the box, drawn as dots</span></span>
           </label>
+          <label class="check">
+            <input type="checkbox" bind:checked={s.whiskerCaps} />
+            <span>Lines at the whisker ends <span class="hint">a short upright line at the minimum and maximum</span></span>
+          </label>
         </Section>
 
         <Section title="Titles" icon={Heading} summary={titlesSummary}>
