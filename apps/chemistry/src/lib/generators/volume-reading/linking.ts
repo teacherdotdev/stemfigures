@@ -31,12 +31,12 @@ const spacings = [
 export const volumeLinking = describeLinking(volumeSettings, {
   id: 'volume-reading',
   summary:
-    'Pick the instrument with instrument (and its size with size or beaker), and the volume it shows with reading, in mL. The reading is rounded to one digit past the smallest mark (or to decimals places) and kept on the scale.',
+    'Pick the instrument with instrument (and its size with size or beaker), and the volume it shows with reading, in mL. The reading is rounded to one digit past the smallest mark and kept on the scale.',
   notes: [
     'size applies only to the graduated cylinder and beaker only to the beaker; a buret is always 50 mL and reads from 0 at the top.',
     `reading is rounded and clamped to the chosen instrument, with its standard marks: ${readingRanges}.`,
     `marks and numbers take only the spacings the chosen instrument offers, in mL; any other is its standard one, and so are numbers that don’t land on a mark or leave more than 20 marks between numbers: ${spacings}.`,
-    'Finer or coarser marks change how far the reading goes, unless decimals sets it. cm³ is the same size as mL, so unit never changes the reading.',
+    'Finer or coarser marks change how far the reading goes. cm³ is the same size as mL, so unit never changes the reading.',
     'The magnifier is set with view for a cylinder or buret and with beakerView for a beaker (off by default, since beaker marks are coarse).',
   ],
   params: {
@@ -45,7 +45,6 @@ export const volumeLinking = describeLinking(volumeSettings, {
     beaker: { what: 'The beaker’s size.', when: 'instrument=beaker', values: 'small 50 mL, medium 250 mL, large 600 mL' },
     marks: { what: 'The mL between the smallest marks on the scale.', values: 'standard: the instrument’s usual marks; the others only where the instrument offers them (see notes)' },
     numbers: { what: 'The mL between numbered marks.', values: 'standard: the instrument’s usual numbers; none: the usual numbered marks drawn longer but without numbers, for students to work out; the others only where the instrument offers them (see notes)' },
-    decimals: { what: 'Decimal places in the reading and the answer key.', values: 'estimate: one digit past the smallest mark; 0 to 3: that many, whatever the marks' },
     unit: { what: 'The unit printed on the instrument and in the answer key.', values: 'mL; cm3: cm³' },
     reading: { what: 'The volume the liquid shows, in mL (or cm³), read at the bottom of the meniscus.', values: 'Rounded and kept within the instrument’s scale (see notes)' },
     guide: { what: 'Draws a dotted line from the bottom of the meniscus across to the marks.', when: 'instrument is cylinder or buret' },

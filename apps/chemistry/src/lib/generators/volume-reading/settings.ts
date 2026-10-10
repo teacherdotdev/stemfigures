@@ -5,7 +5,7 @@ import { MAGNIFIER_VIEWS } from '$lib/shared/magnify'
 import { bool, choice, defineSettings, number } from '$lib/shared/settings'
 import { LIQUID_TINTS } from './liquid'
 import {
-  BEAKER_SIZES, CYLINDER_SIZES, DECIMALS, INSTRUMENTS, MARK_SPACINGS, NUMBER_SPACINGS, UNIT_SYMBOLS, VOLUME_UNITS, fitScale, formatReading,
+  BEAKER_SIZES, CYLINDER_SIZES, INSTRUMENTS, MARK_SPACINGS, NUMBER_SPACINGS, UNIT_SYMBOLS, VOLUME_UNITS, fitScale, formatReading,
   roundReading, volumeScale,
 } from './scale'
 
@@ -16,7 +16,6 @@ export const volumeSettings = defineSettings(
     beaker: choice(BEAKER_SIZES, 'medium'),
     marks: choice(MARK_SPACINGS, 'standard'),
     numbers: choice(NUMBER_SPACINGS, 'standard'),
-    decimals: choice(DECIMALS, 'estimate'),
     unit: choice(VOLUME_UNITS, 'mL'),
     reading: number({ min: 0, max: 1000, fallback: 43.6 }),
     /** a dotted line from the bottom of the meniscus across to the scale */

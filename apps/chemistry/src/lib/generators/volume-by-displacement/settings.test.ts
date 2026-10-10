@@ -39,13 +39,13 @@ describe('addresses from before the scale could be chosen', () => {
   ] as const)('"%s" keeps its cylinders’ scale, readings and address', (query, labelEvery, minorEvery, decimals) => {
     const s = fromQuery(query)
     expect(cylinderScale(s)).toMatchObject({ labelEvery, minorEvery, decimals, numbered: true })
-    expect(s).toMatchObject({ marks: 'standard', numbers: 'standard', decimals: 'estimate', unit: 'mL', guide: false })
+    expect(s).toMatchObject({ marks: 'standard', numbers: 'standard', unit: 'mL', guide: false })
     expect(displacementSettings.toQuery(s)).toBe(query)
   })
 
-  it('the 25 mL cylinders now have 0.5 mL marks numbered every 1 mL, with the same readings', () => {
+  it('the 25 mL cylinders now have 0.5 mL marks numbered every 5 mL, with the same readings', () => {
     const s = fromQuery('size=25&before=12&after=15.5&marbles=3')
-    expect(cylinderScale(s)).toMatchObject({ labelEvery: 1, minorEvery: 0.5, decimals: 2 })
+    expect(cylinderScale(s)).toMatchObject({ labelEvery: 5, minorEvery: 0.5, decimals: 2 })
     expect(answerLine(s)).toBe('Before: 12.00 mL · After: 15.50 mL · Object: 3.50 mL')
   })
 })
@@ -59,7 +59,6 @@ describe('the scale, precision and unit', () => {
 
   it('keep both readings on the chosen precision', () => {
     expect(fromQuery('size=25&marks=1&before=10.37&after=12.42')).toMatchObject({ before: 10.4, after: 12.4 })
-    expect(fromQuery('size=10&decimals=1&before=4.04&after=4.06')).toMatchObject({ before: 4, after: 4.1 })
   })
 
   it('go back to the standard ones where the cylinder doesn’t offer them', () => {

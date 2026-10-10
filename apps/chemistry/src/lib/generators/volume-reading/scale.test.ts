@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { marks } from '$lib/shared/marks'
-import { fitScale, formatReading, instrumentName, numbersFit, randomReading, roundReading, scaleMarks, scaleOptions, volumeScale, type NumberSpacing, type VolumeInstrument } from './scale'
+import { fitScale, formatReading, instrumentName, numbersFit, randomReading, roundReading, scaleMarks, scaleOptions, volumeScale, type MarkSpacing, type NumberSpacing, type VolumeInstrument } from './scale'
 
 describe('graduated cylinder marks', () => {
   it.each([
     ['10', 10, 1, 0.1, 2],
-    ['25', 25, 1, 0.5, 2],
+    ['25', 25, 5, 0.5, 2],
     ['50', 50, 10, 1, 1],
     ['100', 100, 10, 1, 1],
     ['250', 250, 20, 2, 1],
@@ -17,10 +17,15 @@ describe('graduated cylinder marks', () => {
 })
 
 describe('the 25 mL graduated cylinder', () => {
-  it('has shorter 0.5 mL marks between numbers every 1 mL, the one at 2.5 like the rest', () => {
+  it('has 0.5 mL marks numbered every 5 mL, with a medium mark halfway between numbers', () => {
     const list = scaleMarks(volumeScale({ instrument: 'cylinder', size: '25', beaker: 'medium' }))
-    expect(list.flatMap((m) => m.label ?? []).slice(0, 4)).toEqual(['0', '1', '2', '3'])
-    expect(list.filter((m) => !m.label).every((m) => m.kind === 'medium')).toBe(true)
+    expect(list.flatMap((m) => m.label ?? [])).toEqual(['0', '5', '10', '15', '20', '25'])
+    expect(list.filter((m) => m.kind === 'medium').map((m) => m.value)).toEqual([2.5, 7.5, 12.5, 17.5, 22.5])
+  })
+
+  it('is numbered every 1 mL with 0.2 mL marks, which would leave 25 marks between 5 mL numbers', () => {
+    expect(volumeScale({ instrument: 'cylinder', size: '25', beaker: 'medium', marks: '0.2' })).toMatchObject({ minorEvery: 0.2, labelEvery: 1 })
+    expect(volumeScale({ instrument: 'cylinder', size: '25', beaker: 'medium', marks: '1' })).toMatchObject({ minorEvery: 1, labelEvery: 5 })
   })
 })
 
@@ -129,12 +134,16 @@ describe('the scales a teacher can pick', () => {
     expect(scaleOptions({ instrument, size, beaker })).toMatchObject({ marks, numbers })
   })
 
-  it('include each instrument’s standard scale, whose numbers fit every mark it offers', () => {
+  it('include each instrument’s standard scale, and numbers that fit every mark it offers', () => {
     for (const choice of EVERY) {
       const { marks, numbers, standard } = scaleOptions(choice)
       expect(marks).toContain(standard.marks)
       expect(numbers).toContain(standard.numbers)
-      for (const minor of marks) expect(numbersFit(minor, standard.numbers), `${choice.instrument} ${minor}`).toBe(true)
+      expect(numbersFit(standard.marks, standard.numbers)).toBe(true)
+      for (const minor of marks) {
+        const scale = volumeScale({ ...choice, marks: String(minor) as MarkSpacing })
+        expect(numbersFit(minor, scale.labelEvery), `${choice.instrument} ${minor}`).toBe(true)
+      }
     }
   })
 
@@ -185,17 +194,10 @@ describe('how far a reading goes', () => {
     expect(volumeScale({ instrument: 'beaker', size: '100', beaker: 'small', marks: '5' }).decimals).toBe(1)
   })
 
-  it('can be set by the teacher, whatever the marks', () => {
-    expect(volumeScale({ ...cyl25, marks: '1', decimals: '2' }).decimals).toBe(2)
-    expect(volumeScale({ ...cyl25, decimals: '0' }).decimals).toBe(0)
-  })
-
   it('puts every reading on that precision', () => {
     const tenths = volumeScale({ ...cyl25, marks: '1' })
     expect(roundReading(tenths, 18.64)).toBe(18.6)
     expect(formatReading(tenths, 18)).toBe('18.0')
-    const thousandths = volumeScale({ ...cyl25, decimals: '3' })
-    expect(roundReading(thousandths, 18.6437)).toBe(18.644)
     for (const r of [0, 0.37, 0.999]) {
       const v = randomReading(tenths, () => r)
       expect(v).toBe(roundReading(tenths, v))

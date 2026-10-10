@@ -5,7 +5,7 @@ import { bool, choice, defineSettings, number, text } from '$lib/shared/settings
 import { cylinderLayout } from '../volume-reading/cylinder'
 import { LIQUID_TINTS } from '../volume-reading/liquid'
 import {
-  DECIMALS, MARK_SPACINGS, NUMBER_SPACINGS, UNIT_SYMBOLS, VOLUME_UNITS, fitScale, formatReading, volumeScale, type CylinderSize, type ScaleChoice,
+  MARK_SPACINGS, NUMBER_SPACINGS, UNIT_SYMBOLS, VOLUME_UNITS, fitScale, formatReading, volumeScale, type CylinderSize, type ScaleChoice,
 } from '../volume-reading/scale'
 import { AREA_PER_RISE, OBJECTS, drawnArea, placeObject } from './objects'
 import { displacedVolume, fixReadings } from './readings'
@@ -20,7 +20,7 @@ export const DISPLACEMENT_VIEW_NAMES: Record<DisplacementView, string> = { whole
 export const DISPLACEMENT_SIZES = ['10', '25', '50', '100'] as const satisfies readonly CylinderSize[]
 
 /** The cylinders' scale: the size's standard one unless the teacher picks
- *  other marks, numbers or decimal places. */
+ *  other marks or numbers. */
 export const cylinderScale = (s: { size: CylinderSize } & Partial<ScaleChoice>) => volumeScale({ ...s, instrument: 'cylinder', beaker: 'medium' })
 
 export const displacementSettings = defineSettings(
@@ -28,7 +28,6 @@ export const displacementSettings = defineSettings(
     size: choice(DISPLACEMENT_SIZES, '10'),
     marks: choice(MARK_SPACINGS, 'standard'),
     numbers: choice(NUMBER_SPACINGS, 'standard'),
-    decimals: choice(DECIMALS, 'estimate'),
     unit: choice(VOLUME_UNITS, 'mL'),
     before: number({ min: 0, max: 100, fallback: 4 }),
     after: number({ min: 0, max: 100, fallback: 6 }),

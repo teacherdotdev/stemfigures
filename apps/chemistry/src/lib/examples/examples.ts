@@ -82,7 +82,7 @@ export const EXAMPLES: Example[] = [
       title: '25 cm³ graduated cylinder reading 18.25 cm³',
       alt: 'A 25 cm³ graduated cylinder reading 18.25 cm³, with a dotted line from the bottom of the meniscus to the marks and a magnified view',
       caption:
-        'A 25 cm³ graduated cylinder marked every 0.5 cm³ and numbered every 1 cm³, with the scale printed in cm³ rather than mL. A dotted line runs from the bottom of the meniscus across to the marks, halfway between the 18.0 and 18.5 cm³ marks, so the reading is 18.25 cm³. A magnified circle shows the marks around the meniscus.',
+        'A 25 cm³ graduated cylinder marked every 0.5 cm³ and numbered every 5 cm³, with the scale printed in cm³ rather than mL. A dotted line runs from the bottom of the meniscus across to the marks, halfway between the 18.0 and 18.5 cm³ marks, so the reading is 18.25 cm³. A magnified circle shows the marks around the meniscus.',
       settings: { size: '25', unit: 'cm3', reading: 18.25, guide: true },
     },
   ]),
@@ -101,7 +101,7 @@ export const EXAMPLES: Example[] = [
       title: 'Volume of 3 marbles by water displacement',
       alt: 'Two 25 mL graduated cylinders: water at 12.00 mL before, and at 15.50 mL after three marbles are added',
       caption:
-        'Two 25 mL graduated cylinders, marked every 0.5 mL and numbered every 1 mL. Before, the water is at 12.00 mL; after three marbles are dropped in, it is at 15.50 mL. The three marbles together have a volume of 3.50 mL.',
+        'Two 25 mL graduated cylinders, marked every 0.5 mL and numbered every 5 mL. Before, the water is at 12.00 mL; after three marbles are dropped in, it is at 15.50 mL. The three marbles together have a volume of 3.50 mL.',
       settings: { size: '25', before: 12, after: 15.5, object: 'marbles', marbles: 3 },
     },
     {

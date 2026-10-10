@@ -55,8 +55,8 @@ describe('addresses from before the scale could be chosen', () => {
     expect(kinds('instrument=beaker&beaker=large')).toEqual(['major', 'medium', 'major'])
   })
 
-  it('the 25 mL cylinder now has 0.5 mL marks numbered every 1 mL, and reads to the same 0.01 mL', () => {
-    expect(volumeScale(fromQuery('size=25'))).toMatchObject({ labelEvery: 1, minorEvery: 0.5, decimals: 2 })
+  it('the 25 mL cylinder now has 0.5 mL marks numbered every 5 mL, and reads to the same 0.01 mL', () => {
+    expect(volumeScale(fromQuery('size=25'))).toMatchObject({ labelEvery: 5, minorEvery: 0.5, decimals: 2 })
     expect(fromQuery('size=25&reading=12.375').reading).toBe(12.38)
   })
 
@@ -73,17 +73,16 @@ describe('addresses from before the scale could be chosen', () => {
   ])('"%s" keeps its reading and its address', (query, answer) => {
     const s = fromQuery(query)
     expect(answerLine(s)).toBe(answer)
-    expect(s).toMatchObject({ marks: 'standard', numbers: 'standard', decimals: 'estimate', unit: 'mL', guide: false })
+    expect(s).toMatchObject({ marks: 'standard', numbers: 'standard', unit: 'mL', guide: false })
     expect(volumeSettings.toQuery(s)).toBe(query.replace('reading=4', 'reading=10').replace('reading=33.3', 'reading=33'))
   })
 })
 
 describe('the scale in the address', () => {
   it('keeps marks and numbers the instrument offers', () => {
-    const s = fromQuery('size=25&marks=0.2&numbers=5')
     // 0.2 mL marks numbered every 5 would be 25 marks between numbers
-    expect(s).toMatchObject({ marks: '0.2', numbers: 'standard' })
-    expect(fromQuery('size=25&marks=1&numbers=5')).toMatchObject({ marks: '1', numbers: '5' })
+    expect(fromQuery('size=25&marks=0.2&numbers=5')).toMatchObject({ marks: '0.2', numbers: 'standard' })
+    expect(fromQuery('size=25&marks=1&numbers=1')).toMatchObject({ marks: '1', numbers: '1' })
   })
 
   it('puts others back to the standard ones, so the address names only what it draws', () => {
@@ -91,11 +90,9 @@ describe('the scale in the address', () => {
     expect(volumeSettings.toQuery(fromQuery('size=50&marks=1&numbers=10'))).toBe('size=50')
   })
 
-  it('rounds the reading to the marks’ precision, or the decimal places set', () => {
+  it('rounds the reading to the marks’ precision', () => {
     expect(fromQuery('size=25&marks=1&reading=18.64').reading).toBe(18.6)
-    expect(fromQuery('size=25&marks=1&decimals=2&reading=18.64').reading).toBe(18.64)
-    expect(fromQuery('size=10&decimals=0&reading=7.36').reading).toBe(7)
-    expect(answerLine(fromQuery('size=10&decimals=3&reading=7.3649'))).toBe('Reading: 7.365 mL')
+    expect(fromQuery('size=25&marks=0.2&reading=18.643').reading).toBe(18.64)
   })
 })
 

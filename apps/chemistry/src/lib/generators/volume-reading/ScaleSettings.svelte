@@ -1,10 +1,9 @@
 <script lang="ts">
   // The scale settings Volume Reading and Volume by Displacement share: how
-  // far apart the smallest marks are, which marks are numbered, how far a
-  // reading goes, and the unit. Only spacings the instrument offers are
+  // far apart the smallest marks are, which marks are numbered, and the unit. Only spacings the instrument offers are
   // shown, and numbers that wouldn't fall on its marks can't be picked.
   import {
-    DECIMALS, UNIT_SYMBOLS, VOLUME_UNITS, numbersFit, scaleOptions, volumeScale,
+    UNIT_SYMBOLS, VOLUME_UNITS, numbersFit, scaleOptions, volumeScale,
     type MarkSpacing, type NumberSpacing, type ScaleChoice, type VolumeInstrument, type VolumeUnit,
   } from './scale'
 
@@ -20,7 +19,6 @@
   const scale = $derived(volumeScale({ ...instrument, ...choice }))
   const options = $derived(scaleOptions(instrument))
   const unit = $derived(UNIT_SYMBOLS[choice.unit])
-  const step = (decimals: number) => `${(10 ** -decimals).toFixed(decimals)} ${unit}`
 </script>
 
 <p class="field-label first">Smallest marks</p>
@@ -52,22 +50,6 @@
 {#if !scale.numbered}
   <p class="note">Longer marks every {scale.labelEvery} {unit}, left without numbers for students to work out.</p>
 {/if}
-<p class="field-label">Read to</p>
-<div class="chips" role="radiogroup" aria-label="Read to">
-  {#each DECIMALS as decimals (decimals)}
-    <button
-      type="button" role="radio" aria-checked={choice.decimals === decimals} class="chip" class:on={choice.decimals === decimals}
-      onclick={() => onchange({ decimals })}
-    >
-      {decimals === 'estimate' ? 'One estimated digit' : step(Number(decimals))}
-    </button>
-  {/each}
-</div>
-<p class="note">
-  {choice.decimals === 'estimate'
-    ? `Readings go one digit past the smallest mark, to ${step(scale.decimals)}.`
-    : `Readings go to ${step(scale.decimals)}, whatever the marks.`}
-</p>
 <p class="field-label">Unit</p>
 <div class="chips" role="radiogroup" aria-label="Unit">
   {#each VOLUME_UNITS as u (u)}

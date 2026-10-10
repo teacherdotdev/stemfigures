@@ -21,7 +21,7 @@ export const displacementLinking = describeLinking(displacementSettings, {
   summary:
     'Two graduated cylinders side by side: before, with water at the before reading, and after, with the object in and water at the after reading. The object’s volume is after minus before.',
   notes: [
-    `before and after are in mL, rounded to the cylinder’s estimated digit (${places}, with its standard marks) or to decimals places, and kept within its capacity.`,
+    `before and after are in mL, rounded to the cylinder’s estimated digit (${places}, with its standard marks), and kept within its capacity.`,
     `marks and numbers take only the spacings the chosen cylinder offers, in mL; any other is its standard one, and so are numbers that don’t land on a mark or leave more than 20 marks between numbers: ${spacings}.`,
     'cm³ is the same size as mL, so unit never changes a reading.',
     'after is always higher than before: an after reading that isn’t is raised to one step above before.',
@@ -31,7 +31,6 @@ export const displacementLinking = describeLinking(displacementSettings, {
     size: { what: 'Both cylinders’ capacity, in mL.' },
     marks: { what: 'The mL between the smallest marks on both cylinders.', values: 'standard: the cylinder’s usual marks; the others only where the cylinder offers them (see notes)' },
     numbers: { what: 'The mL between numbered marks.', values: 'standard: the cylinder’s usual numbers; none: the usual numbered marks drawn longer but without numbers, for students to work out; the others only where the cylinder offers them (see notes)' },
-    decimals: { what: 'Decimal places in the readings and the answer key.', values: 'estimate: one digit past the smallest mark; 0 to 3: that many, whatever the marks' },
     unit: { what: 'The unit printed on the cylinders and in the answer key.', values: 'mL; cm3: cm³' },
     before: { what: 'The water level before the object goes in, in mL (or cm³).' },
     after: { what: 'The water level with the object in, in mL (or cm³).', values: 'Always above before' },

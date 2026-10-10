@@ -1,6 +1,5 @@
 // The scale printed on each volume instrument, and what counts as a valid
-// reading on it: one digit beyond the smallest mark (the estimated digit),
-// unless the teacher sets how many decimal places.
+// reading on it: one digit beyond the smallest mark (the estimated digit).
 
 import { marks, type Mark } from '$lib/shared/marks'
 
@@ -28,11 +27,6 @@ export type MarkSpacing = (typeof MARK_SPACINGS)[number]
 export const NUMBER_SPACINGS = ['standard', '1', '2', '5', '10', '20', '25', '50', '100', '200', 'none'] as const
 export type NumberSpacing = (typeof NUMBER_SPACINGS)[number]
 
-/** Decimal places in a reading: one digit past the smallest mark, or a
- *  number the teacher sets (for significant-figure practice). */
-export const DECIMALS = ['estimate', '0', '1', '2', '3'] as const
-export type Decimals = (typeof DECIMALS)[number]
-
 /** Which instrument, and the size of each kind that has sizes. */
 export interface VolumeInstrument {
   instrument: Instrument
@@ -45,7 +39,6 @@ export interface VolumeInstrument {
 export interface ScaleChoice {
   marks: MarkSpacing
   numbers: NumberSpacing
-  decimals: Decimals
 }
 
 export interface Scale {
@@ -73,13 +66,13 @@ export interface VolumeScale extends Scale {
 type Marks = Omit<Scale, 'decimals' | 'readsDown' | 'lowest'> & { lowest?: number; marks: number[]; numbers: number[] }
 
 // Numbered every tenth of capacity, except where real cylinders differ: the
-// 25 mL has 0.5 mL marks numbered every 1 mL; the 50 mL has 1 mL marks
+// 25 mL has 0.5 mL marks numbered every 5 mL; the 50 mL has 1 mL marks
 // rather than 0.5 mL, and is numbered every 10 mL like the 100 mL so it gets
 // the same medium mark halfway between numbers; the 250 mL has 2 mL marks
 // from 10 mL up, numbered 10, 30, 50… 250.
 const CYLINDERS: Record<CylinderSize, Marks> = {
   '10': { capacity: 10, labelEvery: 1, minorEvery: 0.1, marks: [0.1, 0.2, 0.5], numbers: [1, 2, 5] },
-  '25': { capacity: 25, labelEvery: 1, minorEvery: 0.5, marks: [0.2, 0.5, 1], numbers: [1, 5] },
+  '25': { capacity: 25, labelEvery: 5, minorEvery: 0.5, marks: [0.2, 0.5, 1], numbers: [1, 5] },
   '50': { capacity: 50, labelEvery: 10, minorEvery: 1, marks: [0.5, 1, 2], numbers: [5, 10] },
   '100': { capacity: 100, labelEvery: 10, minorEvery: 1, marks: [0.5, 1, 2, 5], numbers: [5, 10, 20] },
   '250': { capacity: 250, lowest: 10, labelEvery: 20, minorEvery: 2, marks: [1, 2, 5], numbers: [10, 20] },
@@ -112,18 +105,24 @@ export function numbersFit(minor: number, numbered: number) {
   return Math.abs(perNumber - Math.round(perNumber)) < 1e-9 && Math.round(perNumber) <= 20
 }
 
+/** The standard numbers for marks `minor` mL apart: the instrument's own,
+ *  or where too many marks would fall between them (a 25 mL cylinder's
+ *  0.2 mL marks), the widest it offers that fit. */
+function standardNumbers(m: Marks, minor: number) {
+  return numbersFit(minor, m.labelEvery) ? m.labelEvery : (m.numbers.findLast((n) => numbersFit(minor, n)) ?? m.labelEvery)
+}
+
 /** The marks and numbers kept to what the instrument offers: spacings it
  *  doesn't have, and numbers that don't fall on its marks, go back to its
  *  standard ones, and its standard ones are written 'standard'. */
-export function fitScale(c: VolumeInstrument & Pick<ScaleChoice, 'marks' | 'numbers'>): Pick<ScaleChoice, 'marks' | 'numbers'> {
-  const { marks: offered, numbers: numbered, standard } = scaleOptions(c)
-  const minor = c.marks === 'standard' || !offered.includes(Number(c.marks)) ? standard.marks : Number(c.marks)
-  const every = c.numbers === 'standard' || c.numbers === 'none' || !numbered.includes(Number(c.numbers)) ? standard.numbers : Number(c.numbers)
-  // The standard numbering fits every spacing an instrument offers.
-  const fits = numbersFit(minor, every)
+export function fitScale(c: VolumeInstrument & ScaleChoice): ScaleChoice {
+  const m = marksOf(c)
+  const minor = c.marks === 'standard' || !m.marks.includes(Number(c.marks)) ? m.minorEvery : Number(c.marks)
+  const standard = standardNumbers(m, minor)
+  const every = c.numbers === 'standard' || c.numbers === 'none' || !m.numbers.includes(Number(c.numbers)) ? standard : Number(c.numbers)
   return {
-    marks: minor === standard.marks ? 'standard' : (String(minor) as MarkSpacing),
-    numbers: c.numbers === 'none' ? 'none' : !fits || every === standard.numbers ? 'standard' : (String(every) as NumberSpacing),
+    marks: minor === m.minorEvery ? 'standard' : (String(minor) as MarkSpacing),
+    numbers: c.numbers === 'none' ? 'none' : !numbersFit(minor, every) || every === standard ? 'standard' : (String(every) as NumberSpacing),
   }
 }
 
@@ -134,13 +133,13 @@ export function volumeScale(c: VolumeInstrument & Partial<ScaleChoice>): VolumeS
   const m = marksOf(c)
   const fitted = fitScale({ ...c, marks: c.marks ?? 'standard', numbers: c.numbers ?? 'standard' })
   const minorEvery = fitted.marks === 'standard' ? m.minorEvery : Number(fitted.marks)
-  const labelEvery = fitted.numbers === 'standard' || fitted.numbers === 'none' ? m.labelEvery : Number(fitted.numbers)
+  const labelEvery = fitted.numbers === 'standard' || fitted.numbers === 'none' ? standardNumbers(m, minorEvery) : Number(fitted.numbers)
   return {
     capacity: m.capacity,
     lowest: m.lowest ?? 0,
     labelEvery,
     minorEvery,
-    decimals: !c.decimals || c.decimals === 'estimate' ? estimatedDecimals(minorEvery) : Number(c.decimals),
+    decimals: estimatedDecimals(minorEvery),
     readsDown: c.instrument === 'buret',
     numbered: fitted.numbers !== 'none',
   }
