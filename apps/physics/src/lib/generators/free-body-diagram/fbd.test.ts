@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { searchGenerators } from '$lib/generators'
 import { crosses, labelBox, overlaps } from '$lib/shared/layout'
-import { buildFbd, DOT_R, sameDirection, UNIT } from './fbd'
+import { buildFbd, DOT_R, sameDirection, SIDE_DOT_R, SIDE_GAP, UNIT } from './fbd'
 import { componentLabel } from '$lib/shared/label'
+import { VECTOR_WIDTH } from '$lib/shared/vector'
 import { fbdSettings, STARTERS, starterForce, type FbdSettings, type Force } from './settings'
 
 const make = (over: Partial<FbdSettings> = {}) => buildFbd({ ...fbdSettings.defaults, ...over })
@@ -259,12 +260,121 @@ describe('crowded forces', () => {
     for (const v of f.forces) expect(Math.hypot(v.labelAt.x - v.v.x2, v.labelAt.y - v.v.y2)).toBeLessThan(130)
   })
 
-  test('the note finds forces pointing exactly the same way', () => {
+  test('forces pointing exactly the same way are found', () => {
     expect(sameDirection([force(270), force(90), force(270), force(0), force(90), force(270)])).toEqual([
       [0, 2, 5],
       [1, 4],
     ])
     expect(sameDirection([force(89), force(90)])).toEqual([])
+  })
+})
+
+describe('forces pointing the same way', () => {
+  // How far a force's arrow is from the line through the middle along its direction, signed.
+  const sideways = (f: ReturnType<typeof make>, i: number) => {
+    const { v } = f.forces[i]
+    const n = length(v)
+    return ((v.x2 - v.x1) * (f.body.middle.y - v.y1) - (v.y2 - v.y1) * (f.body.middle.x - v.x1)) / n
+  }
+
+  test('are drawn side by side, a small gap apart, centered on the middle', () => {
+    const f = make({ forces: [force(90, 1, 'F_N'), force(90, 0.6, 'T')] })
+    expect(f.forces.map((v) => angleOf(v.v))).toEqual([expect.closeTo(90), expect.closeTo(90)])
+    expect(Math.abs(sideways(f, 0) - sideways(f, 1))).toBeCloseTo(SIDE_GAP)
+    expect(sideways(f, 0) + sideways(f, 1)).toBeCloseTo(0)
+    // the first is on the left
+    expect(f.forces[0].v.x1).toBeLessThan(f.forces[1].v.x1)
+  })
+
+  test('each keeps its own length', () => {
+    const f = make({ forces: [force(90, 1, 'F_N'), force(90, 0.5, 'T'), force(270, 1, 'F_g')] })
+    expect(length(f.forces[0].v) - SIDE_DOT_R).toBeCloseTo(UNIT)
+    expect(length(f.forces[1].v) - SIDE_DOT_R).toBeCloseTo(UNIT * 0.5)
+    // A force pointing another way stays on the middle.
+    expect(sideways(f, 2)).toBeCloseTo(0)
+  })
+
+  test('the dot grows a little, so two side by side start on it', () => {
+    expect(make({ forces: [force(90, 1, 'F_N'), force(270, 1, 'F_g')] }).body.width).toBe(DOT_R * 2)
+    const f = make({ forces: [force(90, 1, 'F_N'), force(90, 0.6, 'T')] })
+    expect(f.body.width).toBe(SIDE_DOT_R * 2)
+    expect(SIDE_DOT_R).toBeGreaterThanOrEqual(SIDE_GAP / 2 + VECTOR_WIDTH / 2)
+  })
+
+  test('three: one on the middle and one each side', () => {
+    const f = make({ forces: [force(0, 1, 'F_1'), force(0, 1, 'F_2'), force(0, 1, 'F_3')] })
+    expect(sideways(f, 1)).toBeCloseTo(0)
+    expect(Math.abs(sideways(f, 0))).toBeCloseTo(SIDE_GAP)
+    expect(sideways(f, 2)).toBeCloseTo(-sideways(f, 0))
+    // the first is on top
+    expect(f.forces[0].v.y1).toBeLessThan(f.forces[2].v.y1)
+  })
+
+  test('at any angle, on any body, with every arrow and label clear of the others', () => {
+    for (const body of ['dot', 'block'] as const) {
+      for (const angle of [0, 37, 90, 135, 200, 270, 315]) {
+        for (const n of [2, 3]) {
+          const f = make({ body, forces: Array.from({ length: n }, (_, i) => force(angle, 1 - i * 0.2, `F_${i + 1}`)) })
+          const boxes = f.forces.map((v) => labelBox(v.labelAt, v.label))
+          for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) expect(overlaps(boxes[i], boxes[j])).toBe(false)
+            for (const v of f.forces) expect(crosses(v.v, boxes[i])).toBe(false)
+            expect(angleOf(f.forces[i].v)).toBeCloseTo(angle, 0)
+          }
+        }
+      }
+    }
+  })
+
+  test('mirror with the figure', () => {
+    const plain = make({ forces: [force(90, 1, 'F_N'), force(90, 1, 'T')] })
+    const mirrored = make({ mirror: true, forces: [force(90, 1, 'F_N'), force(90, 1, 'T')] })
+    expect(plain.forces[0].v.x1).toBeLessThan(plain.forces[1].v.x1)
+    expect(mirrored.forces[0].v.x1).toBeGreaterThan(mirrored.forces[1].v.x1)
+  })
+
+  test('components and angle marks start from the force’s own tail', () => {
+    const f = make({ forces: [force(30, 1, 'T_1', { arc: true, parts: true }), force(30, 0.6, 'T_2')] })
+    const [v] = f.forces
+    const [c] = f.components
+    expect(c.x.x1).toBeCloseTo(v.v.x1)
+    expect(c.x.y1).toBeCloseTo(v.v.y1)
+    expect(c.x.x2 - c.x.x1 + (c.y.x2 - c.y.x1)).toBeCloseTo(v.v.x2 - v.v.x1)
+    expect(c.y.y2 - c.y.y1 + (c.x.y2 - c.x.y1)).toBeCloseTo(v.v.y2 - v.v.y1)
+    const [m] = f.marks
+    const r = Math.hypot(m.arc.to.x - v.v.x1, m.arc.to.y - v.v.y1)
+    expect(r).toBeCloseTo(m.arc.r)
+  })
+})
+
+describe('vector notation', () => {
+  test('sets every vector’s label: forces, components, velocity and acceleration', () => {
+    const f = make({
+      notation: 'arrow',
+      forces: [force(270, 1, 'F_g'), force(30, 1, 'T', { parts: true, xLabel: { mode: 'text', text: 'T_x' }, yLabel: { mode: 'text', text: 'T_y' } })],
+      velocity: true,
+      acceleration: true,
+    })
+    expect(f.forces.map((v) => v.label.text)).toEqual(['\\vec{F}_g', '\\vec{T}'])
+    expect([f.components[0].xLabel.text, f.components[0].yLabel.text]).toEqual(['\\vec{T}_x', '\\vec{T}_y'])
+    expect(f.motion.map((m) => m.label.text)).toEqual(['\\vec{v}', '\\vec{a}'])
+    expect(make({ notation: 'bold' }).forces.map((v) => v.label.text)).toEqual(['\\mathbf{F}_g', '\\mathbf{F}_N'])
+  })
+
+  test('but not angle labels, and none unless asked for', () => {
+    const f = make({ notation: 'arrow', forces: [force(30, 1, 'F', { arc: true })] })
+    expect(f.marks[0].label.text).toBe('theta')
+    expect(make().forces.map((v) => v.label.text)).toEqual(['F_g', 'F_N'])
+  })
+
+  test('a label written as a vector is drawn so with the setting off', () => {
+    expect(make({ forces: [force(90, 1, '\\vec{F}_N')] }).forces[0].label.text).toBe('\\vec{F}_N')
+  })
+
+  test('is sized by what is drawn, not the commands', () => {
+    const plain = make({ forces: [force(0, 1, 'F_g')] })
+    const vector = make({ notation: 'arrow', forces: [force(0, 1, 'F_g')] })
+    expect(vector.forces[0].labelAt.x).toBeCloseTo(plain.forces[0].labelAt.x)
   })
 })
 
@@ -282,6 +392,14 @@ describe('settings', () => {
     const s = { ...fbdSettings.defaults, forces: [force(37, 1, 'T', { arc: true, from: 'v' as const, parts: true, xLabel: { mode: 'blank' as const, text: 'F_x' } })] }
     expect(fbdSettings.fromParams(new URLSearchParams(fbdSettings.toQuery(s)))).toEqual(s)
     expect(fbdSettings.fromParams(new URLSearchParams('forces=37,1,T')).forces[0]).toEqual(force(37, 1, 'T'))
+  })
+
+  test('vector notation and labels written as vectors round-trip', () => {
+    const s = { ...fbdSettings.defaults, notation: 'bold' as const, forces: [force(90, 1, '\\vec{F}_N'), force(90, 1, '\\mathbf{T}')] }
+    expect(fbdSettings.fromParams(new URLSearchParams(fbdSettings.toQuery(s)))).toEqual(s)
+    // and written in the address as typed
+    expect(decodeURIComponent(fbdSettings.toQuery(s))).toBe('forces=90,1,\\vec{F}_N;90,1,\\mathbf{T}&notation=bold')
+    expect(fbdSettings.fromParams(new URLSearchParams('forces=90,1,\\vec{F}_N')).forces[0].label.text).toBe('\\vec{F}_N')
   })
 
   test('starter forces write short links', () => {

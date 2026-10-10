@@ -63,6 +63,8 @@ export const fbdSettings = defineSettings({
   accelerationLabel: label({ mode: 'text', text: 'a' }),
   mirror: bool(false),
   color: bool(false),
+  /** How every vector's label is set: as typed, with an arrow over it (F⃗), or in bold (𝐅). */
+  notation: choice('none', ['none', 'arrow', 'bold']),
 })
 
 export type FbdSettings = typeof fbdSettings.defaults

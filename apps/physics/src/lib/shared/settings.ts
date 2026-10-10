@@ -67,14 +67,15 @@ export type SettingsOf<S extends Spec> = { -readonly [K in keyof S]: S[K]['defau
 // ",", in the order the row declares them, with trailing fields left off when
 // they're the row's defaults. So new fields go at the end of a row, and old
 // links keep working. Inside a field, "\" escapes a comma, semicolon or "\".
-const escapePart = (s: string) => s.replace(/[\\,;]/g, (c) => `\\${c}`)
+// Any other "\" is itself, so a label's \vec{F} reads as written.
+const escapePart = (s: string) => s.replace(/[,;]|\\(?=[\\,;]|$)/g, (c) => `\\${c}`)
 
 function splitRows(raw: string): string[][] {
   const rows: string[][] = [[]]
   let part = ''
   for (let i = 0; i < raw.length; i++) {
     const c = raw[i]
-    if (c === '\\' && i + 1 < raw.length) part += raw[++i]
+    if (c === '\\' && /[\\,;]/.test(raw[i + 1] ?? '')) part += raw[++i]
     else if (c === ',') (rows.at(-1)!.push(part), (part = ''))
     else if (c === ';') (rows.at(-1)!.push(part), rows.push([]), (part = ''))
     else part += c

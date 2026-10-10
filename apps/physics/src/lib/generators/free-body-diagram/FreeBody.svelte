@@ -7,7 +7,7 @@
   import VectorArrow from '$lib/shared/VectorArrow.svelte'
   import { palette } from '$lib/shared/figure'
   import { LABEL_SIZE } from '$lib/shared/layout'
-  import { buildFbd, DOT_R } from './fbd'
+  import { buildFbd } from './fbd'
   import type { FbdSettings } from './settings'
 
   let { settings, id = 'b' }: { settings: FbdSettings; id?: string } = $props()
@@ -62,7 +62,7 @@
   {#each fig.motion as m}<VectorArrow v={m.v} color={p.vector} style="motion" />{/each}
 
   <!-- The dot, or on an object the point every force starts from. -->
-  <circle cx={fig.body.middle.x} cy={fig.body.middle.y} r={fig.body.kind === 'dot' ? DOT_R : 3.5} fill={p.ink} />
+  <circle cx={fig.body.middle.x} cy={fig.body.middle.y} r={fig.body.kind === 'dot' ? fig.body.width / 2 : 3.5} fill={p.ink} />
 
   {#each fig.marks as m}
     <FigureLabel label={m.label} x={m.labelAt.x} y={m.labelAt.y + baseline} size={LABEL_SIZE} color={p.ink} />

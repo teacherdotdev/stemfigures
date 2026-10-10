@@ -10,7 +10,6 @@
   import LabelField from '$lib/shared/LabelField.svelte'
   import { componentLabel, type Label } from '$lib/shared/label'
   import Section from '$lib/shared/Section.svelte'
-  import { sameDirection } from './fbd'
   import FreeBody from './FreeBody.svelte'
   import { fbdSettings, MAX_FORCES, onAxis, STARTERS, starterForce, type Force } from './settings'
 
@@ -32,8 +31,6 @@
   )
 
   const full = $derived(s.forces.length >= MAX_FORCES)
-  const names = (g: number[]) => g.slice(0, -1).map((i) => i + 1).join(', ') + ` and ${g.at(-1)! + 1}`
-  const hidden = $derived(sameDirection(s.forces).map((g) => `Forces ${names(g)} point the same way, so one arrow hides the other.`))
   const add = (starter: (typeof STARTERS)[number]) => {
     if (!full) gen.s.forces.push(starterForce(starter))
   }
@@ -101,8 +98,6 @@
         </div>
       {/each}
 
-      {#each hidden as warning}<p class="note warning" role="status">{warning}</p>{/each}
-
       <div class="field add">
         {full ? `A figure holds up to ${MAX_FORCES} forces.` : 'Add a force'}
         <div class="starters">
@@ -111,6 +106,12 @@
           {/each}
         </div>
       </div>
+
+      <div class="field">
+        Vector notation
+        <Choice name="Vector notation" options={[['none', 'None'], ['arrow', 'Arrow'], ['bold', 'Bold']]} bind:value={gen.s.notation} />
+      </div>
+      <p class="note">An arrow over every vector’s label, or every one in bold. For just one label, type {'\\vec{F}'} or {'\\mathbf{F}'} in it.</p>
     </Section>
 
     <Section title="Motion" icon={Gauge} summary={motionSummary}>
@@ -137,7 +138,6 @@
   .force { border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 0.75rem; }
   .force-head { display: flex; align-items: center; justify-content: space-between; font-weight: 800; margin-bottom: 0.25rem; }
   .motion + .motion { border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.25rem; }
-  .warning { color: var(--ink); background: #fffbeb; border-left: 3px solid var(--amber); border-radius: 6px; padding: 0.5rem 0.7rem; }
   .starters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .starters button { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.35rem 0.65rem; font-size: 0.85rem; border-radius: 9px; }
 </style>

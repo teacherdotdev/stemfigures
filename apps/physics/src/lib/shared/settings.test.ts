@@ -90,6 +90,16 @@ describe('list', () => {
       ],
     }
     expect(rows.fromParams(new URLSearchParams(rows.toQuery(s)))).toEqual(s)
+    for (const text of ['\\', 'x\\', '\\\\v', 'a\\,b', '\\vec{F}']) {
+      const one = { forces: [row({ label: { mode: 'text', text } })] }
+      expect(rows.fromParams(new URLSearchParams(rows.toQuery(one)))).toEqual(one)
+    }
+  })
+
+  test('a backslash before anything but a comma, semicolon or backslash is written as it is', () => {
+    const s = { forces: [row({ label: { mode: 'text', text: '\\vec{F}_N' } })] }
+    expect(decodeURIComponent(rows.toQuery(s))).toBe('forces=270,1,\\vec{F}_N')
+    expect(rows.fromParams(new URLSearchParams('forces=270,1,\\vec{F}_N')).forces[0].label.text).toBe('\\vec{F}_N')
   })
 
   test('an empty list is not the default list', () => {

@@ -5,7 +5,7 @@
 
 import type { Point } from '$lib/shared/field'
 import { objectHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
-import type { Label } from '$lib/shared/label'
+import { withoutVectors, type Label } from '$lib/shared/label'
 import { labelPoint, type LabeledVector, type Segment } from '$lib/shared/vector'
 import type { PulleySettings } from './settings'
 
@@ -447,7 +447,7 @@ function axes(o: PlacedObject) {
 function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKind>[] {
   const out: LabeledVector<VectorKind>[] = []
   const centerX = f.wheels.length ? f.wheels.reduce((sum, w) => sum + w.cx, 0) / f.wheels.length : WIDTH / 2
-  const widthOf = (l: Label) => [...l.text].length * LABEL_SIZE * 0.42
+  const widthOf = (l: Label) => [...withoutVectors(l.text)].length * LABEL_SIZE * 0.42
   /** A vector from `from` in direction `d`, labeled past its tip or beside its middle (on the side away from the figure's middle). */
   const add = (kind: VectorKind, from: Point, d: Point, length: number, label: Label, at: 'tip' | 'side' = 'tip') => {
     const v = seg(from, pt(from.x + d.x * length, from.y + d.y * length))

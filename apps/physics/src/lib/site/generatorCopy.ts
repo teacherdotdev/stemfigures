@@ -35,6 +35,8 @@ export const COPY: Record<string, GeneratorCopy> = {
       'Up to eight forces, each with its direction, length and label, added from buttons for gravity, normal, friction, tension, applied, spring and air resistance forces pointing the usual way',
       'For a force at an angle, an angle mark from the horizontal or vertical, and its horizontal and vertical components',
       'Every label written, with subscripts and Greek letters such as θ and μ, a blank line for students, or left off',
+      'Vector notation: an arrow over every vector’s label or every one in bold, or \\vec{F} or \\mathbf{F} typed in one label',
+      'Forces pointing the same way drawn side by side, each with its own length and label',
       'Velocity and acceleration arrows beside the body, drawn dashed',
       'Mirror, to flip the figure left to right, and color for slides',
     ],
@@ -58,6 +60,14 @@ export const COPY: Record<string, GeneratorCopy> = {
       {
         q: 'Which way do the normal force and friction point on a ramp?',
         a: 'The normal force points straight out of the surface, at a right angle to it, and friction points along the surface, against the way the body slides or would slide. On a ramp rising to the right at angle θ, the normal force is tilted θ from the vertical: set its direction to 90° plus θ.',
+      },
+      {
+        q: 'Can two forces point the same way, like the normal force and tension both up?',
+        a: 'Yes. Forces set to exactly the same direction are drawn side by side, as parallel arrows a small gap apart, so neither hides the other. Each keeps its own length and label, with the label beside its arrowhead. Three or more can share a direction too, such as several people pushing a box the same way.',
+      },
+      {
+        q: 'Can the labels use vector notation, like an arrow over the F?',
+        a: 'Yes. Set Vector notation to Arrow to draw an arrow over the letters of every force’s label (and its components’, and velocity and acceleration), or to Bold to set them in bold, as many textbooks do. For a single label, type it the LaTeX way: \\vec{F}_g gives F with an arrow over it and a subscript g, and \\mathbf{F}_g a bold F.',
       },
       {
         q: 'How do I show components without giving away the answer?',
