@@ -49,6 +49,12 @@ describe('addresses from before the scale could be chosen', () => {
     expect(scaleMarks(scale)).toEqual(marks({ from: lowest, max: scale.capacity, labelEvery, minorEvery }))
   })
 
+  it('beakers keep a medium mark between numbers', () => {
+    const kinds = (query: string) => scaleMarks(volumeScale(fromQuery(query))).map((m) => m.kind).slice(0, 3)
+    expect(kinds('instrument=beaker')).toEqual(['major', 'medium', 'major'])
+    expect(kinds('instrument=beaker&beaker=large')).toEqual(['major', 'medium', 'major'])
+  })
+
   it('the 25 mL cylinder now has 0.5 mL marks numbered every 1 mL, and reads to the same 0.01 mL', () => {
     expect(volumeScale(fromQuery('size=25'))).toMatchObject({ labelEvery: 1, minorEvery: 0.5, decimals: 2 })
     expect(fromQuery('size=25&reading=12.375').reading).toBe(12.38)

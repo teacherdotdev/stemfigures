@@ -16,9 +16,9 @@ describe('scale marks', () => {
     expect(m.map((x) => x.kind).join(' ')).toBe('major minor minor minor minor major minor minor minor minor major')
   })
 
-  it('has no medium mark when the halfway mark is the only one between numbers', () => {
+  it('makes the only mark between numbers a medium one', () => {
     const m = marks({ max: 2, labelEvery: 1, minorEvery: 0.5 })
-    expect(m.map((x) => x.kind).join(' ')).toBe('major minor major minor major')
+    expect(m.map((x) => x.kind).join(' ')).toBe('major medium major medium major')
   })
 
   it('numbers from where the scale starts', () => {

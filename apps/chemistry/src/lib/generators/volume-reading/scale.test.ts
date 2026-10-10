@@ -17,11 +17,10 @@ describe('graduated cylinder marks', () => {
 })
 
 describe('the 25 mL graduated cylinder', () => {
-  it('has 0.5 mL marks between numbers every 1 mL, with no mark at 2.5 standing out', () => {
+  it('has shorter 0.5 mL marks between numbers every 1 mL, the one at 2.5 like the rest', () => {
     const list = scaleMarks(volumeScale({ instrument: 'cylinder', size: '25', beaker: 'medium' }))
     expect(list.flatMap((m) => m.label ?? []).slice(0, 4)).toEqual(['0', '1', '2', '3'])
-    expect(list.find((m) => m.value === 2.5)).toEqual({ value: 2.5, kind: 'minor' })
-    expect(list.some((m) => m.kind === 'medium')).toBe(false)
+    expect(list.filter((m) => !m.label).every((m) => m.kind === 'medium')).toBe(true)
   })
 })
 
