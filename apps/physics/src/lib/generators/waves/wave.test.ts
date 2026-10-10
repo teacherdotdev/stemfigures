@@ -134,6 +134,29 @@ describe('the marks', () => {
     }
   })
 
+  test('keep the crest label off the wavelength mark’s crests, rising over it only when there are just two', () => {
+    for (const cycles of [1, 1.5, 2, 2.5, 3, 4, 6, 8]) {
+      const f = build(`crestLabel=crest&troughLabel=trough&cycles=${cycles}`)
+      const w = markOf(f, 'wavelength').line
+      const crest = f.notes.find((n) => n.label.text === 'crest')!
+      const ends = [w.x1, w.x2]
+      const raised = w.y1 < crest.at.y - f.labelSize
+      if (f.crests.length + f.troughs.length > 4) expect(raised, `${cycles} cycles`).toBe(false)
+      if (!raised && w.y1 < f.graph!.xAxis.y) expect(ends, `${cycles} cycles`).not.toContain(crest.at.x)
+      // Every extension line stops short of the label.
+      for (const e of markOf(f, 'wavelength').extensions) if (e.x1 === crest.at.x) expect(Math.max(e.y1, e.y2)).toBeLessThan(crest.at.y - f.labelSize * 0.8)
+    }
+  })
+
+  test('point the amplitude up from the rest line, its label away from the y-axis', () => {
+    for (const q of ['', 'cycles=4&amplitudeLabel=~', 'cycles=1', 'crestLabel=crest&cycles=3']) {
+      const f = build(q)
+      const a = markOf(f, 'amplitude')
+      expect(a.line.y2, q).toBeLessThan(a.line.y1)
+      expect(a.at.x, q).toBeGreaterThan(a.line.x1)
+    }
+  })
+
   test('leave the wavelength off with less than a whole cycle drawn', () => {
     expect(build('cycles=0.5').marks.map((m) => m.kind)).toEqual(['amplitude'])
     expect(build('cycles=1').marks.map((m) => m.kind)).toEqual(['wavelength', 'amplitude'])

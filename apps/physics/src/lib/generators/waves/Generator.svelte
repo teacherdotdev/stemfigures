@@ -25,10 +25,11 @@
   const parts = $derived(partsOf(clean))
   let svg = $state<SVGSVGElement>()
 
-  /** Drawn against time or distance, with the x-axis title to match unless the teacher typed their own. */
-  function chooseXAxis(next: XAxis) {
-    if (s.xTitle.trim() === X_TITLES[s.xAxis]) s.xTitle = X_TITLES[next]
-    s.xAxis = next
+  /** A change that may move the wave between time and distance, with the x-axis title to match unless the teacher typed their own. */
+  function retitle(change: () => void) {
+    const before = X_TITLES[partsOf(s).time ? 'time' : 'distance']
+    change()
+    if (s.xTitle.trim() === before) s.xTitle = X_TITLES[partsOf(s).time ? 'time' : 'distance']
   }
 
   // While an axis fits the wave, its boxes show the fitted range; typing in one takes over for that axis.
@@ -77,7 +78,11 @@
   {#snippet settings()}
     <Section title="Wave" icon={WaveIcon} summary={waveSummary}>
       <div class="field">
-        <Choice name="Wave" options={[['transverse', 'Transverse'], ['longitudinal', 'Longitudinal'], ['both', 'Both']]} bind:value={s.wave} />
+        <Choice
+          name="Wave"
+          options={[['transverse', 'Transverse'], ['longitudinal', 'Longitudinal'], ['both', 'Both']]}
+          bind:value={() => s.wave, (v: Wave) => retitle(() => (s.wave = v))}
+        />
       </div>
       {#if s.wave === 'both'}
         <p class="note">The longitudinal wave above the transverse one, its compressions over the crests.</p>
@@ -85,7 +90,7 @@
       {#if s.wave === 'transverse'}
         <div class="field">
           Displacement against
-          <Choice name="Displacement against" options={[['distance', 'Distance'], ['time', 'Time']]} bind:value={() => s.xAxis, chooseXAxis} />
+          <Choice name="Displacement against" options={[['distance', 'Distance'], ['time', 'Time']]} bind:value={() => s.xAxis, (v: XAxis) => retitle(() => (s.xAxis = v))} />
         </div>
       {/if}
       <div class="field-row">
