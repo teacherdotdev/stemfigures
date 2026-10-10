@@ -37,6 +37,15 @@ describe('layoutGrid', () => {
     expect(px({ x: 50, y: 14 })).toEqual({ x: near(grid.x + grid.w), y: near(grid.y) })
   })
 
+  it('keeps the axes along the edges when asked, even with 0 on the grid', () => {
+    const below = readAxes({ xFrom: '0', xTo: '20', xStep: '1', yFrom: '-20', yTo: '120', yStep: '10' })
+    const crossing = layoutGrid(s, below)
+    const edges = layoutGrid(s, below, { edges: true })
+    expect(crossing.xAxis.y).toBeLessThan(crossing.grid.y + crossing.grid.h)
+    expect(edges.xAxis.y).toBe(edges.grid.y + edges.grid.h)
+    expect(edges.numbers.filter((n) => n.text === '0')).toHaveLength(2)
+  })
+
   it('reads plain numbers, and says what to fix', () => {
     expect(axes.x).toMatchObject({ start: 0, step: 5, blocks: 10 })
     expect(readAxes({ xFrom: 'a', xTo: '5', xStep: '1', yFrom: '0', yTo: '1', yStep: '0' }).problems).toMatchObject({

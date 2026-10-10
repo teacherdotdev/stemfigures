@@ -87,6 +87,16 @@ export const CHEMISTRY: CatalogEntry[] = [
     keywords: ['titration', 'titrate', 'curve', 'graph', 'pH', 'equivalence', 'half-equivalence', 'endpoint', 'end', 'point', 'pKa', 'pKb', 'Ka', 'buffer', 'acid', 'base', 'strong', 'weak', 'neutralization', 'NaOH', 'HCl', 'acetic', 'ammonia', 'molarity', 'buret', 'AP'],
   },
   {
+    id: 'heating-cooling-curve',
+    site: 'chemistry',
+    name: 'Heating and Cooling Curve',
+    path: '/heating-cooling-curve',
+    blurb: 'A heating or cooling curve with its plateaus, from a substance’s properties or segment lengths you type.',
+    description:
+      'Make printable heating and cooling curves for chemistry tests. Set the temperatures and melting and boiling points, then type a substance’s mass, specific heats and enthalpies for a curve to scale, or how long each segment is, and get the curve with lettered corners, labeled states and optional supercooling.',
+    keywords: ['heating', 'cooling', 'curve', 'graph', 'phase', 'change', 'changes', 'state', 'states', 'matter', 'melting', 'freezing', 'boiling', 'condensation', 'condensing', 'vaporization', 'fusion', 'plateau', 'point', 'temperature', 'time', 'heat', 'energy', 'specific', 'enthalpy', 'supercooling', 'solid', 'liquid', 'gas', 'ice', 'water', 'steam', 'kinetic', 'potential', 'thermochemistry', 'AP'],
+  },
+  {
     id: 'particle-diagram',
     site: 'chemistry',
     name: 'Particle Diagram',
