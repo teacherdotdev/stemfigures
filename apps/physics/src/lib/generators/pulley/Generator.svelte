@@ -19,20 +19,20 @@
   const SETUPS = { atwood: 'Atwood machine', table: 'table and hanging mass', ramp: 'ramp and hanging mass', tackle: 'block and tackle' }
   // What each object is called in each setup.
   const NAMES = {
-    atwood: { a: 'Left object', b: 'Right object' },
-    table: { a: 'On the table', b: 'Hanging' },
-    ramp: { a: 'On the ramp', b: 'Hanging' },
-    tackle: { a: '', b: '' },
+    atwood: ['Left object', 'Right object'],
+    table: ['On the table', 'Hanging'],
+    ramp: ['On the ramp', 'Hanging'],
+    tackle: [],
   }
-  const names = $derived(NAMES[s.setup])
-  const BOTH = ['a', 'b'] as const
-  const objectKeys = $derived(s.setup === 'tackle' ? [] : BOTH)
+  const names = $derived<string[]>(NAMES[s.setup])
+  const onSurface = $derived(s.setup === 'table' || s.setup === 'ramp')
+  /** Is this object on the table or ramp (so a block or a cart)? */
+  const resting = (i: number) => onSurface && i < s.objects.length - 1
   const objectsSummary = $derived(
     s.setup === 'tackle'
       ? `${shown(s.loadLabel)} held by ${s.strands} strand${s.strands === 1 ? '' : 's'}`
-      : `${shown(s.aLabel)} and ${shown(s.bLabel)}${s.setup === 'atwood' && s.lower !== 'neither' ? ` · ${s.lower === 'a' ? 'left' : 'right'} lower` : ''}`,
+      : `${s.objects.map((o) => shown(o.label)).join(' and ')}${s.setup === 'atwood' && s.lower !== 'neither' ? ` · ${s.lower === 'a' ? 'left' : 'right'} lower` : ''}`,
   )
-  const onSurface = $derived(s.setup === 'table' || s.setup === 'ramp')
   const vectorsSummary = $derived(
     [
       s.tension ? 'tension' : '',
@@ -43,15 +43,6 @@
     ]
       .filter(Boolean)
       .join(', ') || 'none',
-  )
-  // The gravity label for each object in this setup.
-  const gravityFields = $derived(
-    s.setup === 'tackle'
-      ? ([['loadGravityLabel', 'load']] as const)
-      : ([
-          ['aGravityLabel', names.a.toLowerCase()],
-          ['bGravityLabel', names.b.toLowerCase()],
-        ] as const),
   )
   const FORWARD = { atwood: 'Right falls', table: 'Hanging falls', ramp: 'Hanging falls', tackle: 'Load rises' }
   const BACKWARD = { atwood: 'Left falls', table: 'Hanging rises', ramp: 'Hanging rises', tackle: 'Load falls' }
@@ -88,22 +79,24 @@
           </span>
         </label>
       {/if}
-      {#each objectKeys as which}
-        <p class="subhead">{names[which]}</p>
-        {#if which === 'a' && s.setup !== 'atwood'}
-          <div class="field">
-            <Choice name="{names.a} object" options={[['block', 'Block'], ['cart', 'Cart']]} bind:value={gen.s.aKind} />
-          </div>
-        {/if}
-        <div class="field">Label <LabelField name="{names[which]} label" bind:label={gen.s[`${which}Label`]} /></div>
-        <label class="field">
-          Size
-          <span class="slider">
-            <input type="range" min="0.5" max="2" step="0.05" bind:value={gen.s[`${which}Size`]} />
-            <output>{Math.round(s[`${which}Size`] * 100)}%</output>
-          </span>
-        </label>
-      {/each}
+      {#if s.setup !== 'tackle'}
+        {#each gen.s.objects as o, i (o)}
+          <p class="subhead">{names[i]}</p>
+          {#if resting(i)}
+            <div class="field">
+              <Choice name="{names[i]} object" options={[['block', 'Block'], ['cart', 'Cart']]} bind:value={o.kind} />
+            </div>
+          {/if}
+          <div class="field">Label <LabelField name="{names[i]} label" bind:label={o.label} /></div>
+          <label class="field">
+            Size
+            <span class="slider">
+              <input type="range" min="0.5" max="2" step="0.05" bind:value={o.size} />
+              <output>{Math.round((s.objects[i]?.size ?? 1) * 100)}%</output>
+            </span>
+          </label>
+        {/each}
+      {/if}
       {#if s.setup === 'atwood'}
         <div class="field">
           Hangs lower
@@ -139,9 +132,14 @@
       <div class="vector">
         <label class="check"><input type="checkbox" bind:checked={gen.s.gravity} /> Gravity</label>
         {#if s.gravity}
-          {#each gravityFields as [key, whose] (key)}
-            <div class="field">On the {whose} <LabelField name="Gravity label on the {whose}" bind:label={gen.s[key]} /></div>
-          {/each}
+          {#if s.setup === 'tackle'}
+            <div class="field">On the load <LabelField name="Gravity label on the load" bind:label={gen.s.loadGravityLabel} /></div>
+          {:else}
+            {#each gen.s.objects as o, i (o)}
+              {@const whose = names[i].toLowerCase()}
+              <div class="field">On the {whose} <LabelField name="Gravity label on the {whose}" bind:label={o.gravityLabel} /></div>
+            {/each}
+          {/if}
         {/if}
       </div>
       {#if onSurface}

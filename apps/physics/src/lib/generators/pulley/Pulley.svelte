@@ -25,7 +25,6 @@
     }
     return `M${at(from)} A${wheel.r},${wheel.r} 0 ${to - from > 180 ? 1 : 0} 1 ${at(to)}`
   }
-  const labelOf = (which: 'a' | 'b' | 'load') => (which === 'a' ? settings.aLabel : which === 'b' ? settings.bLabel : settings.loadLabel)
   const description = $derived(
     {
       atwood: 'An Atwood machine: two objects hanging from a string over a pulley',
@@ -110,6 +109,6 @@
     <FigureLabel label={settings.angleLabel} x={mx(fig.ramp.angleLabelAt.x)} y={fig.ramp.angleLabelAt.y + SIZE * 0.35} size={SIZE} color={p.ink} />
   {/if}
   {#each fig.objects as o}
-    <FigureLabel label={labelOf(o.which)} x={mx(o.middle.x)} y={o.middle.y + SIZE * 0.35} size={SIZE} color={p.ink} halo={false} blank={30} />
+    <FigureLabel label={o.label} x={mx(o.middle.x)} y={o.middle.y + SIZE * 0.35} size={SIZE} color={p.ink} halo={false} blank={30} />
   {/each}
 </svg>

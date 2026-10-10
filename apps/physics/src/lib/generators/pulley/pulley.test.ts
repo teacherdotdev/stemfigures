@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import { buildPulley } from './pulley'
-import { pulleySettings } from './settings'
+import { numberedObject, pulleySettings, type PulleySettings } from './settings'
 
-const make = (over: Partial<typeof pulleySettings.defaults> = {}) => buildPulley({ ...pulleySettings.defaults, ...over })
+type Over = Partial<PulleySettings> & { aSize?: number; bSize?: number; aKind?: 'block' | 'cart' }
+/** A figure from the defaults and `over`, where aSize, bSize and aKind set up the first two objects. */
+const make = ({ aSize = 1, bSize = 1, aKind = 'block', ...over }: Over = {}) =>
+  buildPulley({ ...pulleySettings.defaults, objects: [{ ...numberedObject(1), size: aSize, kind: aKind }, { ...numberedObject(2), size: bSize }], ...over })
 
 describe('Atwood machine', () => {
   test('two objects hang on strings straight down from either side of the wheel', () => {
@@ -275,4 +278,31 @@ test('every vector and label fits, above the ground, whatever the setup', () => 
         expect(v.labelAt.y).toBeLessThan(f.ground.y1)
     }
   }
+})
+
+describe('links and presets from before the objects were a list', () => {
+  const text = (t: string) => ({ mode: 'text', text: t })
+
+  test('an old link still loads', () => {
+    const s = pulleySettings.fromParams(new URLSearchParams('setup=table&aLabel=5 kg&aKind=cart&aSize=2&bGravityLabel=W'))
+    expect(s.objects).toEqual([
+      { label: text('5 kg'), gravityLabel: text('m_1 g'), kind: 'cart', size: 2 },
+      { label: text('m_2'), gravityLabel: text('W'), kind: 'block', size: 1 },
+    ])
+  })
+
+  test('an old preset still loads', () => {
+    const { objects, ...rest } = pulleySettings.defaults
+    const preset = { ...rest, aLabel: text('A'), aSize: 1.5, aKind: 'cart', aGravityLabel: text('W_A'), bLabel: { mode: 'blank', text: 'm_2' }, bSize: 0.5, bGravityLabel: text('W_B') }
+    expect(pulleySettings.clean(preset).objects).toEqual([
+      { label: text('A'), gravityLabel: text('W_A'), kind: 'cart', size: 1.5 },
+      { label: { mode: 'blank', text: 'm_2' }, gravityLabel: text('W_B'), kind: 'block', size: 0.5 },
+    ])
+  })
+
+  test('its figure keeps its new address', () => {
+    const old = pulleySettings.fromParams(new URLSearchParams('setup=ramp&aSize=0.5&bLabel=~&gravity=1'))
+    const again = pulleySettings.fromParams(new URLSearchParams(pulleySettings.toQuery(old)))
+    expect(buildPulley(again)).toEqual(buildPulley(old))
+  })
 })

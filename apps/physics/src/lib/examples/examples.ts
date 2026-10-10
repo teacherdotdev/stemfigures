@@ -12,6 +12,8 @@
 
 import { CATALOG } from '$shared/catalog/index'
 import type { Force } from '$lib/generators/free-body-diagram/settings'
+import type { InclineObject } from '$lib/generators/inclined-plane/settings'
+import type { PulleyObject } from '$lib/generators/pulley/settings'
 import type { Vector } from '$lib/generators/vector-diagram/settings'
 import type { Label } from '$lib/shared/label'
 import { SITE_ID } from '$lib/site/config'
@@ -62,6 +64,18 @@ const vector = (magnitude: number, angle: number, label: string, more: Partial<V
   yLabel: text('A_y'),
   ...more,
 })
+
+/** A Pulley object labeled m_n, with its weight m_n g and its other fields at their defaults. */
+const mass = (n: number, more: Partial<PulleyObject> = {}): PulleyObject => ({
+  label: text(`m_${n}`),
+  gravityLabel: text(`m_${n} g`),
+  kind: 'block',
+  size: 1,
+  ...more,
+})
+
+/** An Inclined Plane object, a block of the usual size unless `more` says otherwise. */
+const onRamp = (label: string, more: Partial<InclineObject> = {}): InclineObject => ({ label: text(label), kind: 'block', size: 1, ...more })
 
 export const EXAMPLES: Example[] = [
   ...examplesOf('free-body-diagram', [
@@ -148,7 +162,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A cart labeled m on a smooth ramp at 20°, with dashed velocity v and acceleration a arrows pointing down the slope',
       caption:
         'A cart labeled m on a smooth ramp rising to the right, its angle labeled 20° at the foot. Dashed arrows above the cart show its velocity v and acceleration a, both pointing down the slope. No forces are drawn, so students can add them.',
-      settings: { object: 'cart', angle: 20, angleLabel: text('20deg'), velocity: 'down', acceleration: 'down' },
+      settings: { objects: [onRamp('m', { kind: 'cart' })], angle: 20, angleLabel: text('20deg'), velocity: 'down', acceleration: 'down' },
     },
     {
       slug: 'ball-on-ramp-length-height-angle-labeled',
@@ -156,7 +170,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A ball labeled m on a ramp, with the slope’s length marked L, the ramp’s height marked h and its angle marked θ',
       caption:
         'A ball labeled m on a smooth ramp rising to the right at 25°. The length of the slope is marked L along it, the ramp’s height is marked h beside its tall side, and the angle at the foot is marked θ. Use it for energy questions, such as the ball’s speed at the bottom.',
-      settings: { object: 'ball', angle: 25, lengthMark: true, heightMark: true },
+      settings: { objects: [onRamp('m', { kind: 'ball' })], angle: 25, lengthMark: true, heightMark: true },
     },
     {
       slug: 'label-the-forces-block-on-a-35-degree-incline',
@@ -165,7 +179,7 @@ export const EXAMPLES: Example[] = [
       caption:
         'A block labeled 5 kg on a rough, hatched ramp at 35°. Three force arrows are drawn from the block, straight down, out of the slope and up the slope, each with a blank line where its name goes, for students to label gravity, the normal force and friction.',
       settings: {
-        objectLabel: text('5 kg'),
+        objects: [onRamp('5 kg')],
         angle: 35,
         angleLabel: text('35deg'),
         surface: 'rough',
@@ -226,7 +240,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A cart on a smooth table tied over a pulley to a hanging block, with blank lines on the cart and the block for their masses',
       caption:
         'A cart on a smooth table, tied by a string over a pulley at the table’s edge to a block hanging below. Both have a blank line in place of a label, so you can write in the masses for your problem. No forces are drawn.',
-      settings: { setup: 'table', aKind: 'cart', aLabel: blank('m_1'), bLabel: blank('m_2') },
+      settings: { setup: 'table', objects: [mass(1, { kind: 'cart', label: blank('m_1') }), mass(2, { label: blank('m_2') })] },
     },
   ]),
 

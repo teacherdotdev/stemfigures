@@ -7,7 +7,7 @@ import type { Point } from '$lib/shared/field'
 import { objectHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
 import type { Label } from '$lib/shared/label'
 import { labelPoint, type LabeledVector, type Segment } from '$lib/shared/vector'
-import type { PulleySettings } from './settings'
+import type { PulleyObject, PulleySettings } from './settings'
 
 export const WIDTH = 640
 export const HEIGHT = 420
@@ -61,7 +61,10 @@ export interface PlacedObject {
   middle: Point
   height: number
   width: number
-  which: 'a' | 'b' | 'load'
+  label: Label
+  gravityLabel: Label
+  /** Which way it moves when the figure goes forward (a hanging object falling): along its surface toward the pulley, or up or down. */
+  moves: 'along' | 'up' | 'down'
 }
 
 export interface PulleyFigure {
@@ -70,6 +73,8 @@ export interface PulleyFigure {
   wheels: Wheel[]
   /** Each string as the points it runs through; `arcs` are the parts wrapped round wheels. */
   strings: Point[][]
+  /** Which end of each string is tied to an object, where its tension is drawn first (not in a block and tackle). */
+  tied: ('start' | 'end')[]
   arcs: { wheel: Wheel; from: number; to: number }[]
   objects: PlacedObject[]
   /** A hatched ceiling the wheel hangs from, and the rods and brackets holding wheels up. */
@@ -102,9 +107,21 @@ const seg = (a: Point, b: Point): Segment => ({ x1: r2(a.x), y1: r2(a.y), x2: r2
 const empty = { ground: null, groundHatches: [], table: null, ramp: null, platform: null, tackle: null, hatches: [] as Segment[], vectors: [] }
 
 /** An object resting at `at` (its bottom middle), tilted by `tilt` degrees; `n` points out of the surface. */
-function resting(which: 'a' | 'b', kind: ObjectKind, size: number, at: Point, tilt: number, n: Point): PlacedObject {
-  const h = objectHeight(kind, size)
-  return { kind, size, at, tilt, middle: pt(at.x + (n.x * h) / 2, at.y + (n.y * h) / 2), height: h, width: objectWidth(kind, size), which }
+function resting(o: PulleyObject, at: Point, tilt: number, n: Point): PlacedObject {
+  const kind = o.kind as ObjectKind
+  const h = objectHeight(kind, o.size)
+  return {
+    kind,
+    size: o.size,
+    at,
+    tilt,
+    middle: pt(at.x + (n.x * h) / 2, at.y + (n.y * h) / 2),
+    height: h,
+    width: objectWidth(kind, o.size),
+    label: o.label,
+    gravityLabel: o.gravityLabel,
+    moves: 'along',
+  }
 }
 
 function groundHatches(g: Segment): Segment[] {
@@ -113,17 +130,20 @@ function groundHatches(g: Segment): Segment[] {
   return out
 }
 
-function hanging(which: PlacedObject['which'], x: number, top: number, size: number): PlacedObject {
-  const h = objectHeight('block', size)
+/** A block hanging with its top middle at (x, top); it rises or falls as the figure goes forward. */
+function hanging(o: Pick<PulleyObject, 'label' | 'gravityLabel' | 'size'>, x: number, top: number, moves: 'up' | 'down'): PlacedObject {
+  const h = objectHeight('block', o.size)
   return {
     kind: 'block',
-    size,
+    size: o.size,
     at: pt(x, top + h),
     tilt: 0,
     middle: pt(x, top + h / 2),
     height: h,
-    width: objectWidth('block', size),
-    which,
+    width: objectWidth('block', o.size),
+    label: o.label,
+    gravityLabel: o.gravityLabel,
+    moves,
   }
 }
 
@@ -134,18 +154,19 @@ const aboveFor = (s: PulleySettings) => Math.max(s.normal ? VECTOR_LENGTH + 34 :
 
 /** An Atwood machine: two objects hanging over one fixed pulley. */
 function atwood(s: PulleySettings): PulleyFigure {
-  const wa = objectWidth('block', s.aSize)
-  const wb = objectWidth('block', s.bSize)
+  const [oa, ob] = s.objects
+  const wa = objectWidth('block', oa.size)
+  const wb = objectWidth('block', ob.size)
   // Big objects need a bigger wheel to hang side by side.
   const r = Math.max(WHEEL_R, (wa / 2 + wb / 2 + OBJECT_GAP) / 2)
   const wheel: Wheel = { cx: WIDTH / 2, cy: CEILING_Y + 40 + r, r }
-  const tallest = Math.max(objectHeight('block', s.aSize), objectHeight('block', s.bSize))
+  const tallest = Math.max(objectHeight('block', oa.size), objectHeight('block', ob.size))
   const lowerBy = s.lower === 'neither' ? 0 : LOWER_BY
   // As high as leaves room below, but always a string's length below the wheel;
   // when that runs out of room, the figure grows.
   const top = Math.max(wheel.cy + Math.max(MIN_DROP, r + 24), Math.min(HANG_TOP, HEIGHT - BOTTOM_MARGIN - tallest - lowerBy - belowFor(s)))
-  const a = hanging('a', wheel.cx - r, top + (s.lower === 'a' ? LOWER_BY : 0), s.aSize)
-  const b = hanging('b', wheel.cx + r, top + (s.lower === 'b' ? LOWER_BY : 0), s.bSize)
+  const a = hanging(oa, wheel.cx - r, top + (s.lower === 'a' ? LOWER_BY : 0), 'up')
+  const b = hanging(ob, wheel.cx + r, top + (s.lower === 'b' ? LOWER_BY : 0), 'down')
   return {
     width: WIDTH,
     height: Math.max(HEIGHT, Math.ceil(Math.max(a.at.y, b.at.y) + belowFor(s) + BOTTOM_MARGIN)),
@@ -154,6 +175,7 @@ function atwood(s: PulleySettings): PulleyFigure {
       [pt(wheel.cx - r, wheel.cy), pt(a.at.x, a.at.y - a.height)],
       [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)],
     ],
+    tied: ['end', 'end'],
     // Over the top of the wheel, from its left side to its right.
     arcs: [{ wheel, from: 180, to: 360 }],
     objects: [a, b],
@@ -164,24 +186,25 @@ function atwood(s: PulleySettings): PulleyFigure {
 }
 
 /** Where a hanging object goes below a wheel: a good way down, but clear of the ground (and of room for its gravity vector). */
-function hangBelow(which: 'a' | 'b', wheel: Wheel, size: number, below: number, groundY = GROUND_Y): PlacedObject {
-  const h = objectHeight('block', size)
+function hangBelow(o: PulleyObject, wheel: Wheel, below: number, groundY = GROUND_Y): PlacedObject {
+  const h = objectHeight('block', o.size)
   const top = Math.max(wheel.cy + Math.max(MIN_DROP, wheel.r + 24), Math.min(wheel.cy + HANG_DROP, groundY - GROUND_CLEAR - h - below))
-  return hanging(which, wheel.cx + wheel.r, top, size)
+  return hanging(o, wheel.cx + wheel.r, top, 'down')
 }
 
 /** A block or cart on a table, tied level over a pulley at the table's edge to a hanging object. */
 function table(s: PulleySettings): PulleyFigure {
-  const kind = s.aKind as ObjectKind
-  const ha = objectHeight(kind, s.aSize)
-  const wa = objectWidth(kind, s.aSize)
+  const [oa, ob] = s.objects
+  const kind = oa.kind as ObjectKind
+  const ha = objectHeight(kind, oa.size)
+  const wa = objectWidth(kind, oa.size)
   // The table stands lower when a tall object and the vectors above it need the room.
   const tableTop = Math.max(TABLE_TOP, FIT_MARGIN + ha + aboveFor(s))
   const stringY = tableTop - ha / 2
   const r = WHEEL_R
   const wheel: Wheel = { cx: TABLE_EDGE + BRACKET_GAP + r, cy: stringY + r, r }
-  const a = resting('a', kind, s.aSize, pt(TABLE_EDGE - 90 - wa / 2, tableTop), 0, { x: 0, y: -1 })
-  const b = hangBelow('b', wheel, s.bSize, belowFor(s))
+  const a = resting(oa, pt(TABLE_EDGE - 90 - wa / 2, tableTop), 0, { x: 0, y: -1 })
+  const b = hangBelow(ob, wheel, belowFor(s))
   // And the floor drops (the figure growing) when the hanging object still needs more room.
   const groundY = Math.max(GROUND_Y, b.at.y + belowFor(s) + GROUND_CLEAR)
   const hatches: Segment[] = []
@@ -198,6 +221,7 @@ function table(s: PulleySettings): PulleyFigure {
       [pt(a.at.x + wa / 2, stringY), pt(wheel.cx, wheel.cy - r)],
       [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)],
     ],
+    tied: ['start', 'end'],
     // From the top of the wheel round to its right-hand side.
     arcs: [{ wheel, from: 270, to: 360 }],
     objects: [a, b],
@@ -252,11 +276,12 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
   const u = { x: Math.cos(a), y: -Math.sin(a) }
   const n = { x: -Math.sin(a), y: -Math.cos(a) }
   const along = (p: Point, d: number, q: Point = u) => pt(p.x + q.x * d, p.y + q.y * d)
-  const kind = s.aKind as ObjectKind
-  const ha = objectHeight(kind, s.aSize)
-  const wa = objectWidth(kind, s.aSize)
-  const hb = objectHeight('block', s.bSize)
-  const wb = objectWidth('block', s.bSize)
+  const [oa, ob] = s.objects
+  const kind = oa.kind as ObjectKind
+  const ha = objectHeight(kind, oa.size)
+  const wa = objectWidth(kind, oa.size)
+  const hb = objectHeight('block', ob.size)
+  const wb = objectWidth('block', ob.size)
   const r = WHEEL_R
   const off = ha / 2 // the string's height above the slope
   const rise = base * Math.tan(a)
@@ -276,9 +301,9 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
   const c = along(along(top, reach), off - r, n)
   const wheel: Wheel = { cx: c.x, cy: c.y, r }
   const slope = base / Math.cos(a)
-  const obj = resting('a', kind, s.aSize, along(foot, slope * 0.45), -s.angle, n)
+  const obj = resting(oa, along(foot, slope * 0.45), -s.angle, n)
   const drop = Math.min(wantDrop, GROUND_Y - GROUND_CLEAR - hb - belowFor(s) - wheel.cy)
-  const b = hanging('b', wheel.cx + r, wheel.cy + drop, s.bSize)
+  const b = hanging(ob, wheel.cx + r, wheel.cy + drop, 'down')
   const leave = along(c, r, n) // where the string meets the wheel
 
   const hatches: Segment[] = []
@@ -300,6 +325,7 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
       [along(obj.middle, wa / 2), leave],
       [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)],
     ],
+    tied: ['start', 'end'],
     // From where the string meets the wheel, over the top, round to its right-hand side.
     arcs: [{ wheel, from: (Math.atan2(n.y, n.x) * 180) / Math.PI + 360, to: 360 }],
     objects: [obj, b],
@@ -397,7 +423,7 @@ function tackle(s: PulleySettings): PulleyFigure {
   const bar = movable.length ? seg(pt(Math.min(...movable.map((w) => w.cx)) - r, barY), pt(Math.max(xs[n], ...movable.map((w) => w.cx + r)), barY)) : null
   const loadX = bar ? (bar.x1 + bar.x2) / 2 : xs[1]
   const loadTop = bar ? barY + HOOK : bottomY
-  const load = hanging('load', loadX, loadTop, s.loadSize)
+  const load = hanging({ label: s.loadLabel, gravityLabel: s.loadGravityLabel, size: s.loadSize }, loadX, loadTop, 'up')
   const effortEnd = pt(xs[0], Math.min(bottomY + 50, HEIGHT - BOTTOM_MARGIN))
 
   const strings: Point[][] = [[pt(xs[0], topY), effortEnd]]
@@ -417,6 +443,7 @@ function tackle(s: PulleySettings): PulleyFigure {
     height: HEIGHT,
     wheels,
     strings,
+    tied: [],
     arcs,
     objects: [load],
     ceiling: seg(pt(Math.min(xs[0], loadX - wl / 2) - 40, CEILING_Y), pt(Math.max(xs[n], loadX + wl / 2) + 40, CEILING_Y)),
@@ -478,11 +505,8 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
       }
       add('tension', f.tackle.effort, { x: 0, y: 1 }, TENSION_LENGTH * 0.8, s.tensionLabel, 'side')
     } else {
-      // Which end of each string is tied to an object: the first string's object end is
-      // its last point in an Atwood machine and its first on a table or ramp.
-      const objectEnd = s.setup === 'atwood' ? ['end', 'end'] : ['start', 'end']
       f.strings.forEach((st, i) => {
-        const [tied, other] = objectEnd[i] === 'end' ? [st.at(-1)!, st[0]] : [st[0], st.at(-1)!]
+        const [tied, other] = f.tied[i] === 'end' ? [st.at(-1)!, st[0]] : [st[0], st.at(-1)!]
         const length = Math.min(TENSION_LENGTH, lengthOf(st) * 0.42)
         add('tension', tied, toward(tied, other), length, s.tensionLabel, 'side')
         add('tension', other, toward(other, tied), length, s.tensionLabel, 'side')
@@ -490,7 +514,6 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
     }
   }
 
-  const gravityLabel = (o: PlacedObject) => (o.which === 'a' ? s.aGravityLabel : o.which === 'b' ? s.bGravityLabel : s.loadGravityLabel)
   const toEdge = (o: PlacedObject, d: Point) => {
     const { u, n } = axes(o)
     const du = Math.abs(d.x * u.x + d.y * u.y)
@@ -501,16 +524,21 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
     const e = toEdge(o, d)
     return pt(o.middle.x + d.x * e, o.middle.y + d.y * e)
   }
-  if (s.gravity) for (const o of f.objects) add('gravity', fromEdge(o, { x: 0, y: 1 }), { x: 0, y: 1 }, VECTOR_LENGTH, gravityLabel(o))
+  if (s.gravity) for (const o of f.objects) add('gravity', fromEdge(o, { x: 0, y: 1 }), { x: 0, y: 1 }, VECTOR_LENGTH, o.gravityLabel)
 
-  const surface = s.setup === 'table' || s.setup === 'ramp' ? f.objects[0] : null
-  if (surface) {
-    const { u, n } = axes(surface)
-    if (s.normal) add('normal', fromEdge(surface, n), n, VECTOR_LENGTH, s.normalLabel)
-    if (s.friction !== 'none') {
+  const onSurface = f.objects.filter((o) => o.moves === 'along')
+  if (s.normal) {
+    for (const o of onSurface) {
+      const { n } = axes(o)
+      add('normal', fromEdge(o, n), n, VECTOR_LENGTH, s.normalLabel)
+    }
+  }
+  if (s.friction !== 'none') {
+    for (const o of onSurface) {
+      const { u, n } = axes(o)
       // Toward the pulley is +u: to the right on a table, up a ramp.
       const d = s.friction === 'toward' ? u : { x: -u.x, y: -u.y }
-      const from = pt(surface.at.x + d.x * (surface.width / 2) + n.x * 9, surface.at.y + d.y * (surface.width / 2) + n.y * 9)
+      const from = pt(o.at.x + d.x * (o.width / 2) + n.x * 9, o.at.y + d.y * (o.width / 2) + n.y * 9)
       add('friction', from, d, VECTOR_LENGTH * 0.85, s.frictionLabel)
     }
   }
@@ -521,7 +549,7 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
       // Which way this object moves when the hanging one falls.
       let d: Point
       let from: Point
-      if (o === surface) {
+      if (o.moves === 'along') {
         const { u, n } = axes(o)
         d = { x: u.x * sign, y: u.y * sign }
         // Above the object, set off to one side so it doesn't cross the normal force.
@@ -529,7 +557,7 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
         from = pt(lane.x + d.x * 14, lane.y + d.y * 14)
       } else {
         // Going forward, the hanging (or right-hand) object falls; the other rises, as does a tackle's load.
-        const up = o.which === 'b' ? sign < 0 : sign > 0
+        const up = (o.moves === 'up') === sign > 0
         d = { x: 0, y: up ? -1 : 1 }
         // Beside the object, on its outer side.
         const side = o.middle.x < centerX ? -1 : 1

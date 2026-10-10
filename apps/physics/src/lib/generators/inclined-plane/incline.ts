@@ -31,22 +31,26 @@ export type VectorKind = 'gravity' | 'normal' | 'friction' | 'applied' | 'veloci
 
 export type FigureVector = LabeledVector<VectorKind>
 
+export interface PlacedObject {
+  kind: ObjectKind
+  size: number
+  /** Where it rests on the slope (its bottom middle), and its tilt in degrees. */
+  at: Point
+  tilt: number
+  middle: Point
+  label: Label
+  /** Where its label goes (the middle of its body). */
+  labelAt: Point
+  height: number
+  width: number
+}
+
 export interface InclineFigure {
   width: number
   height: number
   ramp: { foot: Point; corner: Point; top: Point }
-  object: {
-    kind: ObjectKind
-    size: number
-    /** Where it rests on the slope (its bottom middle), and its tilt in degrees. */
-    at: Point
-    tilt: number
-    middle: Point
-    /** Where its label goes (the middle of its body). */
-    labelAt: Point
-    height: number
-    width: number
-  }
+  /** The objects on the slope, from the foot up. */
+  objects: PlacedObject[]
   /** The angle's arc at the foot, and where its label goes (the label's middle). */
   arc: string
   angleLabelAt: Point
@@ -82,9 +86,10 @@ function layout(s: InclineSettings, base: number): InclineFigure {
   const n = { x: -Math.sin(a), y: -Math.cos(a) }
   const along = (p: Point, d: number, q = u) => pt(p.x + q.x * d, p.y + q.y * d)
 
-  const kind = s.object as ObjectKind
-  const oh = objectHeight(kind, s.objectSize)
-  const ow = objectWidth(kind, s.objectSize)
+  const [o] = s.objects
+  const kind = o.kind as ObjectKind
+  const oh = objectHeight(kind, o.size)
+  const ow = objectWidth(kind, o.size)
   // Keep the whole object on the slope.
   const reach = Math.min(Math.max(s.position * slope, ow / 2), slope - ow / 2)
   const at = along(foot, reach)
@@ -209,7 +214,7 @@ function layout(s: InclineSettings, base: number): InclineFigure {
     width: WIDTH,
     height: HEIGHT,
     ramp: { foot, corner, top },
-    object: { kind, size: s.objectSize, at, tilt: -s.angle, middle, labelAt: along(at, objectLabelHeight(kind, s.objectSize), n), height: oh, width: ow },
+    objects: [{ kind, size: o.size, at, tilt: -s.angle, middle, label: o.label, labelAt: along(at, objectLabelHeight(kind, o.size), n), height: oh, width: ow }],
     arc,
     angleLabelAt,
     lengthMark,
@@ -238,7 +243,7 @@ function shifted(f: InclineFigure, dx: number, dy: number): InclineFigure {
   return {
     ...f,
     ramp: { foot: p(f.ramp.foot), corner: p(f.ramp.corner), top: p(f.ramp.top) },
-    object: { ...f.object, at: p(f.object.at), middle: p(f.object.middle), labelAt: p(f.object.labelAt) },
+    objects: f.objects.map((o) => ({ ...o, at: p(o.at), middle: p(o.middle), labelAt: p(o.labelAt) })),
     arc: f.arc, // drawn relative to the foot
     angleLabelAt: p(f.angleLabelAt),
     lengthMark: f.lengthMark && sg(f.lengthMark),

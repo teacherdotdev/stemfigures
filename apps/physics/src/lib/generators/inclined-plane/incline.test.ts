@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import { buildIncline } from './incline'
-import { inclineSettings } from './settings'
+import { inclineSettings, type InclineSettings } from './settings'
 
-const make = (over: Partial<typeof inclineSettings.defaults> = {}) => buildIncline({ ...inclineSettings.defaults, ...over })
+type Over = Partial<InclineSettings> & { object?: 'block' | 'ball' | 'cart'; objectSize?: number }
+/** A figure from the defaults and `over`, where object and objectSize set up its one object. */
+const make = ({ object = 'block', objectSize = 1, ...over }: Over = {}) =>
+  buildIncline({ ...inclineSettings.defaults, objects: [{ label: { mode: 'text', text: 'm' }, kind: object, size: objectSize }], ...over })
 
 describe('the ramp', () => {
   test('its slope rises at the chosen angle', () => {
@@ -36,22 +39,22 @@ describe('the object', () => {
     const f = make({ angle: 35 })
     const { foot, top } = f.ramp
     // its resting point is on the line from the foot to the top
-    const cross = (top.x - foot.x) * (f.object.at.y - foot.y) - (top.y - foot.y) * (f.object.at.x - foot.x)
+    const cross = (top.x - foot.x) * (f.objects[0].at.y - foot.y) - (top.y - foot.y) * (f.objects[0].at.x - foot.x)
     const distance = Math.abs(cross) / Math.hypot(top.x - foot.x, top.y - foot.y)
     expect(distance).toBeLessThan(0.05)
-    expect(f.object.tilt).toBe(-35)
+    expect(f.objects[0].tilt).toBe(-35)
   })
 
   test('its middle is above the slope by half its height, whatever its size', () => {
     for (const objectSize of [0.5, 2]) {
       const f = make({ objectSize })
-      const d = Math.hypot(f.object.middle.x - f.object.at.x, f.object.middle.y - f.object.at.y)
-      expect(d).toBeCloseTo(f.object.height / 2)
+      const d = Math.hypot(f.objects[0].middle.x - f.objects[0].at.x, f.objects[0].middle.y - f.objects[0].at.y)
+      expect(d).toBeCloseTo(f.objects[0].height / 2)
     }
   })
 
   test('slides along the ramp', () => {
-    expect(make({ position: 0.8 }).object.at.x).toBeGreaterThan(make({ position: 0.3 }).object.at.x)
+    expect(make({ position: 0.8 }).objects[0].at.x).toBeGreaterThan(make({ position: 0.3 }).objects[0].at.x)
   })
 })
 
@@ -114,14 +117,14 @@ describe('vectors', () => {
 
   test('forces start at the edge of the object, not inside it', () => {
     const f = make({ ...all, angle: 30 })
-    const m = f.object.middle
+    const m = f.objects[0].middle
     const from = (kind: string) => {
       const v = byKind(f, kind)
       return Math.hypot(v.x1 - m.x, v.y1 - m.y)
     }
-    expect(from('normal')).toBeCloseTo(f.object.height / 2, 0)
+    expect(from('normal')).toBeCloseTo(f.objects[0].height / 2, 0)
     // straight down meets the tilted block's bottom at a slant
-    expect(from('gravity')).toBeCloseTo(f.object.height / 2 / Math.cos((30 * Math.PI) / 180), 0)
+    expect(from('gravity')).toBeCloseTo(f.objects[0].height / 2 / Math.cos((30 * Math.PI) / 180), 0)
   })
 
   test('each vector has its own label', () => {
@@ -142,5 +145,19 @@ describe('vectors', () => {
         }
       }
     }
+  })
+})
+
+describe('links and presets from before the objects were a list', () => {
+  test('an old link still loads', () => {
+    const s = inclineSettings.fromParams(new URLSearchParams('object=ball&objectLabel=5 kg&objectSize=1.5&angle=40'))
+    expect(s.objects).toEqual([{ label: { mode: 'text', text: '5 kg' }, kind: 'ball', size: 1.5 }])
+    expect(s.angle).toBe(40)
+  })
+
+  test('an old preset still loads', () => {
+    const { objects, ...rest } = inclineSettings.defaults
+    const s = inclineSettings.clean({ ...rest, object: 'cart', objectLabel: { mode: 'blank', text: 'm' }, objectSize: 0.5 })
+    expect(s.objects).toEqual([{ label: { mode: 'blank', text: 'm' }, kind: 'cart', size: 0.5 }])
   })
 })

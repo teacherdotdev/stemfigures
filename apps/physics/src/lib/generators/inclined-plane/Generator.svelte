@@ -16,7 +16,7 @@
   const s = $derived(gen.snapshot())
 
   const shown = (l: Label) => (l.mode === 'text' ? `“${l.text}”` : l.mode === 'blank' ? 'blank' : 'no label')
-  const objectSummary = $derived(`${s.object} · ${shown(s.objectLabel)} · ${Math.round(s.objectSize * 100)}% size`)
+  const objectSummary = $derived(s.objects.map((o) => `${o.kind} · ${shown(o.label)} · ${Math.round(o.size * 100)}% size`).join('; '))
   const rampSummary = $derived(`${s.angle}° · ${shown(s.angleLabel)} · ${s.surface}`)
   // Every vector: its name, the settings that turn it on (and point it), and its label.
   const VECTORS = [
@@ -45,17 +45,19 @@
 <GeneratorPage name="Inclined Plane Generator" filename="inclined-plane" {gen}>
   {#snippet settings()}
     <Section title="Object" icon={Box} summary={objectSummary}>
-      <div class="field">
-        <Choice name="Object" options={[['block', 'Block'], ['ball', 'Ball'], ['cart', 'Cart']]} bind:value={gen.s.object} />
-      </div>
-      <div class="field">Label <LabelField name="Object label" bind:label={gen.s.objectLabel} /></div>
-      <label class="field">
-        Size
-        <span class="slider">
-          <input type="range" min="0.5" max="2" step="0.05" bind:value={gen.s.objectSize} />
-          <output>{Math.round(s.objectSize * 100)}%</output>
-        </span>
-      </label>
+      {#each gen.s.objects as o, i (o)}
+        <div class="field">
+          <Choice name="Object" options={[['block', 'Block'], ['ball', 'Ball'], ['cart', 'Cart']]} bind:value={o.kind} />
+        </div>
+        <div class="field">Label <LabelField name="Object label" bind:label={o.label} /></div>
+        <label class="field">
+          Size
+          <span class="slider">
+            <input type="range" min="0.5" max="2" step="0.05" bind:value={o.size} />
+            <output>{Math.round((s.objects[i]?.size ?? 1) * 100)}%</output>
+          </span>
+        </label>
+      {/each}
       <label class="field">
         Where on the ramp
         <span class="slider">

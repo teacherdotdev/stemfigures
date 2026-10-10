@@ -20,7 +20,7 @@
   const { foot, corner, top } = $derived(fig.ramp)
 
   const description = $derived(
-    `A ${settings.object} on an inclined plane at ${settings.angle}°${settings.surface === 'rough' ? ' with a rough surface' : ''}`,
+    `A ${settings.objects[0].kind} on an inclined plane at ${settings.angle}°${settings.surface === 'rough' ? ' with a rough surface' : ''}`,
   )
 </script>
 
@@ -42,9 +42,11 @@
     {#each fig.hatches as h}<line x1={h.x1} y1={h.y1} x2={h.x2} y2={h.y2} stroke={p.ink} stroke-width="1.3" />{/each}
     <path d={fig.arc} transform="translate({foot.x} {foot.y})" fill="none" stroke={p.ink} stroke-width="1.5" />
 
-    <g transform="translate({fig.object.at.x} {fig.object.at.y}) rotate({fig.object.tilt})">
-      <ObjectShape kind={fig.object.kind} size={fig.object.size} fill={p.object} stroke={p.ink} />
-    </g>
+    {#each fig.objects as o}
+      <g transform="translate({o.at.x} {o.at.y}) rotate({o.tilt})">
+        <ObjectShape kind={o.kind} size={o.size} fill={p.object} stroke={p.ink} />
+      </g>
+    {/each}
 
     {#each fig.extensions as e}<line x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} stroke={p.ink} stroke-width="1" />{/each}
     {#if fig.lengthMark}<DimensionLine m={fig.lengthMark} color={p.ink} />{/if}
@@ -54,7 +56,9 @@
   </g>
 
   <FigureLabel label={settings.angleLabel} x={mx(fig.angleLabelAt.x)} y={fig.angleLabelAt.y + SIZE * 0.35} size={SIZE} color={p.ink} />
-  <FigureLabel label={settings.objectLabel} x={mx(fig.object.labelAt.x)} y={fig.object.labelAt.y + SIZE * 0.35} size={SIZE} color={p.ink} halo={false} blank={30} />
+  {#each fig.objects as o}
+    <FigureLabel label={o.label} x={mx(o.labelAt.x)} y={o.labelAt.y + SIZE * 0.35} size={SIZE} color={p.ink} halo={false} blank={30} />
+  {/each}
   {#each fig.vectors as v}
     <FigureLabel label={v.label} x={mx(v.labelAt.x)} y={v.labelAt.y + SIZE * 0.35} size={SIZE} color={p.vector} />
   {/each}
