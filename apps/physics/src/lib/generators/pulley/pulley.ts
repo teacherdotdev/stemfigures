@@ -4,7 +4,7 @@
 // straight between the points where they leave a wheel or meet an object.
 
 import type { Point } from '$lib/shared/field'
-import { objectHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
+import { objectHeight, objectLabelHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
 import { labelRuns, type Label } from '$lib/shared/label'
 import { boxAround, boxesMeet, polygonHits, segmentHits, type Box } from '$lib/shared/overlap'
 import { labelPoint, numbered, type LabeledVector, type Segment } from '$lib/shared/vector'
@@ -67,6 +67,8 @@ export interface PlacedObject {
   at: Point
   tilt: number
   middle: Point
+  /** Where its label goes: the middle of its body, above a cart's wheels. */
+  labelAt: Point
   height: number
   width: number
   label: Label
@@ -126,6 +128,7 @@ function resting(o: PulleyObject, at: Point, tilt: number, n: Point): PlacedObje
     at,
     tilt,
     middle: pt(at.x + (n.x * h) / 2, at.y + (n.y * h) / 2),
+    labelAt: pt(at.x + n.x * objectLabelHeight(kind, o.size), at.y + n.y * objectLabelHeight(kind, o.size)),
     height: h,
     width: objectWidth(kind, o.size),
     label: o.label,
@@ -149,6 +152,7 @@ function hanging(o: Pick<PulleyObject, 'label' | 'gravityLabel' | 'size'>, x: nu
     at: pt(x, top + h),
     tilt: 0,
     middle: pt(x, top + h / 2),
+    labelAt: pt(x, top + h / 2),
     height: h,
     width: objectWidth('block', o.size),
     label: o.label,
@@ -218,8 +222,9 @@ function hangBelow(o: PulleyObject, wheel: Wheel, below: number, groundY = GROUN
 
 /** The objects on a table or ramp, from the back to the front: all but the last, which hangs. */
 const rowOf = (s: PulleySettings) => s.objects.slice(0, -1)
-/** The gap between objects in a row: none when they touch, and longer up a steep ramp, where weight points along the slope into it. */
-const gapOf = (s: PulleySettings) => (s.joined === 'touching' ? 0 : s.setup === 'ramp' ? TIE_GAP + 110 * Math.sin((s.angle * Math.PI) / 180) : TIE_GAP)
+/** The gap between objects in a row: none when they touch, longer up a steep ramp, where weight points along the slope into it, and as far apart as the teacher set. */
+const gapOf = (s: PulleySettings) =>
+  s.joined === 'touching' ? 0 : (s.setup === 'ramp' ? TIE_GAP + 110 * Math.sin((s.angle * Math.PI) / 180) : TIE_GAP) * s.spacing
 /** How long the row of objects on a table or ramp is, end to end. */
 const rowLength = (s: PulleySettings) =>
   rowOf(s).reduce((sum, o) => sum + objectWidth(o.kind as ObjectKind, o.size), 0) + gapOf(s) * (rowOf(s).length - 1)
@@ -459,7 +464,7 @@ function shift(f: PulleyFigure & { extent?: Point[] }, dx: number, dy: number): 
     wheels,
     strings: f.strings.map((st) => st.map(p)),
     arcs: f.arcs.map((a) => ({ ...a, wheel: wheels[f.wheels.indexOf(a.wheel)] })),
-    objects: f.objects.map((o) => ({ ...o, at: p(o.at), middle: p(o.middle) })),
+    objects: f.objects.map((o) => ({ ...o, at: p(o.at), middle: p(o.middle), labelAt: p(o.labelAt) })),
     ceiling: f.ceiling && sg(f.ceiling),
     rods: f.rods.map(sg),
     ground: f.ground && sg(f.ground),
@@ -668,8 +673,9 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
         const length = Math.min(VECTOR_LENGTH * 0.85, o.width * 0.8)
         add('friction', pt(o.at.x - n.x * 9, o.at.y - n.y * 9), d, length, nth(s.frictionLabel, i), d.y * n.x - d.x * n.y > 0 ? -1 : 1)
       } else {
+        // In a row, short enough to stay clear of the next object.
         const from = pt(o.at.x + d.x * (o.width / 2) + n.x * 9, o.at.y + d.y * (o.width / 2) + n.y * 9)
-        add('friction', from, d, VECTOR_LENGTH * 0.85, nth(s.frictionLabel, i))
+        add('friction', from, d, onSurface.length > 1 ? Math.min(VECTOR_LENGTH * 0.85, gapOf(s) * 0.6) : VECTOR_LENGTH * 0.85, nth(s.frictionLabel, i))
       }
     })
   }
@@ -765,7 +771,15 @@ export function buildPulley(s: PulleySettings): PulleyFigure {
       vectors = vectorsFor(f, s)
     }
   }
-  // Should a vector or its label still reach past the bottom, the figure grows to hold it.
+  // Should a vector or its label still reach past either side (the friction behind a long row
+  // on a ramp), or past the bottom, the figure grows to hold it.
+  const xs = vectors.flatMap((v) => [v.v.x1, v.v.x2, v.labelAt.x - 20, v.labelAt.x + 20])
+  const left = Math.max(0, Math.ceil(10 - Math.min(...xs)))
+  const right = Math.max(0, Math.ceil(Math.max(...xs) + 10 - f.width))
+  if (left || right) {
+    f = { ...shift(f, left, 0), width: f.width + left + right }
+    vectors = vectorsFor(f, s)
+  }
   const lowest = Math.max(...vectors.flatMap((v) => [v.v.y2, v.labelAt.y + 14]))
   return { ...f, vectors, height: Math.max(f.height, Math.ceil(lowest + 10)) }
 }

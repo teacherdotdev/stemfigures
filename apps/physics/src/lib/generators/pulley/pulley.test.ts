@@ -406,6 +406,17 @@ describe('a row of objects on a table', () => {
     expect(tie[0].y).toBe(tie[1].y)
   })
 
+  test('tied: as far apart as Space between sets, everything still fitting', () => {
+    const gap = (spacing: number) => {
+      const f = make3({ setup: 'table', spacing, tension: true, friction: 'toward', normal: true, gravity: true })
+      expectInside(f)
+      const [back, front] = f.objects
+      return front.at.x - front.width / 2 - (back.at.x + back.width / 2)
+    }
+    expect(gap(2)).toBeCloseTo(gap(1) * 2, 0)
+    expect(gap(0.5)).toBeCloseTo(gap(1) / 2, 0)
+  })
+
   test('touching: face to face, with no string between them', () => {
     const f = make3({ setup: 'table', joined: 'touching' })
     const [back, front] = f.objects
@@ -499,6 +510,19 @@ describe('a row of objects on a ramp', () => {
           else expect(gap).toBeGreaterThan(100)
         }
       }
+    }
+  })
+
+  test('tied: as far apart as Space between sets, on the ramp, everything still fitting', () => {
+    for (const angle of [10, 30, 60]) {
+      const gap = (spacing: number) => {
+        const f = make3({ setup: 'ramp', angle, spacing, tension: true, friction: 'away', normal: true, gravity: true }, [2, 2, 1], ['cart', 'block'])
+        expectInside(f)
+        const [back, front] = f.objects
+        return along(f, front.at).d - front.width / 2 - (along(f, back.at).d + back.width / 2)
+      }
+      expect(gap(2)).toBeCloseTo(gap(1) * 2, 0)
+      expect(gap(0.5)).toBeCloseTo(gap(1) / 2, 0)
     }
   })
 

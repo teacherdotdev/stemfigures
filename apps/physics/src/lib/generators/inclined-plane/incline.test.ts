@@ -194,6 +194,20 @@ describe('a row of objects', () => {
     expect(onSlope(touching, b.at).d - b.width / 2).toBeCloseTo(onSlope(touching, a.at).d + a.width / 2, 1)
   })
 
+  test('tied objects sit as far apart as Space between sets, and friction stays clear of the next one', () => {
+    const gaps = (spacing: number) => {
+      const f = makeRow(3, { angle: 20, spacing, friction: 'up' })
+      const gap = (i: number) => onSlope(f, f.objects[i + 1].at).d - f.objects[i + 1].width / 2 - (onSlope(f, f.objects[i].at).d + f.objects[i].width / 2)
+      const friction = f.vectors.filter((v) => v.kind === 'friction')
+      return { gaps: [gap(0), gap(1)], f, friction }
+    }
+    const usual = gaps(1).gaps[0]
+    expect(gaps(2).gaps[0]).toBeCloseTo(usual * 2, 0)
+    expect(gaps(0.5).gaps[1]).toBeCloseTo(usual / 2, 0)
+    const { f, friction } = gaps(0.5)
+    friction.slice(0, 2).forEach((v, i) => expect(onSlope(f, { x: v.v.x2, y: v.v.y2 }).d).toBeLessThan(onSlope(f, f.objects[i + 1].at).d - f.objects[i + 1].width / 2))
+  })
+
   test("the row's middle follows Where on the ramp", () => {
     expect(onSlope(makeRow(2, { position: 0.8 }), makeRow(2, { position: 0.8 }).objects[0].at).d).toBeGreaterThan(
       onSlope(makeRow(2, { position: 0.3 }), makeRow(2, { position: 0.3 }).objects[0].at).d,
@@ -259,12 +273,14 @@ describe('a row of objects', () => {
       for (const joined of ['string', 'touching'] as const) {
         for (const sizes of [[1, 1, 1], [2, 2, 2]]) {
           for (const position of [0.2, 0.85]) {
-            const f = makeRow(3, { ...everything, angle, joined, position, lengthMark: true, heightMark: true }, ['cart', 'block', 'ball'], sizes)
-            for (const p of f.extent) {
-              expect(p.x).toBeGreaterThanOrEqual(0)
-              expect(p.x).toBeLessThanOrEqual(f.width)
-              expect(p.y).toBeGreaterThanOrEqual(0)
-              expect(p.y).toBeLessThanOrEqual(f.height)
+            for (const spacing of [0.5, 1, 2]) {
+              const f = makeRow(3, { ...everything, angle, joined, position, spacing, lengthMark: true, heightMark: true }, ['cart', 'block', 'ball'], sizes)
+              for (const p of f.extent) {
+                expect(p.x).toBeGreaterThanOrEqual(0)
+                expect(p.x).toBeLessThanOrEqual(f.width)
+                expect(p.y).toBeGreaterThanOrEqual(0)
+                expect(p.y).toBeLessThanOrEqual(f.height)
+              }
             }
           }
         }
@@ -277,7 +293,7 @@ describe('a row of objects', () => {
       for (const n of [2, 3]) {
         for (const joined of ['string', 'touching'] as const) {
           for (const position of [0.2, 0.55, 0.85]) {
-            for (const over of [{}, everything]) {
+            for (const over of [{}, everything, { ...everything, spacing: 0.5 }, { ...everything, spacing: 2 }]) {
               const f = makeRow(n, { ...over, angle, joined, position }, ['cart', 'block', 'ball'], [1, 2, 1])
               // clear of every object, string, vector and vector label
               expect(angleLabelClear(f, inclineSettings.defaults)).toBe(true)

@@ -31,6 +31,8 @@ export const inclineSettings = defineSettings(
     position: number(0.55, 0.2, 0.85),
     /** How objects in a row are joined: by strings, or touching (pushing on each other). */
     joined: choice('string', ['string', 'touching']),
+    /** How far apart objects tied in a row are, from half (0.5) to twice (2) the usual gap. */
+    spacing: number(1, 0.5, 2),
     angle: int(30, 5, 60),
     angleLabel: label({ mode: 'text', text: 'theta' }),
     lengthMark: bool(false),

@@ -162,6 +162,30 @@ export function labelRuns(text: string): Run[] {
   return runs
 }
 
+const TALL = /[A-Z0-9bdfhiklt\u0391-\u03A9βδζθλξ]/
+const DESCENDS = /[gjpqyβγζημξρφχψ]/
+
+/**
+ * How far below the middle of a label's ink, at font size `size`, its
+ * baseline goes, to center the label on a point (inside an object). A capital
+ * reaches up from the baseline, but a lowercase m doesn't, and a subscript
+ * hangs below it, so "m_1" sits higher than "F" would. A blank or missing
+ * label takes the offset a capital would.
+ */
+export function baselineBelowMiddle(label: Label, size: number): number {
+  if (label.mode !== 'text' || !label.text.trim()) return size * 0.35
+  // Above and below the baseline, as FigureLabel sets subscripts (0.7 the size, 0.3 down) and superscripts (0.45 up).
+  let top = 0
+  let bottom = 0
+  for (const run of labelRuns(label.text)) {
+    const em = run.shift ? size * 0.7 : size
+    const down = run.shift === 'sub' ? size * 0.3 : run.shift === 'super' ? -size * 0.45 : 0
+    top = Math.max(top, (TALL.test(run.text) ? 0.68 : 0.46) * em - down)
+    bottom = Math.max(bottom, (DESCENDS.test(run.text) ? 0.22 : 0) * em + down)
+  }
+  return (top - bottom) / 2
+}
+
 /** Unit words set upright even though they're short. */
 const UNITS = new Set(['kg', 'cm', 'mm', 'km', 'ms', 'Hz', 'kJ', 'kW', 'kN', 'eV', 'mA', 'mV', 'kV', 'Pa', 'Wb', 'mol', 'rad', 'kPa', 'Ω', 'kΩ', 'MΩ'])
 

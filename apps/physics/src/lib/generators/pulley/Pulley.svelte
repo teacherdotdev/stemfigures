@@ -3,6 +3,7 @@
   // cleanly. Shapes are drawn inside the mirror transform; labels outside it,
   // so they stay readable.
   import FigureLabel from '$lib/shared/FigureLabel.svelte'
+  import { baselineBelowMiddle } from '$lib/shared/label'
   import ObjectShape from '$lib/shared/ObjectShape.svelte'
   import VectorArrow from '$lib/shared/VectorArrow.svelte'
   import { styleOf } from '$lib/shared/vector'
@@ -111,6 +112,6 @@
     <FigureLabel label={settings.angleLabel} x={mx(fig.ramp.angleLabelAt.x)} y={fig.ramp.angleLabelAt.y + SIZE * 0.35} size={SIZE} color={p.ink} />
   {/if}
   {#each fig.objects as o}
-    <FigureLabel label={o.label} x={mx(o.middle.x)} y={o.middle.y + SIZE * 0.35} size={SIZE} color={p.ink} halo={false} blank={30} />
+    <FigureLabel label={o.label} x={mx(o.labelAt.x)} y={o.labelAt.y + baselineBelowMiddle(o.label, SIZE)} size={SIZE} color={p.ink} halo={false} blank={30} />
   {/each}
 </svg>

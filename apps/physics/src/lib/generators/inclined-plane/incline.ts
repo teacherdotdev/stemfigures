@@ -87,7 +87,7 @@ const seg = (a: Point, b: Point): Segment => ({ x1: r2(a.x), y1: r2(a.y), x2: r2
 
 /** Objects in a row touching, rather than tied? */
 export const touching = (s: InclineSettings) => s.objects.length > 1 && s.joined === 'touching'
-const gapOf = (s: InclineSettings) => (touching(s) ? 0 : TIE_GAP + STEEP_GAP * Math.sin((s.angle * Math.PI) / 180))
+const gapOf = (s: InclineSettings) => (touching(s) ? 0 : (TIE_GAP + STEEP_GAP * Math.sin((s.angle * Math.PI) / 180)) * s.spacing)
 /** How long the row of objects is along the slope, end to end. */
 const rowLength = (s: InclineSettings) =>
   s.objects.reduce((sum, o) => sum + objectWidth(o.kind as ObjectKind, o.size), 0) + gapOf(s) * (s.objects.length - 1)
@@ -260,8 +260,10 @@ function layout(s: InclineSettings, base: number, back = END_ROOM): InclineFigur
         // From under the object's middle, just below the slope, labeled below that.
         add('friction', along(o.at, -9, n), d, Math.min(VECTOR_LENGTH * 0.85, o.width * 0.8), nth(s.frictionLabel, i), outward(d, false))
       } else {
-        // Just clear of the slope, so the arrow's white outline doesn't break the slope's line.
-        add('friction', along(along(o.at, o.width / 2, d), 9, n), d, VECTOR_LENGTH * 0.85, nth(s.frictionLabel, i))
+        // Just clear of the slope, so the arrow's white outline doesn't break the slope's line;
+        // in a row, short enough to stay clear of the next object.
+        const length = several ? Math.min(VECTOR_LENGTH * 0.85, gapOf(s) * 0.6) : VECTOR_LENGTH * 0.85
+        add('friction', along(along(o.at, o.width / 2, d), 9, n), d, length, nth(s.frictionLabel, i))
       }
     })
   }

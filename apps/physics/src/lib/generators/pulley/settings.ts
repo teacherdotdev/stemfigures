@@ -61,6 +61,8 @@ export const pulleySettings = defineSettings(
     below: choice('b', ['a', 'b']),
     /** How two objects on a table or ramp are joined: by a string, or touching (pushing on each other). */
     joined: choice('string', ['string', 'touching']),
+    /** How far apart two objects tied on a table or ramp are, from half (0.5) to twice (2) the usual gap. */
+    spacing: number(1, 0.5, 2),
     angle: int(30, 10, 60),
     angleLabel: label({ mode: 'text', text: 'theta' }),
     surface: choice('smooth', ['smooth', 'rough']),

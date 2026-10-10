@@ -106,6 +106,15 @@
           Joined
           <Choice name="Joined" options={[['string', 'By strings'], ['touching', 'Touching']]} bind:value={gen.s.joined} />
         </div>
+        {#if s.joined === 'string'}
+          <label class="field">
+            Space between
+            <span class="slider">
+              <input type="range" min="0.5" max="2" step="0.05" bind:value={gen.s.spacing} />
+              <output>{Math.round(s.spacing * 100)}%</output>
+            </span>
+          </label>
+        {/if}
       {/if}
       {#if s.objects.length < MAX_OBJECTS}
         <button type="button" class="btn-ghost add" onclick={add}><Plus size={15} aria-hidden="true" /> Add an object above</button>
