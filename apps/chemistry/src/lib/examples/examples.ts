@@ -365,7 +365,7 @@ export const EXAMPLES: Example[] = [
       title: 'Heating curve of water, lettered A to F',
       alt: 'Heating curve of water from ice at −20 °C to steam at 120 °C, with plateaus at 0 and 100 °C labeled Melting and Boiling, corners lettered A to F',
       caption:
-        'The temperature of water heated steadily from ice at −20 °C to steam at 120 °C, against time. The curve rises through the solid, stays flat at 0 °C while the ice melts, rises through the liquid, stays flat at 100 °C while the water boils, then rises through the gas. Its corners are lettered A to F, the sloped segments are labeled with their states and the plateaus with the changes, and dashed lines run from the plateaus to the temperature axis.',
+        'The temperature of water heated steadily from ice at −20 °C to steam at 120 °C, against time. The curve rises through the solid, stays flat at 0 °C while the ice melts, rises through the liquid, stays flat at 100 °C while the water boils, then rises through the gas. Its corners are lettered A to F, the sloped segments are labeled with their states and the plateaus with the changes, and dashed lines run from the plateaus to the temperature axis, with 0 °C and 100 °C written by them.',
       settings: { letters: true },
     },
     {
@@ -373,7 +373,7 @@ export const EXAMPLES: Example[] = [
       title: 'Cooling curve of water',
       alt: 'Cooling curve of water from steam at 120 °C to ice at −20 °C, with plateaus labeled Condensing at 100 °C and Freezing at 0 °C',
       caption:
-        'The temperature of water cooled steadily from steam at 120 °C to ice at −20 °C, against time. The curve falls through the gas, stays flat at 100 °C while the steam condenses, falls through the liquid, stays flat at 0 °C while the water freezes, then falls through the solid. The sloped segments are labeled with their states and the plateaus with the changes.',
+        'The temperature of water cooled steadily from steam at 120 °C to ice at −20 °C, against time. The curve falls through the gas, stays flat at 100 °C while the steam condenses, falls through the liquid, stays flat at 0 °C while the water freezes, then falls through the solid. The sloped segments are labeled with their states and the plateaus with the changes, and the temperatures are written by the dashed lines.',
       settings: { direction: 'cooling', startT: 120, endT: -20 },
     },
     {
@@ -382,14 +382,14 @@ export const EXAMPLES: Example[] = [
       alt: 'Heating curve of ethanol from −140 °C to 100 °C, with plateaus at its melting point, −114.1 °C, and boiling point, 78.3 °C, written by the temperature axis',
       caption:
         'The temperature of ethanol heated steadily from −140 °C to 100 °C, against time. It melts at −114.1 °C and boils at 78.3 °C, each written by the temperature axis above the dashed line from its plateau. The sloped segments are labeled with their states and the plateaus with the changes.',
-      settings: { substance: 'ethanol', startT: -140, endT: 100, pointLabels: 'values', yFrom: '-140', yTo: '100', yStep: '20', yEvery: 1 },
+      settings: { substance: 'ethanol', startT: -140, endT: 100, yFrom: '-140', yTo: '100', yStep: '20', yEvery: 1 },
     },
     {
       slug: 'heating-curve-of-water-to-scale-heat-added',
       title: 'Heating curve of water to scale, against heat added',
       alt: 'Heating curve of 100 g of water against heat added in kJ, its boiling plateau much longer than its melting plateau, with blank lines to label each segment',
       caption:
-        'The temperature of 100 g of water heated from ice at −20 °C to steam at 120 °C, against the heat added in kJ, drawn to scale from water’s specific heats and enthalpies of fusion and vaporization. The boiling plateau at 100 °C is almost seven times as long as the melting plateau at 0 °C. Each segment has a blank line for students to name its state.',
+        'The temperature of 100 g of water heated from ice at −20 °C to steam at 120 °C, against the heat added in kJ, drawn to scale from water’s specific heats and enthalpies of fusion and vaporization. The boiling plateau at 100 °C is almost seven times as long as the melting plateau at 0 °C, each temperature written by its dashed line. Each segment has a blank line for students to name its state.',
       settings: { source: 'properties', xQuantity: 'heat', xTo: '320', xStep: '20', xTitle: 'Heat added (kJ)', segmentLabels: 'blank' },
     },
     {
@@ -397,7 +397,7 @@ export const EXAMPLES: Example[] = [
       title: 'Cooling curve with supercooling',
       alt: 'Cooling curve of water from 80 °C to −20 °C that dips 5 °C below the freezing point before rising back to 0 °C and freezing, corners lettered A to D',
       caption:
-        'The temperature of water cooled steadily from 80 °C to −20 °C, against time. The liquid cools past its freezing point to −5 °C before ice starts to form, then the heat given out as it freezes warms it back up to 0 °C, where it stays until it has frozen. Its corners are lettered A to D.',
+        'The temperature of water cooled steadily from 80 °C to −20 °C, against time. The liquid cools past its freezing point to −5 °C before ice starts to form, then the heat given out as it freezes warms it back up to 0 °C, written by the dashed line, where it stays until it has frozen. Its corners are lettered A to D.',
       settings: { direction: 'cooling', startT: 80, endT: -20, supercool: true, letters: true, xTo: '10', xEvery: 1, yTo: '100' },
     },
     {

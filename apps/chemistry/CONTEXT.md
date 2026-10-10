@@ -466,5 +466,5 @@ A segment's state written beside it (Solid, Liquid, Gas; a plateau as the change
 _Avoid_: Annotation, caption
 
 **Point label**:
-What's written by the temperature axis just above (or below) a plateau's dashed line: its temperature (78.3 °C), m.p. or b.p. (f.p. and b.p. on a cooling curve), or a blank line for students to write the melting or boiling point on. It goes along the line, inside the grid, as far from the axis as the curve makes it. None by default.
+What's written by the temperature axis just above (or below) a plateau's dashed line: its temperature (78.3 °C), m.p. or b.p. (f.p. and b.p. on a cooling curve), or a blank line for students to write the melting or boiling point on. It goes along the line, inside the grid, as far from the axis as the curve makes it. The temperature by default.
 _Avoid_: Axis label (that's the letter at an axis's end), tick label

@@ -12,6 +12,7 @@ describe('a heating or cooling curve figure', () => {
     expect(g.guides).toHaveLength(2)
     expect(g.segmentLabels.map((l) => l.text)).toEqual(['Solid', 'Melting', 'Liquid', 'Boiling', 'Gas'])
     expect(g.letters).toHaveLength(0)
+    expect(g.pointLabels.map((l) => l.text)).toEqual(['0 °C', '100 °C'])
     expect(g.problems.fit).toBeUndefined()
   })
 
@@ -47,7 +48,7 @@ describe('a heating or cooling curve figure', () => {
 
 describe('the substance', () => {
   it('takes a setup’s melting and boiling points, ignoring the custom ones', () => {
-    const g = build('substance=ethanol&startT=-140&endT=100&mp=10&bp=20&yFrom=-140&yTo=100&yStep=20&pointLabels=values')
+    const g = build('substance=ethanol&startT=-140&endT=100&mp=10&bp=20&yFrom=-140&yTo=100&yStep=20')
     expect(g.pointLabels.map((l) => l.text)).toEqual(['−114.1 °C', '78.3 °C'])
     expect(g.guides).toHaveLength(2)
   })
@@ -58,6 +59,7 @@ describe('the substance', () => {
     expect(build('substance=custom&mp=20&bp=60&direction=cooling&startT=80&endT=0&pointLabels=names&yFrom=0&yTo=80')
       .pointLabels.map((l) => l.text)).toEqual(['b.p.', 'f.p.'])
     expect(build('substance=custom&mp=20&bp=60&startT=0&endT=80&yFrom=0&yTo=80&pointLabels=blank').pointBlanks).toHaveLength(2)
+    expect(build('pointLabels=none').pointLabels).toHaveLength(0)
   })
 
   it('works a setup’s curve out to scale from its own properties', () => {

@@ -35,7 +35,7 @@ export const curveLinking = describeLinking(curveSettings, {
     'A setup (any substance but custom) brings its own melting and boiling points and properties; mp, bp, cSolid, cLiquid, cGas, fusH, vapH and molarMass are then ignored. The link doesn’t move startT and endT to suit the substance: set them too.',
     'With source=lengths (the default) each segment is as long along the x-axis as solidW, meltW, liquidW, boilW and gasW say, whatever the substance.',
     'With source=properties each sloped segment takes q = m·c·ΔT and each plateau q = n·ΔH, from the substance’s specific heats, enthalpies and molar mass and the sample’s mass, so the curve is to scale. With xQuantity=time the heat is turned into minutes at rate kJ per minute; with xQuantity=heat the x-axis is the heat in kJ.',
-    'The defaults are water heated from −20 to 120 °C; to scale, 100 g heated at 10 kJ per minute.',
+    'The defaults are water heated from −20 to 120 °C, its melting and boiling points written by the temperature axis and its corners not lettered; to scale, 100 g heated at 10 kJ per minute.',
     'The x-axis title is not changed by the link: with xQuantity=heat also set xTitle, e.g. “Heat added (kJ)”. The axes are not fitted to the curve either: set xTo and the y range so the whole curve is on the grid.',
     'Axis ranges are text holding plain numbers. From xFrom to xTo counting by xStep makes the gridlines, at most 50 blocks per axis.',
   ],
@@ -106,7 +106,7 @@ export const curveLinking = describeLinking(curveSettings, {
     {
       shows: 'Ethanol cooled from 100 °C to −140 °C, its freezing and boiling points written by the temperature axis.',
       settings: {
-        direction: 'cooling', substance: 'ethanol', startT: 100, endT: -140, pointLabels: 'values',
+        direction: 'cooling', substance: 'ethanol', startT: 100, endT: -140,
         yFrom: '-140', yTo: '100', yStep: '20', yEvery: 1,
       },
     },

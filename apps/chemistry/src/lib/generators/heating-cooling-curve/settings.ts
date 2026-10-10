@@ -68,7 +68,7 @@ export const curveSettings = defineSettings({
   segmentLabels: choice(SEGMENT_LABELS, 'states'),
   plateauLabels: choice(PLATEAU_LABELS, 'change'),
   guides: bool(true),
-  pointLabels: choice(POINT_LABELS, 'none'),
+  pointLabels: choice(POINT_LABELS, 'values'),
   color: choice(Object.keys(COLORS) as Color[], 'red'),
   ...gridFields({
     xFrom: '0', xTo: '20', xStep: '1', xEvery: 2,

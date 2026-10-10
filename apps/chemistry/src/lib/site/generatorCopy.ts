@@ -315,14 +315,14 @@ export const COPY: Record<string, GeneratorCopy> = {
     heading: 'Heating and cooling curves',
     intro: [
       'Heating and Cooling Curve graphs a substance’s temperature as it is heated or cooled steadily, through its melting and boiling points. Each phase warms or cools in a sloped segment and each phase change is a flat plateau, and the curve has only the segments its starting and ending temperatures pass through. Pick water, ethanol, acetone, mercury, sodium chloride or a made-up Substance X, or type your own melting and boiling points. Segments are schematic, in tidy textbook proportions you can change, or worked out to scale from the substance’s specific heats and enthalpies of fusion and vaporization for the mass and heating rate you choose, with the heat each segment takes listed for your answer key.',
-      'Teachers use it for questions on phase changes, heat and temperature: what is happening between B and C, why the temperature doesn’t change while ice melts, which plateau is longer and why. Letter the corners A to F, label each segment with its state or phase change or leave a blank line for students, and draw dashed lines from the plateaus to the temperature axis with the melting and boiling points, m.p. and b.p., or a blank line by them.',
+      'Teachers use it for questions on phase changes, heat and temperature: what is happening between B and C, why the temperature doesn’t change while ice melts, which plateau is longer and why. Letter the corners A to F, label each segment with its state or phase change or leave a blank line for students. The dashed lines from the plateaus to the temperature axis have the melting and boiling points written by them, so they can be read on any axis; write m.p. and b.p. instead, or leave blank lines for students.',
     ],
     settings: [
       'Heating or cooling, and the starting and ending temperatures',
       'The substance: water, ethanol, acetone, mercury, sodium chloride, a made-up Substance X, or your own melting and boiling points',
       'Segment lengths schematic (typed) or to scale, from the mass and the substance’s specific heats and enthalpies of fusion and vaporization (typed for your own substance)',
       'Time or the heat added or removed along the x-axis, at a heating rate you choose',
-      'Letters at the corners, segment labels (states, the phase change, or blank lines), dashed lines at the plateaus with the temperatures, m.p. and b.p. or blank lines by the axis, and supercooling on a cooling curve',
+      'Letters at the corners, segment labels (states, the phase change, or blank lines), dashed lines at the plateaus with the temperatures (the default), m.p. and b.p., blank lines or nothing by the axis, and supercooling on a cooling curve',
       'The curve’s color, the chart and axis titles (or blank lines), the axis ranges and numbering, gridlines, and label size',
     ],
     faqs: [
