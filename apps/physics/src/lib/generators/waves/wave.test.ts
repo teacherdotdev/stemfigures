@@ -157,6 +157,20 @@ describe('the marks', () => {
     }
   })
 
+  test('lower the amplitude label until it clears the wave, a blank line too', () => {
+    for (const q of ['axes=0&cycles=2.5&amplitudeLabel=~', 'cycles=4&amplitudeLabel=amplitude', 'cycles=8&amplitudeLabel=~']) {
+      const f = build(q)
+      const a = markOf(f, 'amplitude')
+      const s = settingsOf(q)
+      const w = a.label.mode === 'blank' ? a.blank! : a.label.text.length * f.labelSize * 0.5
+      // The wave's height (in amplitudes) at the label's far end, past the crest.
+      const dx = (a.at.x + w / 2 - a.line.x1) / f.unit.x
+      const waveAt = Math.cos((2 * Math.PI * dx) / s.wavelength)
+      const labelTop = (f.graph?.xAxis.y ?? f.rest!.y1) - (a.at.y - (a.label.mode === 'blank' ? 0 : f.labelSize * 0.8))
+      if (waveAt > 0) expect(labelTop / (s.amplitude * f.unit.y), q).toBeLessThan(waveAt)
+    }
+  })
+
   test('leave the wavelength off with less than a whole cycle drawn', () => {
     expect(build('cycles=0.5').marks.map((m) => m.kind)).toEqual(['amplitude'])
     expect(build('cycles=1').marks.map((m) => m.kind)).toEqual(['wavelength', 'amplitude'])

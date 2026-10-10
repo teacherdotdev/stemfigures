@@ -117,6 +117,6 @@
     <line x1={f.titleBlank.x1} y1={f.titleBlank.y1} x2={f.titleBlank.x2} y2={f.titleBlank.y2} stroke={INK} stroke-width="1.5" />
   {/if}
 
-  {#each f.marks as m}<FigureLabel label={m.label} x={m.at.x} y={m.at.y} size={f.labelSize} color={INK} backdrop="{id}-label-box" />{/each}
+  {#each f.marks as m}<FigureLabel label={m.label} x={m.at.x} y={m.at.y} size={f.labelSize} blank={m.blank} color={INK} backdrop="{id}-label-box" />{/each}
   {#each f.notes as n}<FigureLabel label={n.label} x={n.at.x} y={n.at.y} size={f.labelSize} color={INK} italic={false} backdrop="{id}-label-box" />{/each}
 </svg>

@@ -45,6 +45,8 @@ export interface Mark {
   extensions: Segment[]
   label: Label
   at: Point
+  /** how long its blank line is, when it isn't the usual length */
+  blank?: number
 }
 
 /** A word on the figure: crest, trough, compression or rarefaction. */
@@ -375,15 +377,25 @@ export function buildWave(s: WaveSettings): WaveFigure {
     }
     if (amplitude) {
       const tip = amplitude.up ? crestTop : troughBottom
-      const w = labelWidth(s.amplitudeLabel, ls)
+      // How far it is across from the arrow to the wave, `h` amplitudes up from the rest line.
+      const reach = (h: number) => ((repeat * unit.x) / (2 * Math.PI)) * Math.acos(h)
+      // Halfway up, or lower where the wave is farther from the arrow, so a long label clears it. A blank line
+      // goes low, shortened to fit if the wave is narrow. Heights are in amplitudes.
+      const blank = s.amplitudeLabel.mode === 'blank'
+      const blankLength = Math.max(ls * 1.4, Math.min(ls * 2.4, reach(0.2) - 14))
+      const w = blank ? blankLength : labelWidth(s.amplitudeLabel, ls)
+      const clear = Math.cos(Math.min(Math.PI / 2, (2 * Math.PI * (10 + w)) / (repeat * unit.x)))
+      const rise = (ls * 0.8) / (A * unit.y)
+      const base = A * (blank ? 0.2 : Math.max(0.1, Math.min(0.5 - rise / 2, clear - rise))) * (amplitude.up ? 1 : -1)
       // To the right of the arrow, away from the y-axis, unless that's past the graph's right edge.
-      const right = X(amplitude.x) + 8 + w + 4 <= (g.grid.x + g.grid.w)
+      const right = X(amplitude.x) + 8 + w + 4 <= g.grid.x + g.grid.w
       marks.push({
         kind: 'amplitude',
         line: { x1: X(amplitude.x), y1: Y(0), x2: X(amplitude.x), y2: tip },
         extensions: [],
         label: s.amplitudeLabel,
-        at: { x: round(X(amplitude.x) + (right ? 1 : -1) * (8 + w / 2)), y: round((Y(0) + tip) / 2 + ls * 0.35) },
+        at: { x: round(X(amplitude.x) + (right ? 1 : -1) * (8 + w / 2)), y: round(Y(base)) },
+        blank: round(blankLength),
       })
     }
     if (plan.crestAt !== null) notes.push({ label: s.crestLabel, at: { x: inside(X(plan.crestAt), s.crestLabel), y: round(crestTop - 8) } })
