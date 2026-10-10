@@ -229,6 +229,47 @@ export const COPY: Record<string, GeneratorCopy> = {
     educationalLevel: ['High school', 'AP Physics'],
   },
 
+  'motion-graphs': {
+    heading: 'Position–time, velocity–time and acceleration–time graphs',
+    intro: [
+      'Motion Graphs draws the graphs of an object moving along a line, built from up to six segments. Each segment is at rest, moving at a constant velocity forward or back, speeding up or slowing down, for 1 to 10 seconds, slow, medium or fast. The numbers are worked out for you: the velocity–time graph is straight lines, and the position–time and acceleration–time graphs come from it exactly, so all three always match.',
+      'Show the position–time, velocity–time or acceleration–time graph, or all three stacked on the same time axis, for questions that match one graph to another. Letter the segment ends A, B, C… for questions like “what is the cart doing between B and C?”, hide the numbers to show only the shapes, and draw a tangent on the position–time graph for instantaneous velocity.',
+    ],
+    settings: [
+      'Up to six segments, each at rest, constant velocity forward or back, speeding up or slowing down, slow, medium or fast, lasting 1 to 10 seconds, in any order',
+      'Which way a segment speeding up from rest goes, and where the motion starts',
+      'The position–time, velocity–time or acceleration–time graph, or all three stacked',
+      'Letters A, B, C… at the segment ends, and each segment in its own line style',
+      'A tangent to the position–time graph at any time',
+      'A chart title and axis titles, with superscripts and subscripts such as m/s², each written, a blank line, or left off',
+      'Numbers on the axes or just the shapes, gridlines on or off, label size, and color for slides',
+    ],
+    faqs: [
+      {
+        q: 'How are the numbers worked out?',
+        a: 'Each segment is a straight line on the velocity–time graph. A constant velocity is 2, 4 or 6 m/s for slow, medium and fast, and speeding up or slowing down gains or loses that much over the segment, starting from the velocity before it. The position is the area under the velocity–time graph and the acceleration is its slope, so the three graphs agree, and positions come out in whole meters.',
+      },
+      {
+        q: 'Why does the velocity–time graph sometimes jump?',
+        a: 'Going from one constant velocity, or rest, straight into another, the velocity changes in an instant, the way textbook position–time graphs made of straight lines assume. The graph shows the jump as a dotted line. Speeding up and slowing down always start from the velocity before them, so they never jump.',
+      },
+      {
+        q: 'What do the shapes of a position–time graph mean?',
+        a: 'Flat is at rest, a straight sloped line is a constant velocity, and the steeper it is the faster it moves. A curve getting steeper is speeding up, and one leveling off is slowing down. Moving forward, speeding up curves upward (concave up) and slowing down curves downward (concave down); moving back, it’s the other way round.',
+      },
+      {
+        q: 'Can I make graphs without numbers?',
+        a: 'Yes. Turn off Numbers on the axes to show only the shapes, and turn off Gridlines for plain axes with arrows. The settings panel still lists each segment’s velocities, acceleration and positions for your answer key.',
+      },
+      {
+        q: 'What does the tangent show?',
+        a: 'Its slope is the instantaneous velocity at the time it touches the position–time graph. Where the graph is curved, students can find the velocity there from the tangent’s rise over run; the settings panel shows the answer.',
+      },
+    ],
+    imageAlt: 'A printable position–time graph of a cart that speeds up, moves at a constant velocity, slows down and stops, with its segment ends lettered A to E, made with Motion Graphs',
+    educationalLevel: ['Middle school', 'High school', 'AP Physics'],
+  },
+
   'spring-scale': {
     heading: 'Spring scale (newton meter) figures for reading force',
     intro: [

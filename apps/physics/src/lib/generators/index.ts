@@ -12,6 +12,7 @@ import { generatorsOn, matches } from '$shared/catalog/index'
 import { SITE_ID } from '$lib/site/config'
 import FreeBodyPreview from './free-body-diagram/Preview.svelte'
 import InclinedPlanePreview from './inclined-plane/Preview.svelte'
+import MotionGraphsPreview from './motion-graphs/Preview.svelte'
 import ProjectileMotionPreview from './projectile-motion/Preview.svelte'
 import PulleyPreview from './pulley/Preview.svelte'
 import SpringScalePreview from './spring-scale/Preview.svelte'
@@ -24,6 +25,7 @@ export const PREVIEWS: Record<string, Component> = {
   'inclined-plane': InclinedPlanePreview,
   'pulley': PulleyPreview,
   'projectile-motion': ProjectileMotionPreview,
+  'motion-graphs': MotionGraphsPreview,
   'spring-scale': SpringScalePreview,
 }
 
