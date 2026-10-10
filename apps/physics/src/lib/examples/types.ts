@@ -5,6 +5,7 @@
 import type { CircuitSettings } from '$lib/generators/circuit-diagram/settings'
 import type { FbdSettings } from '$lib/generators/free-body-diagram/settings'
 import type { InclineSettings } from '$lib/generators/inclined-plane/settings'
+import type { MotionSettings } from '$lib/generators/motion-graphs/settings'
 import type { ProjectileSettings } from '$lib/generators/projectile-motion/settings'
 import type { PulleySettings } from '$lib/generators/pulley/settings'
 import type { SpringScaleSettings } from '$lib/generators/spring-scale/settings'
@@ -18,6 +19,7 @@ export interface SettingsById {
   'inclined-plane': InclineSettings
   'pulley': PulleySettings
   'projectile-motion': ProjectileSettings
+  'motion-graphs': MotionSettings
   'spring-scale': SpringScaleSettings
   'waves': WaveSettings
   'circuit-diagram': CircuitSettings

@@ -76,6 +76,22 @@ export const PHYSICS: CatalogEntry[] = [
     ],
   },
   {
+    id: 'motion-graphs',
+    site: 'physics',
+    name: 'Motion Graph Generator',
+    path: '/motion-graphs',
+    blurb: 'Position, velocity and acceleration against time, built segment by segment.',
+    description:
+      'Make printable motion graphs for physics tests. Build a motion from segments and draw its position–time, velocity–time and acceleration–time graphs.',
+    keywords: [
+      'motion graph', 'motion graphs', 'position time graph', 'position vs time', 'displacement time graph', 'distance time graph',
+      'x-t graph', 'velocity time graph', 'velocity vs time', 'speed time graph', 'v-t graph', 'acceleration time graph',
+      'acceleration vs time', 'a-t graph', 'kinematics', 'kinematics graphs', 'constant velocity', 'at rest', 'speeding up',
+      'slowing down', 'acceleration', 'slope', 'area under the graph', 'tangent', 'instantaneous velocity', 'concave up',
+      'concave down', 'segments', 'cart', 'mechanics', 'printable',
+    ],
+  },
+  {
     id: 'spring-scale',
     site: 'physics',
     alsoOn: ['chemistry'],
