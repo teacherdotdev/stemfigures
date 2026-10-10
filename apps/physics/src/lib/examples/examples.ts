@@ -362,6 +362,71 @@ export const EXAMPLES: Example[] = [
       settings: { vectors: [vector(5, 0, 'A'), vector(3, 270, '−B')], resultantLabel: text('A − B') },
     },
   ]),
+
+  ...examplesOf('waves', [
+    {
+      slug: 'transverse-wave-with-wavelength-and-amplitude-labeled',
+      title: 'Transverse wave with its wavelength and amplitude labeled',
+      alt: 'A transverse wave on a grid of displacement in cm against distance in m, two and a half cycles long, with its wavelength λ marked from crest to crest, its amplitude A from the rest line up to a crest, and a crest and a trough labeled',
+      caption:
+        'A transverse wave two and a half cycles long on numbered axes, displacement in centimeters against distance in meters, with gridlines. Its wavelength λ is marked with an arrow from one crest to the next, its amplitude A from the rest line up to the first crest, and a crest and a trough are labeled.',
+      settings: { cycles: 2.5, crestLabel: text('crest'), troughLabel: text('trough') },
+    },
+    {
+      slug: 'measure-the-wavelength-and-amplitude-of-a-wave',
+      title: 'Measure the wavelength and amplitude of a wave',
+      alt: 'A transverse wave three cycles long on a grid of displacement in cm against distance in m, numbered every meter and centimeter, with nothing marked',
+      caption:
+        'A transverse wave three cycles long on numbered axes with gridlines, displacement in centimeters against distance in meters. Nothing is marked, so students read the wavelength and the amplitude off the axes.',
+      settings: { amplitude: 2, wavelength: 6, cycles: 3, wavelengthMark: false, amplitudeMark: false },
+    },
+    {
+      slug: 'displacement-time-graph-of-a-wave-period-and-frequency',
+      title: 'Displacement–time graph of a wave: period and frequency',
+      alt: 'A transverse wave on axes of displacement in cm against time in s, four cycles over 2 seconds, with tick marks instead of gridlines and its period T marked from crest to crest',
+      caption:
+        'A wave drawn against time instead of distance: four cycles over 2 seconds, on numbered axes with tick marks rather than gridlines. The period T is marked from one crest to the next and the amplitude is left for students, who work out the frequency from the period.',
+      settings: { xAxis: 'time', xTitle: 'Time (s)', amplitude: 4, period: 0.5, cycles: 4, amplitudeMark: false, gridlines: false },
+    },
+    {
+      slug: 'longitudinal-wave-above-a-transverse-wave',
+      title: 'Longitudinal wave above its matching transverse wave',
+      alt: 'A longitudinal wave drawn as vertical lines, bunched at a compression and spread at a rarefaction, above a transverse wave on a displacement–distance grid, the compressions directly over the crests',
+      caption:
+        'A longitudinal wave drawn as a row of vertical lines, above the transverse wave it matches on numbered axes. The lines bunch together at each compression, right above a crest, and spread apart at each rarefaction, above a trough. A compression, a rarefaction, a crest and a trough are labeled, and the wavelength λ and amplitude A are marked.',
+      settings: {
+        wave: 'both',
+        cycles: 2.5,
+        compressionLabel: text('compression'),
+        rarefactionLabel: text('rarefaction'),
+        crestLabel: text('crest'),
+        troughLabel: text('trough'),
+      },
+    },
+    {
+      slug: 'label-the-compression-and-rarefaction-of-a-longitudinal-wave',
+      title: 'Label the compression and rarefaction of a longitudinal wave',
+      alt: 'A longitudinal wave of vertical lines over a distance axis in m, with its wavelength λ marked from one compression to the next and blank lines under a compression and a rarefaction',
+      caption:
+        'A longitudinal wave, like a sound wave, drawn as vertical lines over a numbered distance axis. Its wavelength λ is marked from the middle of one compression to the next. Blank lines under a compression and a rarefaction are for students to name them.',
+      settings: { wave: 'longitudinal', compressionLabel: blank('compression'), rarefactionLabel: blank('rarefaction') },
+    },
+    {
+      slug: 'label-the-parts-of-a-wave-worksheet',
+      title: 'Label the parts of a wave worksheet',
+      alt: 'A transverse wave about a dashed rest line, with no axes, with blank lines for its wavelength, amplitude, a crest and a trough',
+      caption:
+        'A transverse wave two and a half cycles long, drawn about a dashed rest line with no axes. Arrows mark its wavelength and amplitude, and a crest and a trough are pointed out, each with a blank line for students to write what it is.',
+      settings: {
+        axes: false,
+        cycles: 2.5,
+        wavelengthLabel: blank('lambda'),
+        amplitudeLabel: blank('A'),
+        crestLabel: blank('crest'),
+        troughLabel: blank('trough'),
+      },
+    },
+  ]),
 ]
 
 /** A generator's examples, in order; the first is its best. */
