@@ -637,10 +637,11 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
   if (s.gravity) {
     const down = { x: 0, y: 1 }
     for (const o of f.objects) {
-      // An object with another hanging below it has its weight set off to the outer side, clear of that string.
+      // An object with another hanging below it has its weight set off to the outer side, and
+      // labeled beside it, clear of that string.
       const holds = f.strings.some((st) => holder(st[0]) === o)
-      const from = holds ? pt(o.at.x + Math.sign(o.at.x - centerX) * (o.width / 4), o.at.y) : fromEdge(o, down)
-      add('gravity', from, down, VECTOR_LENGTH, o.gravityLabel)
+      if (holds) add('gravity', pt(o.at.x + Math.sign(o.at.x - centerX) * (o.width / 4), o.at.y), down, VECTOR_LENGTH, o.gravityLabel, 'side')
+      else add('gravity', fromEdge(o, down), down, VECTOR_LENGTH, o.gravityLabel)
     }
   }
 
