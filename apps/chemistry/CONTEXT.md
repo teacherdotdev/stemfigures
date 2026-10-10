@@ -441,13 +441,17 @@ _Avoid_: Section, part, step
 A flat segment at the melting (freezing) or boiling point, where both phases are present and the temperature doesn't change.
 _Avoid_: Flat part, phase change line
 
-**A substance**:
-The first way to give a curve: the mass, specific heats of each phase, enthalpies of fusion and vaporization and the molar mass, so each segment takes q = m·c·ΔT or q = n·ΔH and the curve is to scale. With time along the x-axis, a steady rate of heat in kJ per minute turns heat into time. Filling in water uses OpenStax Chemistry 2e's values: 2.09, 4.18 and 1.86 J/(g·°C), 6.01 and 40.67 kJ/mol, 18.02 g/mol. The heat each segment takes is listed under the fields, for an answer key.
-_Avoid_: Properties mode, calculated
+**Substance**:
+What's heated or cooled: one of the substance setups, or Custom, the teacher's own melting and boiling points (and, for a curve to scale, its properties). A **substance setup** is water, ethanol, acetone, mercury, sodium chloride or Substance X (made up, with round numbers: 40 and 120 °C), each with its melting and boiling points and properties, cited in `curve.ts`. Picking one runs the curve from below its melting point to above its boiling point and fits the axes to it; picking Custom copies the setup's values into the fields, so the curve doesn't change until the teacher types.
+_Avoid_: Preset (that's a teacher's saved settings), material, compound
 
-**Segment lengths**:
-The second way to give a curve: how long each segment runs along the x-axis, for the simple worksheet curve drawn to no particular scale. Switching to it from a substance copies that curve's lengths (to 3 significant figures).
-_Avoid_: Manual mode, schematic
+**Schematic**:
+The first way to lay out the segments, and the default: how long each runs along the x-axis, typed, for the simple worksheet curve drawn to no particular scale (2, 3, 5, 8 and 2 to start, the boiling plateau longest as in textbooks). Switching to it from to scale copies that curve's lengths (to 3 significant figures).
+_Avoid_: Manual mode, segment lengths (fine in help text)
+
+**To scale**:
+The second way: each segment takes q = m·c·ΔT or q = n·ΔH from the sample's mass and the substance's specific heats of each phase, enthalpies of fusion and vaporization and molar mass, so the curve is to scale. With time along the x-axis, a steady rate of heat in kJ per minute turns heat into time. A specific heat is the phase's near the temperatures its segment covers where that's known, otherwise at 25 °C, so the curve is close but not exact. Water's values are OpenStax Chemistry 2e's: 2.09, 4.18 and 1.86 J/(g·°C), 6.01 and 40.67 kJ/mol, 18.02 g/mol. The heat each segment takes is listed under the fields, for an answer key.
+_Avoid_: Properties mode, calculated, physical
 
 **Supercooling**:
 On a cooling curve that freezes, the liquid cooling past its freezing point by the degrees the teacher types before it starts to freeze, then warming back up to the freezing point. The dip takes the start of the freezing plateau, so the rest of the curve doesn't move.
@@ -458,6 +462,9 @@ A, B, C… at the start of the curve and the end of each segment, for questions 
 _Avoid_: Point label, marker
 
 **Segment label**:
-A segment's state written beside it (Solid, Liquid, Gas; a plateau as Solid + liquid or Liquid + gas, or as the change: Melting, Boiling, Freezing, Condensing), or a blank line for students. Each goes in the first spot near its segment that's clear of the curve, the dashed lines and the other labels.
+A segment's state written beside it (Solid, Liquid, Gas; a plateau as the change, Melting, Boiling, Freezing or Condensing, unless the teacher picks both states, Solid + liquid or Liquid + gas), or a blank line for students. Each goes in the first spot near its segment that's clear of the curve, the dashed lines and the other labels.
 _Avoid_: Annotation, caption
 
+**Point label**:
+What's written by the temperature axis just above (or below) a plateau's dashed line: its temperature (78.3 °C), m.p. or b.p. (f.p. and b.p. on a cooling curve), or a blank line for students to write the melting or boiling point on. It goes along the line, inside the grid, as far from the axis as the curve makes it. None by default.
+_Avoid_: Axis label (that's the letter at an axis's end), tick label

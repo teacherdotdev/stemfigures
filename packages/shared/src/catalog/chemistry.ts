@@ -91,10 +91,10 @@ export const CHEMISTRY: CatalogEntry[] = [
     site: 'chemistry',
     name: 'Heating and Cooling Curve',
     path: '/heating-cooling-curve',
-    blurb: 'A heating or cooling curve with its plateaus, from a substance’s properties or segment lengths you type.',
+    blurb: 'A heating or cooling curve for water, ethanol and other substances, or your own melting and boiling points, schematic or to scale.',
     description:
-      'Make printable heating and cooling curves for chemistry tests. Set the temperatures and melting and boiling points, then type a substance’s mass, specific heats and enthalpies for a curve to scale, or how long each segment is, and get the curve with lettered corners, labeled states and optional supercooling.',
-    keywords: ['heating', 'cooling', 'curve', 'graph', 'phase', 'change', 'changes', 'state', 'states', 'matter', 'melting', 'freezing', 'boiling', 'condensation', 'condensing', 'vaporization', 'fusion', 'plateau', 'point', 'temperature', 'time', 'heat', 'energy', 'specific', 'enthalpy', 'supercooling', 'solid', 'liquid', 'gas', 'ice', 'water', 'steam', 'kinetic', 'potential', 'thermochemistry', 'AP'],
+      'Make printable heating and cooling curves for chemistry tests. Pick water, ethanol, acetone, mercury, sodium chloride or your own melting and boiling points, draw it schematic or to scale for a mass and heating rate, and get the curve with lettered corners, labeled states and phase changes, and the melting and boiling points marked.',
+    keywords: ['heating', 'cooling', 'curve', 'graph', 'phase', 'change', 'changes', 'state', 'states', 'matter', 'melting', 'freezing', 'boiling', 'condensation', 'condensing', 'vaporization', 'fusion', 'plateau', 'point', 'temperature', 'time', 'heat', 'energy', 'specific', 'enthalpy', 'supercooling', 'solid', 'liquid', 'gas', 'ice', 'water', 'steam', 'ethanol', 'acetone', 'mercury', 'salt', 'kinetic', 'potential', 'thermochemistry', 'AP'],
   },
   {
     id: 'particle-diagram',

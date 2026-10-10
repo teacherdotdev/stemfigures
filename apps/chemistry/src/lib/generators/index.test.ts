@@ -39,7 +39,7 @@ describe('searching the directory', () => {
   })
 
   it('finds Heating and Cooling Curve the ways teachers ask for it', () => {
-    for (const query of ['heating curve', 'cooling curve', 'phase change', 'melting point', 'boiling point', 'plateau', 'supercooling'])
+    for (const query of ['heating curve', 'cooling curve', 'phase change', 'melting point', 'boiling point', 'plateau', 'supercooling', 'ethanol'])
       expect(ids(query), query).toContain('heating-cooling-curve')
   })
 

@@ -10,8 +10,8 @@
 import { chargeOf, bohrSettings } from '$lib/generators/bohr-model/settings'
 import { element } from '$lib/generators/bohr-model/elements'
 import { syringeSettings, answerLine as syringeAnswer } from '$lib/generators/gas-syringe/settings'
-import { buildCurve, segmentName } from '$lib/generators/heating-cooling-curve/figure'
-import { curveSettings } from '$lib/generators/heating-cooling-curve/settings'
+import { buildCurve, degrees, segmentName } from '$lib/generators/heating-cooling-curve/figure'
+import { curveSettings, temperaturesOf, setupOf } from '$lib/generators/heating-cooling-curve/settings'
 import { lengthSettings, answerLine as lengthAnswer } from '$lib/generators/length-reading/settings'
 import { figureOf, lewisSettings } from '$lib/generators/lewis-structures/settings'
 import { formalCharge, valenceElectrons, type Structure } from '$lib/generators/lewis-structures/structure'
@@ -115,12 +115,13 @@ function curveAnswer(s: SettingsById['heating-cooling-curve']): ExampleDetails['
   const g = buildCurve(s)
   if (!g.rows.length) throw new Error('The heating or cooling curve example can’t be drawn')
   const heat = s.source === 'properties'
-  const deg = (t: number) => `${two(t).replace('-', '−')} °C`
   const out = g.rows.map((r) => {
-    const at = r.t0 === r.t1 ? `at ${deg(r.t0)}` : `from ${deg(r.t0)} to ${deg(r.t1)}`
+    const at = r.t0 === r.t1 ? `at ${degrees(r.t0)}` : `from ${degrees(r.t0)} to ${degrees(r.t1)}`
     return `${r.from}–${r.to}: ${segmentName(s.direction, r.key)} ${at}${heat ? `, ${two(r.heat)} kJ` : ''}`
   })
-  return { heading: 'Answer key', lines: out }
+  const { mp, bp } = temperaturesOf(s)
+  const name = setupOf(s)?.name ?? 'The substance'
+  return { heading: 'Answer key', lines: [`${name}: melting point ${degrees(mp)}, boiling point ${degrees(bp)}`, ...out] }
 }
 
 function lineSpectrumAnswer(s: SettingsById['line-spectrum']): ExampleDetails['answer'] {
