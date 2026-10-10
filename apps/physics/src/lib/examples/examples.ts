@@ -12,6 +12,7 @@
 
 import { CATALOG } from '$shared/catalog/index'
 import type { Force } from '$lib/generators/free-body-diagram/settings'
+import type { Segment } from '$lib/generators/motion-graphs/settings'
 import type { Vector } from '$lib/generators/vector-diagram/settings'
 import type { Label } from '$lib/shared/label'
 import { SITE_ID } from '$lib/site/config'
@@ -47,6 +48,9 @@ const force = (angle: number, length: number, label: string, more: Partial<Force
   yLabel: text('F_y'),
   ...more,
 })
+
+/** A Motion Graphs segment. */
+const segment = (kind: Segment['kind'], size: Segment['size'], duration: number, dir: Segment['dir'] = 'forward'): Segment => ({ kind, size, duration, dir })
 
 /** A Vector Diagram vector, with its other fields at their defaults. */
 const vector = (magnitude: number, angle: number, label: string, more: Partial<Vector> = {}): Vector => ({
@@ -270,6 +274,63 @@ export const EXAMPLES: Example[] = [
       caption:
         'A ball on the top corner of a cliff, launched at 30° above the horizontal with velocity v_0, the angle marked θ, and the cliff’s height marked h. The path is left off, so students sketch it themselves.',
       settings: { start: 'cliff', angle: 30, path: false, cliffMark: true },
+    },
+  ]),
+
+  ...examplesOf('motion-graphs', [
+    {
+      slug: 'position-time-graph-speeding-up-constant-velocity-slowing-down-lettered',
+      title: 'Position–time graph: speeding up, constant velocity, slowing down, lettered',
+      alt: 'A position–time graph with its segment ends lettered A to E: curving upward from A to B, a straight line from B to C, curving over and leveling off from C to D, and flat from D to E',
+      caption:
+        'A position–time graph of a cart that speeds up from rest for 4 s, moves at a constant 4 m/s for 4 s, slows down to a stop over 4 s and stays at rest for 3 s. Its segment ends are lettered A to E: the line curves upward from A to B, is straight from B to C, curves over from C to D, and is flat from D to E.',
+      settings: { letters: true },
+    },
+    {
+      slug: 'matching-position-velocity-acceleration-time-graphs-stacked',
+      title: 'Matching position–time, velocity–time and acceleration–time graphs',
+      alt: 'Position–time, velocity–time and acceleration–time graphs stacked on one time axis for a cart that goes forward, stops, then goes back, each segment in its own line style, with the segment ends lettered A to F',
+      caption:
+        'Three graphs of one motion stacked on the same time axis: position, velocity and acceleration. The cart speeds up forward from A to B, moves at 4 m/s from B to C, slows to a stop at D, speeds up backward from D to E and slows to a stop again at F. Each segment has its own line style, and the segment ends are lettered A to F on every graph.',
+      settings: {
+        graphs: 'all',
+        letters: true,
+        styles: true,
+        segments: [segment('faster', 'medium', 2), segment('forward', 'medium', 3), segment('slower', 'medium', 2), segment('faster', 'medium', 2, 'back'), segment('slower', 'medium', 2)],
+      },
+    },
+    {
+      slug: 'velocity-time-graph-speeding-up-and-slowing-down',
+      title: 'Velocity–time graph of a cart speeding up and slowing down',
+      alt: 'A velocity–time graph of straight lines lettered A to F: flat at zero from A to B, rising gently from B to C, rising more steeply from C to D, level from D to E, and falling back to zero from E to F',
+      caption:
+        'A velocity–time graph made of straight lines, lettered A to F. The cart is at rest from A to B, speeds up to 2 m/s from B to C, speeds up more quickly to 6 m/s from C to D, holds 6 m/s from D to E, and slows to a stop from E to F. The steeper the line, the greater the acceleration.',
+      settings: {
+        graphs: 'vt',
+        letters: true,
+        segments: [segment('rest', 'medium', 2), segment('faster', 'slow', 3), segment('faster', 'medium', 3), segment('forward', 'fast', 3), segment('slower', 'fast', 3)],
+      },
+    },
+    {
+      slug: 'position-time-graph-shapes-without-numbers',
+      title: 'Position–time graph shapes without numbers',
+      alt: 'A position–time graph with no numbers or gridlines, lettered A to F: curving upward, straight, curving over, flat, then a straight line sloping down',
+      caption:
+        'A position–time graph on plain axes with no numbers or gridlines, so only the shapes show. From A to B the line curves upward (speeding up), from B to C it is straight (constant velocity), from C to D it curves over (slowing down), from D to E it is flat (at rest), and from E to F it slopes straight down (moving back at a constant velocity).',
+      settings: {
+        numbers: false,
+        gridlines: false,
+        letters: true,
+        segments: [segment('faster', 'medium', 3), segment('forward', 'medium', 2), segment('slower', 'medium', 3), segment('rest', 'medium', 2), segment('back', 'medium', 3)],
+      },
+    },
+    {
+      slug: 'position-time-graph-tangent-instantaneous-velocity',
+      title: 'Tangent to a position–time graph for instantaneous velocity',
+      alt: 'A position–time graph curving upward for 6 s, with a dashed tangent line touching the curve at 4 s',
+      caption:
+        'A position–time graph of a cart speeding up steadily from rest for 6 s, so the line curves upward. A dashed tangent line touches the curve at 4 s; its slope is the cart’s instantaneous velocity at that moment.',
+      settings: { segments: [segment('faster', 'fast', 6)], tangent: true, tangentAt: 4 },
     },
   ]),
 
