@@ -9,7 +9,8 @@ import { SYMBOLS, abundanceText, elementOf, elementPeaks, heightsOf, massText, r
 
 /** Where the peaks come from: an element's natural isotopes, or isotopes the teacher types. */
 export const SOURCES = ['element', 'custom'] as const
-export const SOURCE_NAMES: Record<(typeof SOURCES)[number], string> = { element: 'Element', custom: 'Your own isotopes' }
+export type Source = (typeof SOURCES)[number]
+export const SOURCE_NAMES: Record<Source, string> = { element: 'Element', custom: 'Your own isotopes' }
 
 /** How tall a peak is: its % abundance, or its abundance against the tallest peak's 100. */
 export const SCALES = ['percent', 'relative'] as const
@@ -79,7 +80,7 @@ export const massSpectrumSettings = defineSettings(
 export type MassSpectrumSettings = typeof massSpectrumSettings.defaults
 
 /** Every peak, the one left out included, lightest first. */
-export function peaksOf(s: Pick<MassSpectrumSettings, 'source' | 'element' | 'isotopes'>): Peak[] {
+export function peaksOf(s: { source: Source; element: string; isotopes: Typed[] }): Peak[] {
   return s.source === 'element' ? elementPeaks(s.element) : typedPeaks(s.isotopes)
 }
 

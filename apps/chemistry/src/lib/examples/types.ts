@@ -8,6 +8,7 @@ import type { LengthSettings } from '$lib/generators/length-reading/settings'
 import type { LewisSettings } from '$lib/generators/lewis-structures/settings'
 import type { SpectrumSettings } from '$lib/generators/line-spectrum/settings'
 import type { MassSettings } from '$lib/generators/mass-reading/settings'
+import type { MassSpectrumSettings } from '$lib/generators/mass-spectrum/settings'
 import type { OrbitalSettings } from '$lib/generators/orbital-diagram/settings'
 import type { ParticleSettings } from '$lib/generators/particle-diagram/settings'
 import type { PhSettings } from '$lib/generators/ph-reading/settings'
@@ -33,6 +34,7 @@ export interface SettingsById {
   'orbital-diagram': OrbitalSettings
   'line-spectrum': SpectrumSettings
   'photoelectron-spectrum': PesSettings
+  'mass-spectrum': MassSpectrumSettings
 }
 
 export type ExampleGeneratorId = keyof SettingsById

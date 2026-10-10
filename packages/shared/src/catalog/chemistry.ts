@@ -147,6 +147,16 @@ export const CHEMISTRY: CatalogEntry[] = [
     keywords: ['PES', 'photoelectron', 'spectrum', 'spectra', 'spectroscopy', 'binding', 'energy', 'ionization', 'MJ/mol', 'eV', 'subshell', 'sublevel', 'electron', 'configuration', 'peak', 'peaks', 'core', 'valence', 'shielding', 'Coulomb', 'nuclear', 'charge', 'AP'],
   },
   {
+    id: 'mass-spectrum',
+    site: 'chemistry',
+    name: 'Mass Spectrum',
+    path: '/mass-spectrum',
+    blurb: 'An element’s mass spectrum: a peak for each isotope, as tall as its abundance.',
+    description:
+      'Make printable mass spectra of elements for chemistry tests. Pick an element, or type your own isotopes, and get a peak at each mass number as tall as its percent or relative abundance, with the element hidden or a peak left out for students and the relative atomic mass in the answer key.',
+    keywords: ['mass', 'spectrum', 'spectra', 'spectrometry', 'spectrometer', 'spec', 'isotope', 'isotopes', 'abundance', 'relative', 'percent', 'average', 'atomic', 'weighted', 'm/z', 'peak', 'peaks', 'amu', 'element', 'AP'],
+  },
+  {
     id: 'structure-editor',
     site: 'chemistry',
     off: true,
