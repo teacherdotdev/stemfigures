@@ -1,5 +1,5 @@
 <script lang="ts">
-  // The Waves Generator: the wave, the marks on it and the graph it's drawn on
+  // The Wave Generator: the wave, the marks on it and the graph it's drawn on
   // down the left, the figure on the right. The axes' ranges, titles and
   // gridlines are $shared/graph's settings groups. Settings live in the page
   // address.
@@ -14,7 +14,7 @@
   import GridlineSettings from '$shared/graph/GridlineSettings.svelte'
   import TitleSettings from '$shared/graph/TitleSettings.svelte'
   import { readAxes, type RangeSettings } from '$shared/graph/axes'
-  import Waves from './Waves.svelte'
+  import WaveFigure from './Wave.svelte'
   import { X_TITLES, answerLines, partsOf, waveSettings, type Wave, type XAxis } from './settings'
   import { buildWave } from './wave'
 
@@ -74,7 +74,7 @@
   )
 </script>
 
-<GeneratorPage name="Waves Generator" filename="waves" {gen} {svg} bind:labelSize={s.labelSize}>
+<GeneratorPage name="Wave Generator" filename="waves" {gen} {svg} bind:labelSize={s.labelSize}>
   {#snippet settings()}
     <Section title="Wave" icon={WaveIcon} summary={waveSummary}>
       <div class="field">
@@ -196,7 +196,7 @@
   {/snippet}
 
   {#snippet figure()}
-    <Waves settings={clean} bind:svg />
+    <WaveFigure settings={clean} bind:svg />
   {/snippet}
 </GeneratorPage>
 

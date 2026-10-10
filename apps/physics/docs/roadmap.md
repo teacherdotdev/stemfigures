@@ -36,7 +36,7 @@ teachers ask: vector subtraction, tail-to-tail (parallelogram) addition,
 setting a vector by its components, tick marks or a scale, and more than
 three vectors.
 
-## Waves (built)
+## Wave (built)
 
 A transverse wave against distance or time, a longitudinal wave as vertical
 lines bunched at its compressions, or the longitudinal one above its matching

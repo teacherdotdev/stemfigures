@@ -93,7 +93,7 @@ export const PHYSICS: CatalogEntry[] = [
   {
     id: 'waves',
     site: 'physics',
-    name: 'Waves Generator',
+    name: 'Wave Generator',
     path: '/waves',
     blurb: 'Transverse and longitudinal waves on numbered axes, to measure.',
     description:

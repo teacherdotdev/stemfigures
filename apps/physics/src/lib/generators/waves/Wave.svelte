@@ -1,5 +1,5 @@
 <script lang="ts">
-  // A Waves figure, as a self-contained SVG that prints crisply and exports
+  // A Wave figure, as a self-contained SVG that prints crisply and exports
   // cleanly. The grid, axes, numbers and titles are drawn the way
   // $shared/graph's Grid draws them, but here, so the longitudinal wave can sit
   // above the graph and the gridlines can give way to tick marks. Then the

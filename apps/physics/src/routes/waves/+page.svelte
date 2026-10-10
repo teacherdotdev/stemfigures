@@ -1,5 +1,5 @@
 <script lang="ts">
-  // The Waves Generator's page: its search engine details, the generator, and
+  // The Wave Generator's page: its search engine details, the generator, and
   // its About drawer.
   import { findGenerator } from '$lib/generators/index'
   import Generator from '$lib/generators/waves/Generator.svelte'

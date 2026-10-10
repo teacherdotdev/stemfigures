@@ -1,4 +1,4 @@
-// Every choice the teacher makes on the Waves Generator, with its default: a
+// Every choice the teacher makes on the Wave Generator, with its default: a
 // transverse wave two cycles long on numbered axes, its wavelength and
 // amplitude marked. The grid and axes are $shared/graph's, the same settings
 // as Biology's Predator–Prey Cycles; the labels on the wave are Physics' own.

@@ -1,4 +1,4 @@
-// Lays out a Waves figure for Waves.svelte to draw: the transverse wave on a
+// Lays out a Wave figure for Wave.svelte to draw: the transverse wave on a
 // graph from $shared/graph, the longitudinal one as vertical lines bunched at
 // its compressions, or the longitudinal one above the transverse one, lined up
 // with it. Without axes the graph is still there, just not drawn, so hiding

@@ -152,10 +152,10 @@ _Avoid_: Coordinate system
 
 On a Vector Diagram, an **angle mark** is drawn at the arrow's tail and a **component** pair runs head to tail from it (along the horizontal, then the vertical to the tip), for any vector or the resultant. Both are off by default.
 
-### Waves
+### Wave
 
-**Waves**:
-A figure of a transverse wave, a longitudinal wave, or a longitudinal wave above the transverse wave it matches, for measuring wavelength, period and amplitude. Its generator is the Waves Generator. The transverse wave is the exact sine curve, starting on its rest line at 0 and rising.
+**Wave**:
+A figure of a transverse wave, a longitudinal wave, or a longitudinal wave above the transverse wave it matches, for measuring wavelength, period and amplitude. Its generator is the Wave Generator. The transverse wave is the exact sine curve, starting on its rest line at 0 and rising.
 _Avoid_: Wave diagram (fine as a search word), sine wave (fine as a search word), oscillation
 
 **Rest line**:
@@ -167,7 +167,7 @@ A row of vertical lines, bunched at each **compression** and spread out at each 
 _Avoid_: Slinky, density diagram
 
 **Mark**:
-On a Waves figure, an arrow with a head at each end measuring the wavelength (or the period, against time) or the amplitude, with its own label.
+On a Wave figure, an arrow with a head at each end measuring the wavelength (or the period, against time) or the amplitude, with its own label.
 _Avoid_: Dimension, measurement, bracket
 
 ### Circuit Diagram

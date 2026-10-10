@@ -273,7 +273,7 @@ export const COPY: Record<string, GeneratorCopy> = {
   'waves': {
     heading: 'Transverse and longitudinal wave diagrams to measure',
     intro: [
-      'The Waves Generator draws a transverse wave, a longitudinal wave, or a longitudinal wave above its matching transverse one. You type the amplitude and the wavelength, or the period for a wave drawn against time, and choose how many cycles to draw, from half a cycle to eight. The transverse wave is the exact sine curve, starting on its rest line and rising; the longitudinal one is a row of vertical lines, bunched at its compressions and spread out at its rarefactions.',
+      'The Wave Generator draws a transverse wave, a longitudinal wave, or a longitudinal wave above its matching transverse one. You type the amplitude and the wavelength, or the period for a wave drawn against time, and choose how many cycles to draw, from half a cycle to eight. The transverse wave is the exact sine curve, starting on its rest line and rising; the longitudinal one is a row of vertical lines, bunched at its compressions and spread out at its rarefactions.',
       'Draw it on numbered axes, displacement against distance or against time, so students measure the wavelength, period and amplitude, with gridlines or just tick marks. The axes fit the wave, a whole number of blocks to a wavelength, unless you type your own ranges. Mark the wavelength (or period) and the amplitude with arrows, labeled or left blank, and label a crest, a trough, a compression and a rarefaction, or leave blank lines for students to write them in.',
     ],
     settings: [
@@ -307,7 +307,7 @@ export const COPY: Record<string, GeneratorCopy> = {
         a: 'Yes. Untick “Fit to the cycles drawn” or type in the x-axis range, and the wave keeps its cycles from 0 while the axis runs as far as you set. The same goes for the displacement axis. Without axes, the wave is drawn the same size about a dashed rest line.',
       },
     ],
-    imageAlt: 'A printable transverse wave on numbered axes of displacement against distance, with its wavelength λ and amplitude A marked, made with the Waves Generator',
+    imageAlt: 'A printable transverse wave on numbered axes of displacement against distance, with its wavelength λ and amplitude A marked, made with the Wave Generator',
     educationalLevel: ['Middle school', 'High school'],
   },
 }
