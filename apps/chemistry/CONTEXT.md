@@ -178,7 +178,7 @@ _Avoid_: Legend
 ### Lewis structures
 
 **Lewis structure**:
-A figure of one molecule or polyatomic ion: element symbols joined by bonds, with each atom's lone electrons drawn as dots around its symbol. A polyatomic ion is drawn inside square brackets with its charge at the top right. The generator is Lewis Structures. Dot-and-cross diagrams aren't drawn.
+A figure of one molecule or polyatomic ion: element symbols joined by bonds, with each atom's lone electrons drawn as dots around its symbol. A polyatomic ion is drawn inside square brackets with its charge at the top right. It can also be one atom or monatomic ion on its own (N, Cl⁻, Ca²⁺), its Lewis dot diagram: the symbol with its valence electrons, an anion's gained electrons included and a cation's lost ones left off, and an ion in brackets with its charge. With no bonds, it has no bonds-only scaffold and no formal charges. The generator is Lewis Structures. Dot-and-cross diagrams aren't drawn.
 _Avoid_: Lewis dot structure (fine in search keywords), electron dot diagram, dot-and-cross diagram (a different figure)
 
 **Structure**:
@@ -206,7 +206,7 @@ How a structure's bonds are drawn: lines (the default), one line per shared pair
 _Avoid_: Dot diagram, stick diagram, electron dot structure (fine in help text)
 
 **Lone electrons**:
-An atom's electrons that aren't in a bond, counted one at a time and drawn two to a side, with an odd one drawn alone (as in NO or NO₂).
+An atom's electrons that aren't in a bond, counted one at a time and drawn two to a side, with an odd one drawn alone (as in NO or NO₂). An atom on its own has them one to a side first, right, left, top and bottom, then paired, so N has a pair and three alone; H and He pair their two.
 _Avoid_: Lone pairs (as the setting; they may be odd), nonbonding electrons (fine in help text), dots
 
 **Formal charge**:
@@ -218,7 +218,7 @@ Two or more correct structures for the same molecule or ion that differ only in 
 _Avoid_: Resonance forms, contributing structures
 
 **Shape**:
-How a structure's atoms are placed: flat, with outer atoms and lone electrons on the four sides of each symbol as in most textbooks, or shaped, hinting at the molecule's real shape (bent H₂O, NH₃ with its H atoms spread below). Either way it is a flat drawing, never 3D with wedges.
+How a structure's atoms are placed: flat, with outer atoms and lone electrons on the four sides of each symbol as in most textbooks, or shaped, hinting at the molecule's real shape (bent H₂O, NH₃ with its H atoms spread below). Either way it is a flat drawing, never 3D with wedges, and like outer atoms sit side by side (CH₂Cl₂'s Cl atoms are neighbours, not opposite).
 _Avoid_: Geometry, VSEPR shape (that's what shaped hints at, not what it draws), layout (that's a particle diagram's)
 
 **Scaffold**:

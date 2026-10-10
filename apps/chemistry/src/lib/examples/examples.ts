@@ -549,6 +549,14 @@ export const EXAMPLES: Example[] = [
       settings: { formula: 'HCN' },
     },
     {
+      slug: 'lewis-dot-diagram-of-nitride-ion-n3',
+      title: 'Lewis dot diagram of the nitride ion (N³⁻)',
+      alt: 'Lewis dot diagram of the nitride ion: N with a pair of dots on each of its four sides, in square brackets with a 3− charge',
+      caption:
+        'The Lewis dot diagram of the nitride ion, N³⁻. A nitrogen atom has 5 valence electrons and gains 3 to fill its octet, so the symbol has a pair of dots on each of its four sides, 8 electrons in all. It is drawn in square brackets with its 3− charge.',
+      settings: { formula: 'N 3-' },
+    },
+    {
       slug: 'resonance-structures-of-nitrate-no3',
       title: 'Resonance structures of nitrate (NO₃⁻)',
       alt: 'The three resonance structures of the nitrate ion in brackets, joined by double-headed arrows, with formal charges',

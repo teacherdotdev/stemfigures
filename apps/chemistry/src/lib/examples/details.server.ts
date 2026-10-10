@@ -11,6 +11,8 @@ import { chargeOf, bohrSettings } from '$lib/generators/bohr-model/settings'
 import { element } from '$lib/generators/bohr-model/elements'
 import { syringeSettings, answerLine as syringeAnswer } from '$lib/generators/gas-syringe/settings'
 import { lengthSettings, answerLine as lengthAnswer } from '$lib/generators/length-reading/settings'
+import { chargeText } from '$lib/generators/lewis-structures/formula'
+import { electronGroups } from '$lib/generators/lewis-structures/layout'
 import { figureOf, lewisSettings } from '$lib/generators/lewis-structures/settings'
 import { formalCharge, valenceElectrons, type Structure } from '$lib/generators/lewis-structures/structure'
 import { answerLines as spectrumAnswer, buildSpectrum } from '$lib/generators/line-spectrum/figure'
@@ -57,9 +59,21 @@ function lewisAnswer(s: SettingsById['lewis-structures']): ExampleDetails['answe
   const figure = figureOf(s)
   if (!figure.resolved.ok) throw new Error(`Lewis Structures can't draw ${s.formula}: ${figure.resolved.message}`)
   const structure: Structure = figure.shown[0]
+  const count = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
+  if (structure.atoms.length === 1) {
+    const groups = electronGroups(structure, 0)
+    const pairs = groups.filter((g) => g.electrons === 2).length
+    const singles = groups.length - pairs
+    const { charge } = structure
+    const out = [
+      `${figure.resolved.name}: ${valenceElectrons(structure)} valence electrons`,
+      groups.length ? [pairs && count(pairs, 'pair'), singles && count(singles, 'single electron')].filter(Boolean).join(', ') : 'No dots',
+    ]
+    if (charge) out.push(`${charge < 0 ? 'Gained' : 'Lost'} ${count(Math.abs(charge), 'electron')}; in brackets with its ${chargeText(charge)} charge`)
+    return { heading: 'Answer key', lines: out }
+  }
   const orders = [0, 0, 0, 0]
   for (const b of structure.bonds) orders[b.order]++
-  const count = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
   const bonds = [
     orders[1] && count(orders[1], 'single bond'),
     orders[2] && count(orders[2], 'double bond'),

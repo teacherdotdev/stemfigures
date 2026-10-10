@@ -391,13 +391,13 @@ export const COPY: Record<string, GeneratorCopy> = {
   },
 
   'lewis-structures': {
-    heading: 'Lewis dot structures for molecules and polyatomic ions',
+    heading: 'Lewis dot structures for molecules, ions and single atoms',
     intro: [
-      'Lewis Structures draws the Lewis structure of a molecule or polyatomic ion from its formula. Type H2O, CH4, NO3- or SO4 2- and it builds the correct structure around the central atom, with lone electrons as dots, formal charges if you want them, and its resonance structures. Molecules with more than one central atom, like ethanol, acetic acid, HNO₃ or N₂H₄, come from a list you can pick from or type by name or formula.',
+      'Lewis Structures draws the Lewis structure of a molecule or polyatomic ion from its formula. Type H2O, CH4, NO3- or SO4 2- and it builds the correct structure around the central atom, with lone electrons as dots, formal charges if you want them, and its resonance structures. Molecules with more than one central atom, like ethanol, acetic acid, HNO₃ or N₂H₄, come from a list you can pick from or type by name or formula. Type one atom or ion, like N, Cl- or Ca 2+, for its Lewis dot diagram.',
       'Teachers use it for three kinds of question: draw the structure, complete it from the skeleton or from the bonds, or find the mistakes in a wrong one. Change a bond, an atom’s lone electrons or its formal charge by clicking the figure, and the generator checks the result and lists its mistakes as sentences, like “O has 10 electrons around it”, for the answer key.',
     ],
     settings: [
-      'The formula or name: main-group elements through period 5 with one central atom, or a molecule from the list',
+      'The formula or name: main-group elements through period 5 with one central atom, a single atom or monatomic ion, or a molecule from the list',
       'A flat, textbook-style drawing, or shaped to hint at the real shape (like bent H₂O)',
       'Bonds as lines or as pairs of dots, and formal charges shown or not',
       'The octet rule or fewest formal charges, for ions like SO₄²⁻ where textbooks disagree',
@@ -407,7 +407,11 @@ export const COPY: Record<string, GeneratorCopy> = {
     faqs: [
       {
         q: 'How do I type a formula with a charge?',
-        a: 'Put a space or ^ before a charge of 2 or more, like SO4 2- or PO4^3-. A charge of 1 can go straight after the formula, like NO3- or NH4+.',
+        a: 'Put a space or ^ before a charge of 2 or more, like SO4 2- or PO4^3-, or N 3- for the nitride ion: N3- is three N atoms, the azide ion. A charge of 1 can go straight after the formula, like NO3- or NH4+.',
+      },
+      {
+        q: 'Can it draw a single atom or ion?',
+        a: 'Yes. Type N or P for the atom’s Lewis dot diagram, with its valence electrons placed one to a side and then paired. For an ion like N 3-, Cl- or Ca 2+, it adds the electrons an anion gains or leaves off the ones a cation loses, and puts the ion in square brackets with its charge. Changes work on these too, for a wrong number of dots or missing brackets.',
       },
       {
         q: 'Which structure does it draw for SO₄²⁻?',
@@ -423,7 +427,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'What can’t it draw?',
-        a: 'Transition metals, and ionic compounds like NaCl, which aren’t one Lewis structure. A molecule with more than one central atom has to be on the list; if yours isn’t, the Request it button asks us to add it.',
+        a: 'Transition metals, and ionic compounds like NaCl, which aren’t one Lewis structure, though each ion (Na+, Cl-) can be drawn on its own. A molecule with more than one central atom has to be on the list; if yours isn’t, the Request it button asks us to add it.',
       },
     ],
     imageAlt: 'A printable Lewis dot structure of a molecule, with bonds and lone electrons, made with Lewis Structures',
