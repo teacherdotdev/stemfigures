@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { CELL } from '$shared/graph/grid'
-import { buildMotion, fitAxes } from './figure'
+import { buildMotion, fitAxes, fittedRanges } from './figure'
 import { motionOf, positionAt } from './motion'
 import { motionSettings, newSegment, type MotionSettings } from './settings'
 
@@ -167,6 +167,78 @@ describe('numbers and gridlines', () => {
     expect(p.grid.xEndCap).toBe('triangle')
     expect(p.ticks.length).toBeGreaterThan(0)
     expect(make({ gridlines: false, numbers: false }).panels[0].ticks).toEqual([])
+  })
+})
+
+describe('ranges the teacher sets', () => {
+  const RANGES = 'ranges=1&tFrom=0&tTo=10&tStep=1&xFrom=0&xTo=20&xStep=2'
+
+  test('are kept in the page address and read back', () => {
+    const s = motionSettings.fromParams(new URLSearchParams(`graphs=all&${RANGES}&vFrom=-2&vTo=6&vStep=0.5&aFrom=-3&aTo=3&aStep=1`))
+    const query = motionSettings.toQuery(s)
+    expect(motionSettings.fromParams(new URLSearchParams(query))).toEqual(s)
+    expect(s).toMatchObject({ ranges: true, tTo: 10, xTo: 20, vFrom: -2, vStep: 0.5, aFrom: -3 })
+  })
+
+  test('are left out of the address, and change nothing, while off', () => {
+    expect(motionSettings.toQuery(motionSettings.defaults)).toBe('')
+    expect(from('graphs=all&letters=1&tTo=3&xTo=2')).toEqual(from('graphs=all&letters=1'))
+  })
+
+  test('set each graph’s range up its side, with one time range for them all', () => {
+    const f = from(`graphs=all&${RANGES}&vFrom=-2&vTo=6&vStep=1&aFrom=-3&aTo=3&aStep=1`)
+    for (const p of f.panels) expect([p.axes.x.start, p.axes.x.step, p.axes.x.blocks]).toEqual([0, 1, 10])
+    expect(f.panels.map((p) => [p.axes.y.start, p.axes.y.step, p.axes.y.blocks])).toEqual([[0, 2, 10], [-2, 1, 8], [-3, 1, 6]])
+  })
+
+  test('cut the lines cleanly at the grid’s edges when the motion runs past them', () => {
+    // The default motion runs 15 s and reaches 32 m; these ranges stop at 10 s and 20 m.
+    const f = from(`letters=1&tangent=1&tangentAt=13&${RANGES}`)
+    const p = f.panels[0]
+    const g = p.layout.grid
+    for (const l of p.lines) {
+      const nums = l.d.match(/-?[\d.]+/g)!.map(Number)
+      for (let k = 0; k < nums.length; k += 2) {
+        expect(nums[k]).toBeGreaterThanOrEqual(g.x - 0.01)
+        expect(nums[k]).toBeLessThanOrEqual(g.x + g.w + 0.01)
+        expect(nums[k + 1]).toBeGreaterThanOrEqual(g.y - 0.01)
+        expect(nums[k + 1]).toBeLessThanOrEqual(g.y + g.h + 0.01)
+      }
+    }
+    // A and B (4 s, 8 m) are on the grid; C (8 s, 24 m), D and E are past it, and so is the tangent at 13 s.
+    expect(p.letters.map((l) => l.text)).toEqual(['A', 'B'])
+    expect(p.tangent).toBeNull()
+    // The line still reaches the edge: the cut end is on the top of the grid, where it passes 20 m.
+    const top = Math.min(...p.lines.flatMap((l) => l.d.match(/,-?[\d.]+/g)!.map((n) => Number(n.slice(1)))))
+    expect(top).toBeCloseTo(g.y, 1)
+  })
+
+  test('cut a jump in velocity at the grid’s edge', () => {
+    const f = from('graphs=vt&segments=forward,fast,3;rest&ranges=1&tFrom=0&tTo=6&tStep=1&vFrom=0&vTo=4&vStep=1')
+    const p = f.panels[0]
+    expect(p.joins).toHaveLength(1)
+    expect(p.joins[0].y2).toBeCloseTo(p.layout.grid.y + p.layout.grid.h, 1)
+    expect(p.joins[0].y1).toBeCloseTo(p.layout.grid.y, 1)
+  })
+
+  test('that can’t be used are explained, and the graph falls back to one that can', () => {
+    const f = from('ranges=1&tFrom=5&tTo=2&tStep=1&xStep=0.01')
+    expect(f.problems.tTo).toMatch(/end after it starts/)
+    expect(f.problems.xStep).toMatch(/blocks/)
+    expect(f.panels[0].lines.length).toBeGreaterThan(0)
+  })
+
+  test('are kept within what the settings allow', () => {
+    const s = motionSettings.fromParams(new URLSearchParams('ranges=1&tStep=-3&xTo=99999&vFrom=abc'))
+    expect(s.tStep).toBe(0.01)
+    expect(s.xTo).toBe(1000)
+    expect(s.vFrom).toBe(motionSettings.defaults.vFrom)
+  })
+
+  test('start from the ones fitted to the motion, so the figure doesn’t change', () => {
+    const s = { ...motionSettings.defaults, graphs: 'all' as const, letters: true }
+    const fitted = buildMotion({ ...s, ranges: true, ...fittedRanges(s) })
+    expect(fitted.panels.map((p) => p.lines)).toEqual(buildMotion(s).panels.map((p) => p.lines))
   })
 })
 

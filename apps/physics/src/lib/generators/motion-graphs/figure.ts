@@ -5,13 +5,13 @@
 // rather than by the grid, so they can have subscripts and superscripts
 // (m/s²), the way physics labels do.
 
-import { readAxes, type Axes, type GridSettings, type TitleMode } from '$shared/graph/axes'
+import { axisEnd, readAxes, type Axes, type GridSettings, type TitleMode } from '$shared/graph/axes'
 import { COLORS, type Color } from '$shared/graph/colors'
-import { CELL, INK, clipPath, layoutGrid, round, type GridLayout, type Point } from '$shared/graph/grid'
+import { CELL, INK, clipPath, layoutGrid, pathOf, round, type GridLayout, type Point } from '$shared/graph/grid'
 import { labelRuns, type Label } from '$lib/shared/label'
 import { aroundPoint, placer, textWidth, type Anchor, type Box } from './labels'
-import { boundaries, letterOf, motionOf, tangentAt, type Motion, type Piece } from './motion'
-import { viewsOf, type MotionSettings, type View } from './settings'
+import { boundaries, letterOf, motionOf, positionAt, tangentAt, type Motion, type Piece } from './motion'
+import { viewsOf, type AxisKey, type MotionSettings, type View } from './settings'
 
 const PAD = 14
 const INSET = 4 // how far inside the grid's border letters stay
@@ -104,6 +104,27 @@ export function fitAxes(m: Motion, view: View, tall: number) {
   return { xFrom: '0', xTo: plain(blocks * step), xStep: plain(step), xBlocks: blocks, yFrom: y.from, yTo: y.to, yStep: y.step, yBlocks: y.blocks }
 }
 
+/** How tall a graph is fitted, in squares: shorter when three are stacked. */
+const tallFor = (s: Pick<MotionSettings, 'graphs'>) => (viewsOf(s).length > 1 ? 6 : 10)
+
+/** The ranges fitted to the motion, as numbers for the range settings: where a teacher setting them starts from. */
+export function fittedRanges(s: MotionSettings) {
+  const m = motionOf(s.segments, s.start)
+  const out = {} as Record<`${AxisKey}${'From' | 'To' | 'Step'}`, number>
+  for (const view of ['x', 'v', 'a'] as const) {
+    const fit = fitAxes(m, view, tallFor(s))
+    Object.assign(out, { tFrom: Number(fit.xFrom), tTo: Number(fit.xTo), tStep: Number(fit.xStep) })
+    Object.assign(out, { [`${view}From`]: Number(fit.yFrom), [`${view}To`]: Number(fit.yTo), [`${view}Step`]: Number(fit.yStep) })
+  }
+  return out
+}
+
+/** A graph's ranges as the teacher set them, as layoutGrid reads them. */
+const setRanges = (s: MotionSettings, view: View) => ({
+  xFrom: plain(s.tFrom), xTo: plain(s.tTo), xStep: plain(s.tStep),
+  yFrom: plain(s[`${view}From`]), yTo: plain(s[`${view}To`]), yStep: plain(s[`${view}Step`]),
+})
+
 /** A label as plain text, the way layoutGrid sizes it. */
 const plainText = (l: Label) => labelRuns(l.text).map((r) => r.text).join('')
 /** A label's mode for the grid: written text with nothing written is no title at all. */
@@ -114,22 +135,24 @@ const valueAt = (p: Piece, view: View, end: 0 | 1) => (view === 'x' ? (end ? p.x
 export function buildMotion(s: MotionSettings) {
   const m = motionOf(s.segments, s.start)
   const views = viewsOf(s)
-  const stacked = views.length > 1
   const ink = (i: number) => (s.styles ? COLORS[SEGMENT_COLORS[i % SEGMENT_COLORS.length]] : COLORS.blue)
   const colorOf = (i: number) => (s.color ? ink(i) : INK)
   const dashOf = (i: number) => (s.styles ? DASHES[i % DASHES.length] : undefined)
   const titleOf: Record<View, Label> = { x: s.xTitle, v: s.vTitle, a: s.aTitle }
 
-  // Each graph's grid, fitted to the motion. Only the bottom one has the time axis title.
+  // Each graph's grid, fitted to the motion unless the teacher set the
+  // ranges. Only the bottom one has the time axis title.
+  const problems: Record<string, string | null> = {}
   type Building = Panel & { px: (v: Point) => Point; box: { x0: number; x1: number; y0: number; y1: number } }
   const panels: Building[] = views.map((view, i) => {
     const last = i === views.length - 1
-    const fit = fitAxes(m, view, stacked ? 6 : 10)
-    const axes = readAxes(fit)
-    const widest = Math.max(fit.yFrom.length, fit.yTo.length)
+    const { problems: found, ...axes } = readAxes(s.ranges ? setRanges(s, view) : fitAxes(m, view, tallFor(s)))
+    // Problems with a range as the teacher's settings name them: tTo, vStep…
+    for (const [key, problem] of Object.entries(found)) if (problem) problems[key.replace(/^x/, 't').replace(/^y/, view)] ??= problem
+    const widest = (a: Axes['x']) => Math.max(plain(a.start).length, plain(axisEnd(a)).length)
     const grid: GridSettings = {
-      xEvery: s.numbers ? everyFor(fit.xBlocks, fit.xTo.length, true) : 0,
-      yEvery: s.numbers ? everyFor(fit.yBlocks, widest, false) : 0,
+      xEvery: s.numbers ? everyFor(axes.x.blocks, widest(axes.x), true) : 0,
+      yEvery: s.numbers ? everyFor(axes.y.blocks, widest(axes.y), false) : 0,
       title: '', titleMode: 'none',
       xTitle: plainText(s.timeTitle), xTitleMode: last ? modeOf(s.timeTitle) : 'none',
       yTitle: plainText(titleOf[view]), yTitleMode: modeOf(titleOf[view]),
@@ -157,15 +180,32 @@ export function buildMotion(s: MotionSettings) {
     // Labels keep off the axes too, which can run through the grid at 0.
     place.line([{ x: layout.xAxis.x1, y: layout.xAxis.y }, { x: layout.xAxis.x2, y: layout.xAxis.y }])
 
+    const onGrid = (v: Point) => v.x >= box.x0 - 1e-9 && v.x <= box.x1 + 1e-9 && v.y >= box.y0 - 1e-9 && v.y <= box.y1 + 1e-9
+
     // Each segment's line: a parabola on the position graph (exactly, as a
     // quadratic Bézier whose control point is where the starting tangent
-    // reaches halfway across), a straight line on the others.
+    // reaches halfway across), a straight line on the others. A segment that
+    // runs off ranges the teacher set is cut at the grid's edges instead.
     m.pieces.forEach((piece, i) => {
+      const curved = view === 'x' && piece.a !== 0
+      const pts = curved
+        ? Array.from({ length: 33 }, (_, k) => {
+            const t = piece.t0 + ((piece.t1 - piece.t0) * k) / 32
+            return { x: t, y: positionAt(m, Math.min(t, piece.t1 - 1e-9)) }
+          })
+        : [{ x: piece.t0, y: valueAt(piece, view, 0) }, { x: piece.t1, y: valueAt(piece, view, 1) }]
+      if (curved) pts[32] = { x: piece.t1, y: piece.x1 }
+      if (!pts.every(onGrid)) {
+        const runs = clipPath(pts, box).map((run) => run.map(px))
+        if (runs.length) p.lines.push({ d: runs.map(pathOf).join(''), color: colorOf(i), dash: dashOf(i) })
+        for (const run of runs) place.line(run)
+        return
+      }
       const a = px({ x: piece.t0, y: valueAt(piece, view, 0) })
       const b = px({ x: piece.t1, y: valueAt(piece, view, 1) })
       let d = `M${round(a.x)},${round(a.y)}L${round(b.x)},${round(b.y)}`
       let along = [a, b]
-      if (view === 'x' && piece.a !== 0) {
+      if (curved) {
         const half = (piece.t1 - piece.t0) / 2
         const c = px({ x: piece.t0 + half, y: piece.x0 + piece.v0 * half })
         d = `M${round(a.x)},${round(a.y)}Q${round(c.x)},${round(c.y)} ${round(b.x)},${round(b.y)}`
@@ -178,12 +218,15 @@ export function buildMotion(s: MotionSettings) {
       place.line(along)
     })
 
-    // Where velocity or acceleration jumps between segments, a dotted line joins the two.
+    // Where velocity or acceleration jumps between segments, a dotted line
+    // joins the two, as much of it as is on the grid.
     const ends = boundaries(m, view)
+    const clamp = (v: number) => Math.min(Math.max(v, box.y0), box.y1)
     ends.forEach((e, i) => {
       if (i === 0 || i === ends.length - 1 || Math.abs(e.before - e.after) < 1e-9) return
-      const a = px({ x: e.t, y: e.before })
-      const b = px({ x: e.t, y: e.after })
+      if (e.t < box.x0 || e.t > box.x1 || clamp(e.before) === clamp(e.after)) return
+      const a = px({ x: e.t, y: clamp(e.before) })
+      const b = px({ x: e.t, y: clamp(e.after) })
       p.joins.push({ x1: round(a.x), y1: round(a.y), x2: round(b.x), y2: round(b.y) })
       place.line([a, b])
     })
@@ -206,7 +249,7 @@ export function buildMotion(s: MotionSettings) {
       const h = TANGENT_REACH / Math.hypot(kx, t.slope * ky)
       const run = clipPath([{ x: t.t - h, y: t.x - t.slope * h }, { x: t.t + h, y: t.x + t.slope * h }], box)[0]
       const at = px({ x: t.t, y: t.x })
-      if (run) {
+      if (run && onGrid({ x: t.t, y: t.x })) {
         const [a, b] = run.map(px)
         p.tangent = { line: { x1: round(a.x), y1: round(a.y), x2: round(b.x), y2: round(b.y) }, at: { x: round(at.x), y: round(at.y) } }
         place.line([a, b])
@@ -215,11 +258,14 @@ export function buildMotion(s: MotionSettings) {
     }
 
     // Letters at the boundaries: on the line with a dot where it runs on
-    // through, and halfway up the join where it jumps.
+    // through, and halfway up the join where it jumps. One off the grid is
+    // left off, and the rest keep their letters.
     if (s.letters && m.pieces.length) {
       const spots = ends.map((e) => {
         const jump = Math.abs(e.before - e.after) > 1e-9
-        const at = px({ x: e.t, y: (e.before + e.after) / 2 })
+        const mid = { x: e.t, y: (e.before + e.after) / 2 }
+        if (!onGrid(mid)) return null
+        const at = px(mid)
         if (!jump) {
           p.dots.push({ x: round(at.x), y: round(at.y) })
           place.box({ x0: at.x - DOT_R, y0: at.y - DOT_R, x1: at.x + DOT_R, y1: at.y + DOT_R })
@@ -227,6 +273,7 @@ export function buildMotion(s: MotionSettings) {
         return at
       })
       spots.forEach((at, i) => {
+        if (!at) return
         const text = letterOf(i)
         const spot = place.place(aroundPoint(at, LETTER_FS, DOT_R), textWidth(text, LETTER_FS) + 2, LETTER_FS)
         p.letters.push({ x: round(spot.x), y: round(spot.y), anchor: spot.anchor, text })
@@ -273,6 +320,8 @@ export function buildMotion(s: MotionSettings) {
     letterFs: LETTER_FS,
     r: DOT_R,
     motion: m,
+    /** What's wrong with ranges the teacher set, by setting (tTo, vStep…), for the settings panel. */
+    problems,
     panels: panels.map(({ px: _px, box: _box, ...p }): Panel => p),
     titles,
     chartTitle: chart === 'text' ? { x: titleX, y: titleY, text: s.title.text.trim(), anchor: 'middle' as const } : null,

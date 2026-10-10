@@ -242,6 +242,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       'Letters A, B, C… at the segment ends, and each segment in its own line style',
       'A tangent to the position–time graph at any time',
       'A chart title and axis titles, with superscripts and subscripts such as m/s², each written, a blank line, or left off',
+      'Axes fitted to the motion, or ranges you set yourself for each graph, sharing one time axis when stacked',
       'Numbers on the axes or just the shapes, gridlines on or off, label size, and color for slides',
     ],
     faqs: [
@@ -260,6 +261,10 @@ export const COPY: Record<string, GeneratorCopy> = {
       {
         q: 'Can I make graphs without numbers?',
         a: 'Yes. Turn off Numbers on the axes to show only the shapes, and turn off Gridlines for plain axes with arrows. The settings panel still lists each segment’s velocities, acceleration and positions for your answer key.',
+      },
+      {
+        q: 'Can I make several graphs on a worksheet match?',
+        a: 'Yes. The axes are fitted to each motion unless you turn on Set the ranges myself, under Axes and grid. Then you type each axis’s From, To and Count by, and every graph you make with the same ranges lines up. Stacked graphs share the time axis and each has its own range up its side. A line that runs past a range you set is cut off at the edge of the grid.',
       },
       {
         q: 'What does the tangent show?',

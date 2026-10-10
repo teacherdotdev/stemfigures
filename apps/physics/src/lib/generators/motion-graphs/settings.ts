@@ -51,6 +51,18 @@ export type View = 'x' | 'v' | 'a'
 
 const text = (t: string) => ({ mode: 'text' as const, text: t })
 
+/** An axis: time (t), or what a graph shows up its side. */
+export type AxisKey = 't' | View
+
+/** One axis's From, To and Count by, as tFrom, tTo, tStep and so on. */
+function rangeFields<K extends AxisKey>(key: K, from: number, to: number, step: number, min: number, max: number) {
+  return {
+    [`${key}From`]: number(from, min, max),
+    [`${key}To`]: number(to, min, max),
+    [`${key}Step`]: number(step, 0.01, max),
+  } as Record<`${K}From` | `${K}To` | `${K}Step`, ReturnType<typeof number>>
+}
+
 export const motionSettings = defineSettings({
   segments: list(
     segment,
@@ -77,6 +89,17 @@ export const motionSettings = defineSettings({
   aTitle: label(text('Acceleration (m/s^2)')),
   labelSize: choice<LabelSize>('medium', Object.keys(LABEL_SIZES) as LabelSize[]),
   color: bool(false),
+  /**
+   * The axes' ranges as the teacher sets them, so graphs on a worksheet can
+   * match. Off, each graph is fitted to the motion and these are ignored.
+   * Stacked graphs share the time axis (t) and each has its own range up its
+   * side: position (x), velocity (v) and acceleration (a).
+   */
+  ranges: bool(false),
+  ...rangeFields('t', 0, 15, 1, 0, 100),
+  ...rangeFields('x', 0, 35, 5, -1000, 1000),
+  ...rangeFields('v', 0, 5, 1, -100, 100),
+  ...rangeFields('a', -1, 1, 0.5, -100, 100),
 })
 
 export type MotionSettings = typeof motionSettings.defaults

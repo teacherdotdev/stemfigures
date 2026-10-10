@@ -10,8 +10,10 @@
   import LabelField from '$lib/shared/LabelField.svelte'
   import type { Label } from '$lib/shared/label'
   import Section from '$lib/shared/Section.svelte'
+  import { buildMotion, fittedRanges } from './figure'
   import { motionOf, numberText, segmentLines, tangentAt, velocityAt } from './motion'
   import MotionGraphs from './MotionGraphs.svelte'
+  import RangeFields from './RangeFields.svelte'
   import { GRAPHS, KIND_NAMES, KINDS, MAX_SEGMENTS, motionSettings, newSegment, viewsOf, type Graphs, type Kind } from './settings'
 
   const gen = createGenerator(motionSettings, 'motion-graphs')
@@ -37,7 +39,25 @@
   ] as const
   const titleFields = $derived(TITLE_FIELDS.filter((f) => !('view' in f) || views.includes(f.view)))
   const titlesSummary = $derived(titleFields.map((f) => shown(s[f.key])).filter(Boolean).join(' · ') || 'none')
-  const gridSummary = $derived([s.numbers ? 'numbered' : 'no numbers', s.gridlines ? 'gridlines' : 'no gridlines'].join(' · '))
+  const gridSummary = $derived(
+    [s.ranges ? 'ranges set' : 'fitted to the motion', s.numbers ? 'numbered' : 'no numbers', s.gridlines ? 'gridlines' : 'no gridlines'].join(' · '),
+  )
+
+  // Setting the ranges starts from the ones fitted to the motion, so the
+  // figure doesn't jump; going back to fitted ones forgets them, so the page
+  // address is as it was.
+  const problems = $derived(s.ranges ? buildMotion(s).problems : {})
+  const RANGE_KEYS = Object.keys(fittedRanges(motionSettings.defaults)) as (keyof ReturnType<typeof fittedRanges>)[]
+  function setRanges(on: boolean) {
+    gen.s.ranges = on
+    const next = on ? fittedRanges(s) : motionSettings.defaults
+    for (const key of RANGE_KEYS) gen.s[key] = next[key]
+  }
+  const AXES = [
+    { id: 'x', name: 'Position', unit: 'm' },
+    { id: 'v', name: 'Velocity', unit: 'm/s' },
+    { id: 'a', name: 'Acceleration', unit: 'm/s²' },
+  ] as const
 
   const full = $derived(s.segments.length >= MAX_SEGMENTS)
   const add = (kind: Kind) => {
@@ -161,6 +181,20 @@
       <label class="check"><input type="checkbox" bind:checked={gen.s.numbers} /> Numbers on the axes</label>
       {#if !s.numbers}<p class="note">Just the shapes: straight, curving up or curving down.</p>{/if}
       <label class="check"><input type="checkbox" bind:checked={gen.s.gridlines} /> Gridlines</label>
+      <label class="check">
+        <input type="checkbox" checked={s.ranges} onchange={(e) => setRanges(e.currentTarget.checked)} /> Set the ranges myself
+      </label>
+      {#if s.ranges}
+        <p class="note">To match graphs on a worksheet. {views.length > 1 ? 'The graphs share the time axis.' : ''}</p>
+        <RangeFields name="Time" unit="s" id="t" {problems} bind:from={gen.s.tFrom} bind:to={gen.s.tTo} bind:step={gen.s.tStep} />
+        {#each AXES.filter((a) => views.includes(a.id)) as a (a.id)}
+          <RangeFields
+            name={a.name} unit={a.unit} id={a.id} {problems}
+            bind:from={gen.s[`${a.id}From`]} bind:to={gen.s[`${a.id}To`]} bind:step={gen.s[`${a.id}Step`]}
+          />
+        {/each}
+        <button type="button" class="btn-ghost small" onclick={() => setRanges(true)}>Fit to the motion</button>
+      {/if}
     </Section>
 
     <Section title="Figure" icon={SlidersHorizontal} summary={s.color ? 'color' : 'black and white'}>
@@ -180,5 +214,6 @@
   .numbers { margin: 0; }
   .warning { color: var(--ink); background: #fffbeb; border-left: 3px solid var(--amber); border-radius: 6px; padding: 0.5rem 0.7rem; margin: 0.5rem 0 0; }
   .starters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .small { padding: 0.4rem 0.75rem; font-size: 0.86rem; border-radius: 10px; }
   .starters button { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.35rem 0.65rem; font-size: 0.85rem; border-radius: 9px; }
 </style>
