@@ -1,8 +1,8 @@
 <script lang="ts">
-  // Volume by Displacement: pick a graduated cylinder, type the water's
-  // reading before and after the object goes in, and get a figure students
-  // find the object's volume from.
-  import { ArrowUpRight, Circle, Dices, FlaskConical, Ruler, Type, ZoomIn } from '@lucide/svelte'
+  // Volume by Displacement: pick a graduated cylinder and how its scale is
+  // printed, type the water's reading before and after the object goes in,
+  // and get a figure students find the object's volume from.
+  import { ArrowUpRight, Circle, Dices, FlaskConical, Rows4, Ruler, Type, ZoomIn } from '@lucide/svelte'
   import FigureTextSettings from '$lib/shared/FigureTextSettings.svelte'
   import GeneratorPage from '$shared/GeneratorPage.svelte'
   import MagnifierSettings from '$lib/shared/MagnifierSettings.svelte'
@@ -10,21 +10,26 @@
   import Section from '$lib/shared/Section.svelte'
   import { generatorState } from '$shared/generatorState.svelte'
   import { massSettings } from '../mass-reading/settings'
+  import ScaleSettings from '../volume-reading/ScaleSettings.svelte'
   import { LIQUID_TINTS, LIQUID_TINT_NAMES } from '../volume-reading/liquid'
-  import { formatReading, type CylinderSize } from '../volume-reading/scale'
+  import { UNIT_SYMBOLS, scaleSummary } from '../volume-reading/scale'
   import DisplacementFigure from './DisplacementFigure.svelte'
   import { MARBLE_COUNTS, OBJECTS, OBJECT_NAMES, objectName } from './objects'
   import { displacedVolume, fixReadings, randomReadings } from './readings'
-  import { DISPLACEMENT_SIZES, DISPLACEMENT_VIEWS, DISPLACEMENT_VIEW_NAMES, answerLine, cylinderScale, displacementSettings, objectInCylinder } from './settings'
+  import {
+    DISPLACEMENT_SIZES, DISPLACEMENT_VIEWS, DISPLACEMENT_VIEW_NAMES, answerLine, cylinderScale, displacementSettings, objectInCylinder, volumeText,
+    type DisplacementSettings,
+  } from './settings'
 
   const gen = generatorState(displacementSettings, 'volume-by-displacement')
   const s = gen.s
   let svg = $state<SVGSVGElement>()
 
-  const scale = $derived(cylinderScale(s.size))
+  const scale = $derived(cylinderScale(s))
+  const unit = $derived(UNIT_SYMBOLS[s.unit])
   const shrunk = $derived(objectInCylinder(s).shrunk)
   const objectSummary = $derived(objectName(s.object, s.marbles).replace(/^a /, 'A '))
-  const mL = (v: number) => `${formatReading(scale, v)} mL`
+  const mL = (v: number) => volumeText(s, v)
 
   const readingSummary = $derived(`${mL(s.before)} → ${mL(s.after)}, object ${mL(displacedVolume(scale, s))}`)
   const textSummary = $derived(
@@ -38,22 +43,25 @@
 
   const setReadings = (before: number, after: number) => Object.assign(s, fixReadings(scale, before, after))
 
+  /** Changes settings, keeping the rest within the rules between them (the
+   *  marks to what the cylinder offers, the readings on its scale). */
+  const set = (patch: Partial<DisplacementSettings>) => Object.assign(s, displacementSettings.tidy({ ...$state.snapshot(s), ...patch }))
+
   /** A new size keeps both readings at the same fraction of capacity, so
    *  4 → 6 of 10 mL becomes 40 → 60 of 100. */
-  function resize(size: CylinderSize) {
-    const next = cylinderScale(size)
-    const k = next.capacity / scale.capacity
-    Object.assign(s, { size, ...fixReadings(next, s.before * k, s.after * k) })
+  function resize(size: DisplacementSettings['size']) {
+    const k = cylinderScale({ ...s, size }).capacity / scale.capacity
+    set({ size, before: s.before * k, after: s.after * k })
   }
 </script>
 
 <GeneratorPage name="Volume by Displacement" filename="volume-by-displacement" settingsWidth={27} {gen} {svg}>
   {#snippet settings()}
-    <Section title="Graduated cylinder" summary="{s.size} mL" icon={FlaskConical} open>
+    <Section title="Graduated cylinder" summary="{s.size} {unit}" icon={FlaskConical} open>
       <div class="chips" role="radiogroup" aria-label="Graduated cylinder size">
         {#each DISPLACEMENT_SIZES as size (size)}
           <button type="button" role="radio" aria-checked={s.size === size} class="chip" class:on={s.size === size} onclick={() => resize(size)}>
-            {size} mL
+            {size} {unit}
           </button>
         {/each}
       </div>
@@ -66,6 +74,9 @@
         {/each}
       </div>
     </Section>
+    <Section title="Scale" summary={scaleSummary(scale, s.unit)} icon={Rows4}>
+      <ScaleSettings instrument={{ instrument: 'cylinder', size: s.size, beaker: 'medium' }} choice={s} onchange={set} />
+    </Section>
     <Section title="Readings" summary={readingSummary} icon={Ruler} open>
       <div class="readings">
         <ReadingField
@@ -74,7 +85,7 @@
           decimals={scale.decimals}
           min={0}
           max={scale.capacity}
-          unit="mL"
+          {unit}
           onchange={(v) => setReadings(v, s.after)}
         />
         <ReadingField
@@ -83,7 +94,7 @@
           decimals={scale.decimals}
           min={0}
           max={scale.capacity}
-          unit="mL"
+          {unit}
           onchange={(v) => setReadings(s.before, v)}
         />
       </div>
@@ -91,6 +102,13 @@
       <button type="button" class="btn-ghost random" onclick={() => Object.assign(s, randomReadings(scale))}>
         <Dices size={17} aria-hidden="true" /> Random readings
       </button>
+      <label class="check">
+        <input type="checkbox" bind:checked={s.guide} />
+        <span>
+          <strong>Dotted line at the meniscus</strong>
+          <small>From its bottom across to the marks, to show where to read.</small>
+        </span>
+      </label>
     </Section>
     <Section title="Object" summary={objectSummary} icon={Circle} open>
       <div class="segmented" role="radiogroup" aria-label="Object">
@@ -152,4 +170,9 @@
   .field { display: flex; flex-direction: column; gap: 0.35rem; }
   .field + .field { margin-top: 0.8rem; }
   .field span { font-weight: 700; font-size: 0.9rem; }
+  .check { display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 1rem; cursor: pointer; }
+  .check input { width: 1.1rem; height: 1.1rem; margin: 0.15rem 0 0; accent-color: var(--blue); }
+  .check span { display: flex; flex-direction: column; }
+  .check strong { font-size: 0.9rem; }
+  .check small { color: var(--muted); font-size: 0.82rem; }
 </style>

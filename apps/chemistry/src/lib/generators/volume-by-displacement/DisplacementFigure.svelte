@@ -8,17 +8,18 @@
   import { magnifierLayout, sizeAt } from '$lib/shared/magnify'
   import GraduatedCylinder from '../volume-reading/GraduatedCylinder.svelte'
   import { cylinderLayout } from '../volume-reading/cylinder'
-  import { formatReading } from '../volume-reading/scale'
+  import { UNIT_SYMBOLS } from '../volume-reading/scale'
   import ObjectShape from './ObjectShape.svelte'
   import { objectName } from './objects'
-  import { answerLine, cylinderScale, objectInCylinder, type DisplacementSettings } from './settings'
+  import { answerLine, cylinderScale, objectInCylinder, volumeText, type DisplacementSettings } from './settings'
 
   let { settings, svg = $bindable() }: { settings: DisplacementSettings; svg?: SVGSVGElement } = $props()
 
   const GAP = 64
   const CAPTION_H = 34
 
-  const scale = $derived(cylinderScale(settings.size))
+  const scale = $derived(cylinderScale(settings))
+  const unit = $derived(UNIT_SYMBOLS[settings.unit])
   const at = $derived(cylinderLayout(scale, settings.size))
   const object = $derived(objectInCylinder(settings).placed)
   const captioned = $derived(!!(settings.beforeCaption.trim() || settings.afterCaption.trim()))
@@ -36,17 +37,17 @@
   const height = $derived(before.height + (captioned ? CAPTION_H : 0))
 
   const label = $derived(
-    `A ${settings.size} mL graduated cylinder reading ${formatReading(scale, settings.before)} mL, ` +
-      `then ${formatReading(scale, settings.after)} mL with ${objectName(settings.object, settings.marbles)} in it`,
+    `A ${settings.size} ${unit} graduated cylinder reading ${volumeText(settings, settings.before)}, ` +
+      `then ${volumeText(settings, settings.after)} with ${objectName(settings.object, settings.marbles)} in it`,
   )
 </script>
 
 {#snippet beforeScene(zoom: number)}
-  <GraduatedCylinder {scale} size={settings.size} reading={settings.before} tint={settings.tint} {zoom} />
+  <GraduatedCylinder {scale} size={settings.size} reading={settings.before} tint={settings.tint} {unit} guide={settings.guide} {zoom} />
 {/snippet}
 
 {#snippet afterScene(zoom: number)}
-  <GraduatedCylinder {scale} size={settings.size} reading={settings.after} tint={settings.tint} {zoom}>
+  <GraduatedCylinder {scale} size={settings.size} reading={settings.after} tint={settings.tint} {unit} guide={settings.guide} {zoom}>
     <ObjectShape placed={object} k={sizeAt(zoom)} />
   </GraduatedCylinder>
 {/snippet}

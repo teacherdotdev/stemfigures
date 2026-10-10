@@ -5,22 +5,27 @@
   // anything sitting in the liquid (drawn in the same units, in front of the
   // liquid and behind the marks and glass).
   import type { Snippet } from 'svelte'
-  import { legibleMarks, marks } from '$lib/shared/marks'
+  import { legibleMarks } from '$lib/shared/marks'
   import { sizeAt } from '$lib/shared/magnify'
   import { cylinderLayout } from './cylinder'
+  import ReadingGuide from './ReadingGuide.svelte'
   import ScaleTicks from './ScaleTicks.svelte'
   import { LIQUID_COLORS, meniscusCurve, type LiquidTint } from './liquid'
-  import type { CylinderSize, Scale } from './scale'
+  import { scaleMarks, type CylinderSize, type VolumeScale } from './scale'
 
   interface Props {
-    scale: Scale
+    scale: VolumeScale
     size: CylinderSize
     reading: number
     tint: LiquidTint
+    /** printed above the scale, e.g. "mL" */
+    unit: string
+    /** a dotted line from the bottom of the meniscus to the scale */
+    guide?: boolean
     zoom?: number
     children?: Snippet
   }
-  let { scale, size, reading, tint, zoom = 1, children }: Props = $props()
+  let { scale, size, reading, tint, unit, guide = false, zoom = 1, children }: Props = $props()
 
   const at = $derived(cylinderLayout(scale, size))
   const k = $derived(sizeAt(zoom))
@@ -28,7 +33,7 @@
   const liquid = $derived(LIQUID_COLORS[tint])
   // A cylinder isn't marked at 0.
   const shown = $derived(
-    legibleMarks(marks({ ...scale, from: scale.lowest, max: scale.capacity }), scale.minorEvery * at.perMl * zoom, 16).filter((m) => m.value > 0),
+    legibleMarks(scaleMarks(scale), scale.minorEvery * at.perMl * zoom, 16).filter((m) => m.value > 0),
   )
 
   const surface = $derived(meniscusCurve(at.left, at.right, at.yOf(reading), at.meniscus))
@@ -58,10 +63,11 @@
   {@render children?.()}
 
   <ScaleTicks {shown} left={at.left} tubeW={at.tubeW} yOf={at.yOf} {k} {font} />
-  <text x={at.cx} y={at.yOf(scale.capacity) - 22} text-anchor="middle" font-size={font} fill="#111">mL</text>
+  <text x={at.cx} y={at.yOf(scale.capacity) - 22} text-anchor="middle" font-size={font} fill="#111">{unit}</text>
 
   {#if reading > 0}
     <path d={surface} fill="none" stroke={liquid.surface} stroke-width={1.6 * k} />
+    {#if guide}<ReadingGuide x1={at.cx} x2={at.left} y={at.yOf(reading)} {k} />{/if}
   {/if}
 
   <path d={tube} fill="none" stroke="#111" stroke-width={2 * k} />

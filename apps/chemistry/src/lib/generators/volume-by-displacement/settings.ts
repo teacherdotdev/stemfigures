@@ -1,10 +1,12 @@
 // Volume by Displacement's settings, as they appear in the page address.
 
 import { figureTextFields } from '$lib/shared/figureText'
-import { choice, defineSettings, number, text } from '$lib/shared/settings'
+import { bool, choice, defineSettings, number, text } from '$lib/shared/settings'
 import { cylinderLayout } from '../volume-reading/cylinder'
 import { LIQUID_TINTS } from '../volume-reading/liquid'
-import { formatReading, volumeScale, type CylinderSize } from '../volume-reading/scale'
+import {
+  DECIMALS, MARK_SPACINGS, NUMBER_SPACINGS, UNIT_SYMBOLS, VOLUME_UNITS, fitScale, formatReading, volumeScale, type CylinderSize, type ScaleChoice,
+} from '../volume-reading/scale'
 import { AREA_PER_RISE, OBJECTS, drawnArea, placeObject } from './objects'
 import { displacedVolume, fixReadings } from './readings'
 
@@ -17,13 +19,21 @@ export const DISPLACEMENT_VIEW_NAMES: Record<DisplacementView, string> = { whole
  *  Volume Reading has but a displacement question doesn't need. */
 export const DISPLACEMENT_SIZES = ['10', '25', '50', '100'] as const satisfies readonly CylinderSize[]
 
-export const cylinderScale = (size: CylinderSize) => volumeScale({ instrument: 'cylinder', size, beaker: 'medium' })
+/** The cylinders' scale: the size's standard one unless the teacher picks
+ *  other marks, numbers or decimal places. */
+export const cylinderScale = (s: { size: CylinderSize } & Partial<ScaleChoice>) => volumeScale({ ...s, instrument: 'cylinder', beaker: 'medium' })
 
 export const displacementSettings = defineSettings(
   {
     size: choice(DISPLACEMENT_SIZES, '10'),
+    marks: choice(MARK_SPACINGS, 'standard'),
+    numbers: choice(NUMBER_SPACINGS, 'standard'),
+    decimals: choice(DECIMALS, 'estimate'),
+    unit: choice(VOLUME_UNITS, 'mL'),
     before: number({ min: 0, max: 100, fallback: 4 }),
     after: number({ min: 0, max: 100, fallback: 6 }),
+    /** a dotted line from the bottom of each meniscus across to the scale */
+    guide: bool(false),
     tint: choice(LIQUID_TINTS, 'gray'),
     object: choice(OBJECTS, 'marbles'),
     marbles: number({ min: 1, max: 5, fallback: 2 }),
@@ -33,23 +43,28 @@ export const displacementSettings = defineSettings(
     afterCaption: text('After', 40),
     ...figureTextFields(),
   },
-  (s) => ({ ...s, ...fixReadings(cylinderScale(s.size), s.before, s.after), marbles: Math.round(s.marbles), span: Math.round(s.span) }),
+  (settings) => {
+    const s = { ...settings, ...fitScale({ ...settings, instrument: 'cylinder', beaker: 'medium' }) }
+    return { ...s, ...fixReadings(cylinderScale(s), s.before, s.after), marbles: Math.round(s.marbles), span: Math.round(s.span) }
+  },
 )
 
 export type DisplacementSettings = typeof displacementSettings.defaults
 
+/** A volume with its unit, e.g. "4.00 mL" or "4.00 cm³". */
+export const volumeText = (s: DisplacementSettings, v: number) => `${formatReading(cylinderScale(s), v)} ${UNIT_SYMBOLS[s.unit]}`
+
 /** The answer key line, e.g. "Before: 4.00 mL · After: 6.00 mL · Object: 2.00 mL". */
 export function answerLine(s: DisplacementSettings) {
-  const scale = cylinderScale(s.size)
-  const mL = (v: number) => `${formatReading(scale, v)} mL`
-  return `Before: ${mL(s.before)} · After: ${mL(s.after)} · Object: ${mL(displacedVolume(scale, s))}`
+  const object = displacedVolume(cylinderScale(s), s)
+  return `Before: ${volumeText(s, s.before)} · After: ${volumeText(s, s.after)} · Object: ${volumeText(s, object)}`
 }
 
 /** The object in the after cylinder, in the cylinder's drawing units, and
  *  whether it had to be drawn smaller than its volume suggests to stay
  *  under water. */
 export function objectInCylinder(s: DisplacementSettings) {
-  const scale = cylinderScale(s.size)
+  const scale = cylinderScale(s)
   const at = cylinderLayout(scale, s.size)
   const inset = 3
   const room = { left: at.left + inset, right: at.right - inset, top: at.yOf(s.after) + 4, bottom: at.innerBottom - 1 }
