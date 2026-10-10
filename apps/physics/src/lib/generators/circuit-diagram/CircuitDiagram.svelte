@@ -5,6 +5,7 @@
   import FigureLabel from '$lib/shared/FigureLabel.svelte'
   import { mirrorAnchor, mirrorTransform, mirrorX, palette, SERIF } from '$lib/shared/figure'
   import { arrow } from '$lib/shared/vector'
+  import { circuitOf } from './circuit'
   import { ARROW_HEAD, buildCircuit, LABEL_SIZE, METER_R, POINT_R } from './layout'
   import PartSymbol from './PartSymbol.svelte'
   import type { CircuitSettings } from './settings'
@@ -13,7 +14,8 @@
   let { settings, id = 'c' }: { settings: CircuitSettings; id?: string } = $props()
 
   const hasTitle = $derived(settings.title.mode !== 'none' && (settings.title.mode === 'blank' || settings.title.text.trim() !== ''))
-  const fig = $derived(buildCircuit(settings.circuit, { title: hasTitle, polarity: settings.polarity }))
+  const circuit = $derived(circuitOf(settings))
+  const fig = $derived(buildCircuit(circuit, { title: hasTitle, polarity: settings.polarity }))
   const p = $derived(palette(settings.color))
   /** Symbols stand out in blue on slides; wires stay black. */
   const partInk = $derived(settings.color ? '#1d4ed8' : p.ink)
@@ -26,7 +28,7 @@
   width={fig.width}
   height={fig.height}
   role="img"
-  aria-label={describeCircuit(settings.circuit)}
+  aria-label={describeCircuit(circuit)}
   id="{id}-circuit"
 >
   <rect class="paper" width={fig.width} height={fig.height} fill="#fff" />

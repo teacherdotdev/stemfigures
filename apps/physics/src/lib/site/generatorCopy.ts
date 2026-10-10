@@ -332,6 +332,46 @@ export const COPY: Record<string, GeneratorCopy> = {
     imageAlt: 'A printable transverse wave on numbered axes of displacement against distance, with its wavelength λ and amplitude A marked, made with the Wave Generator',
     educationalLevel: ['Middle school', 'High school'],
   },
+
+  'circuit-diagram': {
+    heading: 'Series and parallel circuit diagrams with US or IEC symbols',
+    intro: [
+      'The Circuit Diagram Generator draws the circuits worksheets start with: a cell or a battery of two cells and one to four resistors or bulbs, all in series round one loop or all in parallel as the rungs of a ladder. Add a switch, open or closed, and an ammeter in the main line, and a voltmeter across the battery or any one part. Wires are drawn square with no crossings, and junction dots mark where parallel branches meet.',
+      'Each part has a name and a value. Names number themselves, R₁, R₂ and L₁, until you type your own, and values can be shown, typed as a letter like x for students to work out, left as a blank line, or left off. Draw it in US symbols, a zigzag resistor and a looped bulb filament, or in IEC symbols as UK GCSE uses, a box resistor and a crossed bulb.',
+    ],
+    settings: [
+      'One to four resistors or bulbs, in series or in parallel',
+      'One cell or a battery of two cells, with + and − beside it if you like',
+      'No switch, or a switch drawn open or closed, in the main line',
+      'An ammeter in the main line, and a voltmeter across the battery or one part, each with its reading or none',
+      'Every part’s name and value written, with subscripts and Ω, a blank line for students, or left off',
+      'US or IEC (UK GCSE) symbols, a chart title, mirror, and color for slides',
+    ],
+    faqs: [
+      {
+        q: 'How do I make a circuit for students to solve?',
+        a: 'Give the battery and the resistors their values and leave the rest for students to work out: turn on the ammeter and leave its reading blank, or type x as one resistor’s value. A voltmeter across one part, with a blank reading, asks for the potential difference across it.',
+      },
+      {
+        q: 'What is the difference between the US and IEC symbols?',
+        a: 'US textbooks draw a resistor as a zigzag and a bulb as a circle with a looped filament. IEC symbols, used in the UK, Europe and for GCSE, draw a resistor as a plain rectangle and a lamp as a circle with a cross. Cells, batteries, switches and meters look the same in both.',
+      },
+      {
+        q: 'How are a cell and a battery drawn?',
+        a: 'A cell is one long plate and one short one; the long plate is the positive terminal. A battery is two cells joined in a row. Turn on + and − to mark which side is which.',
+      },
+      {
+        q: 'Can I draw a circuit that mixes series and parallel?',
+        a: 'Not yet; an advanced circuit editor is coming soon. This generator keeps to all in series or all in parallel, the circuits most questions start with, so a figure is quick to set up and always drawn neatly.',
+      },
+      {
+        q: 'Where do the ammeter and voltmeter go?',
+        a: 'The ammeter goes in the main line beside the battery, in series, so it measures the whole current. The voltmeter goes in parallel, across the battery or across the one part you pick, with its leads joining the wire either side of it.',
+      },
+    ],
+    imageAlt: 'A printable circuit diagram of a 12 V battery with three resistors in series, R₁, R₂ and R₃, made with the Circuit Diagram Generator',
+    educationalLevel: ['Middle school', 'High school', 'AP Physics'],
+  },
 }
 
 /** The copy for a generator; every generator on the site has some. */

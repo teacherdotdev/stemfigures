@@ -181,11 +181,15 @@ _Avoid_: Dimension, measurement, bracket
 ### Circuit Diagram
 
 **Circuit Diagram**:
-A schematic of one closed loop of parts, some of them in parallel groups, for current, resistance and Kirchhoff problems. Its generator is the Circuit Diagram Generator. It is drawn from a series/parallel tree, not placed by hand (ADR 0004).
+A schematic of a cell or battery with 1 to 4 resistors or bulbs, all in series or all in parallel, for current and resistance problems. Its generator is the Circuit Diagram Generator. It is drawn from a series/parallel tree built from its settings, not placed by hand (ADRs 0004 and 0005). Any other circuit is left to a Circuit Editor, planned but not built yet.
 _Avoid_: Circuit (alone, for the figure), schematic (fine as a search word), wiring diagram
 
+**Arrangement**:
+How a Circuit Diagram's resistors and bulbs are joined: all in series round one loop, or all in parallel as the rungs of a ladder. A switch and an ammeter are always in the main line.
+_Avoid_: Layout, topology, mode
+
 **Part**:
-One symbol on a circuit diagram: a battery, resistor, bulb, switch or ammeter. Each has a name label (R₁) and a value label (4 Ω). Names are numbered automatically until the teacher types one. A voltmeter is not a part: it goes across a part or group.
+One symbol on a circuit diagram: a battery, resistor, bulb, switch or ammeter. Each has a name label (R₁) and a value label (4 Ω). Names are numbered automatically until the teacher types one. On the Circuit Diagram a voltmeter is not a part: it goes across the battery or one part.
 _Avoid_: Component, element, device
 
 **Group**:
@@ -197,9 +201,9 @@ A run of wire that carries one current: the main loop, or one branch of a parall
 _Avoid_: Path, leg, rung (except for the drawing of a ladder)
 
 **Point**:
-A lettered dot on a wire (A, B…), for questions like "the potential difference between A and B". Points sit in the gaps between parts.
+A lettered dot on a wire (A, B…), for questions like "the potential difference between A and B". Points sit in the gaps between parts. The tree holds them, but the generator doesn't offer them for now.
 _Avoid_: Node, junction (a junction is where wires meet, drawn as a dot with no letter), terminal
 
 **Symbol style**:
-US symbols (a zigzag resistor, a bulb with a looped filament) or IEC symbols (a box resistor, a bulb with a cross).
+US symbols (a zigzag resistor, a bulb with a looped filament) or IEC symbols, as UK GCSE uses (a box resistor, a bulb with a cross).
 _Avoid_: Standard, notation

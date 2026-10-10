@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { circuitSettings } from './settings'
 import {
+  circuitField,
   cleanCircuit,
   decodeCircuit,
   DEFAULT_CIRCUIT,
@@ -24,10 +24,8 @@ const loop = (...items: Item[]): Circuit => ({ items, current: null })
 const names = (c: Circuit) => [...partsOf(c.items)].map((part) => part.name.text)
 /** The circuit's shape in the address's notation, without extras. */
 const shape = (c: Circuit) => encodeCircuit(c).replace(/[nvmij@]'(\\.|[^'])*'/g, '')
-const roundTrip = (c: Circuit) => {
-  const query = circuitSettings.toQuery(circuitSettings.clean({ ...circuitSettings.defaults, circuit: c }))
-  return circuitSettings.fromParams(new URLSearchParams(query)).circuit
-}
+const field = circuitField(DEFAULT_CIRCUIT)
+const roundTrip = (c: Circuit) => field.clean(field.decode(field.encode(field.clean(c))))
 
 describe('the default circuit', () => {
   test('is a battery, R₁, then R₂ in parallel with R₃', () => {
@@ -35,9 +33,6 @@ describe('the default circuit', () => {
     expect(names(DEFAULT_CIRCUIT)).toEqual(['epsilon', 'R_1', 'R_2', 'R_3'])
   })
 
-  test('leaves the address empty', () => {
-    expect(circuitSettings.toQuery(circuitSettings.defaults)).toBe('')
-  })
 })
 
 describe('tidying', () => {
@@ -100,7 +95,7 @@ describe('automatic names', () => {
   test("renumber as the circuit changes, but leave a name the teacher typed", () => {
     const c = cleanCircuit(loop(p('battery'), p(), p(), p(), p()))
     ;[...partsOf(c.items)][2].name.text = 'R_x'
-    // The editor settles who was renamed before changing the circuit, and renumbers after.
+    // Whatever edits the tree (the planned Circuit Editor) settles who was renamed before changing it, and renumbers after.
     settle(c)
     const again = cleanCircuit(renumber({ ...c, items: [c.items[0], c.items[2], c.items[3], c.items[4]] }))
     // The teacher's name is left out of the numbering.
@@ -137,7 +132,7 @@ describe('the address', () => {
   test('a broken value falls back to the default circuit', () => {
     for (const bad of ['', 'x', 'b.', 'b.[r.r', "b.rn'oops", 'b.r)']) {
       expect(decodeCircuit(bad)).toBeUndefined()
-      expect(circuitSettings.fromParams(new URLSearchParams({ circuit: bad })).circuit).toEqual(DEFAULT_CIRCUIT)
+      expect(field.clean(field.decode(bad))).toEqual(DEFAULT_CIRCUIT)
     }
   })
 })

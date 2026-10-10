@@ -7,6 +7,8 @@
 // It also checks each example: a setting the generator doesn't take as
 // written (a force past the scale, a misspelled choice) fails the build.
 
+import { circuitAnswer } from '$lib/generators/circuit-diagram/circuit'
+import { circuitSettings } from '$lib/generators/circuit-diagram/settings'
 import { fbdSettings } from '$lib/generators/free-body-diagram/settings'
 import { inclineSettings } from '$lib/generators/inclined-plane/settings'
 import { projectileSettings } from '$lib/generators/projectile-motion/settings'
@@ -86,6 +88,13 @@ const GENERATORS: { [G in ExampleGeneratorId]: { definition: Definition<Settings
   'projectile-motion': { definition: physics(projectileSettings), answer: none },
   'spring-scale': { definition: springScaleSettings, answer: (s) => ({ heading: 'Answer key', lines: springScaleAnswer(s).split('\n') }) },
   'waves': { definition: waveSettings, answer: (s) => ({ heading: 'Answer key', lines: waveAnswer(s) }) },
+  'circuit-diagram': {
+    definition: physics(circuitSettings),
+    answer: (s) => {
+      const lines = circuitAnswer(s)
+      return lines && { heading: 'Answer key', lines }
+    },
+  },
 }
 
 function detailsOf<G extends ExampleGeneratorId>(generator: G, example: Example): ExampleDetails {

@@ -11,6 +11,7 @@
 // generators' own logic (./details.server.ts), never typed here.
 
 import { CATALOG } from '$shared/catalog/index'
+import type { Load } from '$lib/generators/circuit-diagram/settings'
 import type { Force } from '$lib/generators/free-body-diagram/settings'
 import type { InclineObject } from '$lib/generators/inclined-plane/settings'
 import type { PulleyObject } from '$lib/generators/pulley/settings'
@@ -76,6 +77,10 @@ const mass = (n: number, more: Partial<PulleyObject> = {}): PulleyObject => ({
 
 /** An Inclined Plane object, a block of the usual size unless `more` says otherwise. */
 const onRamp = (label: string, more: Partial<InclineObject> = {}): InclineObject => ({ label: text(label), kind: 'block', size: 1, ...more })
+
+/** A Circuit Diagram resistor (or bulb), its name numbered automatically unless given. */
+const load = (value: Label, more: Partial<Load> = {}): Load => ({ kind: 'resistor', name: text(''), value, ...more })
+const none = (t: string): Label => ({ mode: 'none', text: t })
 
 export const EXAMPLES: Example[] = [
   ...examplesOf('free-body-diagram', [
@@ -466,6 +471,73 @@ export const EXAMPLES: Example[] = [
         amplitudeLabel: blank('A'),
         crestLabel: blank('crest'),
         troughLabel: blank('trough'),
+        },
+      },
+    ]),
+
+  ...examplesOf('circuit-diagram', [
+    {
+      slug: 'series-circuit-three-resistors-ammeter-reading-blank',
+      title: 'Series circuit with three resistors and an ammeter',
+      alt: 'A circuit diagram of a 12 V battery, an ammeter with a blank reading, and resistors R_1 2 Ω, R_2 4 Ω and R_3 6 Ω in series',
+      caption:
+        'A 12 V battery of two cells drives one loop through three resistors in series, R_1 of 2 Ω, R_2 of 4 Ω and R_3 of 6 Ω, and an ammeter. The ammeter’s reading is a blank line for students to work out. Resistors are drawn as US zigzags.',
+      settings: { ammeter: true, ammeterLabel: blank('0.5 A') },
+    },
+    {
+      slug: 'parallel-circuit-two-resistors-with-voltmeter',
+      title: 'Parallel circuit with two resistors and a voltmeter',
+      alt: 'A circuit diagram of a 6 V battery and an ammeter beside it, driving R_1 3 Ω and R_2 6 Ω in parallel, with a voltmeter across R_2 and its reading left blank',
+      caption:
+        'A 6 V battery and an ammeter in the main line, with two resistors in parallel as the rungs of a ladder: R_1 of 3 Ω and R_2 of 6 Ω. A voltmeter is connected across R_2 with a blank reading, and junction dots mark where the branches meet.',
+      settings: {
+        arrangement: 'parallel',
+        loads: [load(text('3 Omega')), load(text('6 Omega'))],
+        sourceValue: text('6 V'),
+        ammeter: true,
+        voltmeter: '2',
+        voltmeterLabel: blank('6 V'),
+      },
+    },
+    {
+      slug: 'gcse-series-circuit-cell-switch-two-lamps-voltmeter',
+      title: 'GCSE series circuit: a cell, a switch and two lamps',
+      alt: 'A circuit diagram in IEC symbols: a cell, a closed switch and two lamps L_1 and L_2 in series, with a voltmeter across L_1',
+      caption:
+        'A circuit drawn in IEC symbols, as UK GCSE uses: one cell, a closed switch and two filament lamps, L_1 and L_2, in series, each lamp a circle with a cross. A voltmeter is connected across L_1. No values are given.',
+      settings: {
+        loads: [load(none('4 Omega'), { kind: 'bulb' }), load(none('4 Omega'), { kind: 'bulb' })],
+        source: 'cell',
+        sourceValue: none('12 V'),
+        switch: 'closed',
+        voltmeter: '1',
+        symbols: 'iec',
+      },
+    },
+    {
+      slug: 'parallel-circuit-three-resistors-find-the-unknown-resistance',
+      title: 'Parallel circuit with three resistors: find the unknown resistance',
+      alt: 'A circuit diagram of a 12 V battery with an ammeter reading 6 A, and three resistors in parallel: R_1 4 Ω, R_2 6 Ω and R_3 x',
+      caption:
+        'A 12 V battery and an ammeter reading 6 A in the main line, with three resistors in parallel: R_1 of 4 Ω, R_2 of 6 Ω and R_3, whose resistance is the unknown x for students to find. The battery’s + and − terminals are marked.',
+      settings: {
+        arrangement: 'parallel',
+        loads: [load(text('4 Omega')), load(text('6 Omega')), load(text('x'))],
+        ammeter: true,
+        ammeterLabel: text('6 A'),
+        polarity: true,
+      },
+    },
+    {
+      slug: 'series-circuit-bulbs-open-switch',
+      title: 'Series circuit with two bulbs and an open switch',
+      alt: 'A circuit diagram of a 3 V battery, an open switch and two bulbs in series',
+      caption:
+        'A 3 V battery, an open switch and two light bulbs in series, the bulbs drawn as circles with a looped filament. With the switch open, no current flows and neither bulb lights.',
+      settings: {
+        loads: [load(none('4 Omega'), { kind: 'bulb' }), load(none('4 Omega'), { kind: 'bulb' })],
+        sourceValue: text('3 V'),
+        switch: 'open',
       },
     },
   ]),
