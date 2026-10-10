@@ -11,7 +11,7 @@ export const CHEMISTRY: CatalogEntry[] = [
     blurb: 'A graduated cylinder, buret, or beaker showing the volume you type.',
     description:
       'Make printable graduated cylinder, buret and beaker figures for chemistry tests. Type a volume and students read it from the meniscus, with a magnified view for the estimated digit.',
-    keywords: ['graduated', 'cylinder', 'buret', 'burette', 'beaker', 'meniscus', 'volume', 'mL', 'milliliters', 'measurement', 'lab', 'glassware'],
+    keywords: ['graduated', 'cylinder', 'buret', 'burette', 'beaker', 'meniscus', 'volume', 'mL', 'milliliters', 'cm3', 'cm³', 'cubic', 'centimeters', 'centimetres', 'measurement', 'lab', 'glassware'],
   },
   {
     id: 'volume-by-displacement',
@@ -21,7 +21,7 @@ export const CHEMISTRY: CatalogEntry[] = [
     blurb: 'A graduated cylinder before and after an object is dropped in.',
     description:
       'Make printable water displacement figures for chemistry tests. Type the before and after readings and get two graduated cylinders, with an object in the second, for students to find its volume.',
-    keywords: ['water', 'displacement', 'displaced', 'graduated', 'cylinder', 'object', 'marble', 'rock', 'cube', 'metal', 'irregular', 'solid', 'volume', 'density', 'mL', 'measurement', 'lab'],
+    keywords: ['water', 'displacement', 'displaced', 'graduated', 'cylinder', 'object', 'marble', 'rock', 'cube', 'metal', 'irregular', 'solid', 'volume', 'density', 'mL', 'cm3', 'cm³', 'cubic', 'centimeters', 'centimetres', 'measurement', 'lab'],
   },
   {
     id: 'gas-syringe',
