@@ -5,13 +5,13 @@
 // its melting or boiling point (q = n·ΔH), where the heat goes into pulling
 // the particles apart instead of speeding them up.
 //
-// A curve comes from one of two things the teacher types:
-//   • the substance's properties: its mass, specific heats, enthalpies of
-//     fusion and vaporization and molar mass, so every segment is to scale
-//     (water's boiling plateau is about 6.8 times as long as its melting
-//     plateau); or
-//   • how long each segment is, for a simple worksheet curve drawn to no
-//     particular scale.
+// The substance is one of the setups below or the teacher's own melting and
+// boiling points. Each segment's length along the x-axis is either
+//   • typed, for a simple worksheet curve drawn to no particular scale; or
+//   • worked out from the sample's mass and the substance's specific heats,
+//     enthalpies of fusion and vaporization and molar mass, so every segment
+//     is to scale (water's boiling plateau is about 6.8 times as long as its
+//     melting plateau).
 //
 // A cooling curve is a heating curve run backwards: the same segments, from
 // the hot end, with the heat removed instead of added.
@@ -41,9 +41,15 @@ export type Properties = {
   molarMass: number
 }
 
+/** A built-in substance: its melting and boiling points in °C, the temperatures its curve runs between, and its properties. */
+export type Substance = { id: string; name: string; mp: number; bp: number; from: number; to: number; properties: Properties }
+
 /**
- * Substances whose properties the teacher can fill in with one pick, each
- * from one source so the numbers match a textbook a teacher can check.
+ * The setups: substances teachers graph most often, and a made-up one.
+ * Melting and boiling points are at 1 atm, from the CRC Handbook of Chemistry
+ * and Physics. A specific heat is the phase's near the temperatures its
+ * segment covers where that's known, otherwise at 25 °C, so a curve to scale
+ * is close but not exact: specific heats change with temperature.
  */
 export const SUBSTANCES = [
   {
@@ -54,9 +60,80 @@ export const SUBSTANCES = [
     // ΔHvap 40.67 kJ/mol at 100 °C (not the 44.01 at 25 °C); 18.02 g/mol.
     mp: 0,
     bp: 100,
+    from: -20,
+    to: 120,
     properties: { cSolid: 2.09, cLiquid: 4.18, cGas: 1.86, fusH: 6.01, vapH: 40.67, molarMass: 18.02 },
   },
-] as const satisfies readonly { id: string; name: string; mp: number; bp: number; properties: Properties }[]
+  {
+    id: 'ethanol',
+    name: 'Ethanol',
+    // C₂H₅OH, 46.07 g/mol. CRC: mp −114.1 °C, bp 78.3 °C. NIST Chemistry
+    // WebBook: ΔHfus 4.97 kJ/mol (Yoshida, 1944), ΔHvap 38.56 kJ/mol at the
+    // boiling point (Majer and Svoboda, 1985), liquid 112.3 J/(mol·K) and gas
+    // 65.21 J/(mol·K) at 25 °C. The solid's 0.97 J/(g·°C) is from Brown,
+    // Chemistry: The Central Science, exercise 11.45; NIST has none.
+    mp: -114.1,
+    bp: 78.3,
+    from: -140,
+    to: 100,
+    properties: { cSolid: 0.97, cLiquid: 2.44, cGas: 1.42, fusH: 4.97, vapH: 38.56, molarMass: 46.07 },
+  },
+  {
+    id: 'acetone',
+    name: 'Acetone',
+    // (CH₃)₂CO, 58.08 g/mol. CRC: mp −94.7 °C, bp 56.1 °C. NIST Chemistry
+    // WebBook: ΔHfus 5.72 kJ/mol (Domalski and Hearing, 1996), ΔHvap 29.1
+    // kJ/mol at the boiling point (Majer and Svoboda, 1985), the solid
+    // 96 J/(mol·K) at −100 °C, the liquid 125.45 and the gas 75.02 J/(mol·K)
+    // at 25 °C.
+    mp: -94.7,
+    bp: 56.1,
+    from: -120,
+    to: 80,
+    properties: { cSolid: 1.65, cLiquid: 2.16, cGas: 1.29, fusH: 5.72, vapH: 29.1, molarMass: 58.08 },
+  },
+  {
+    id: 'mercury',
+    name: 'Mercury',
+    // Hg, 200.59 g/mol. CRC: mp −38.8 °C, bp 356.7 °C, ΔHfus 2.29 kJ/mol,
+    // ΔHvap 59.11 kJ/mol at the boiling point, the liquid 27.98 J/(mol·K) at
+    // 25 °C, the solid about 28.3 J/(mol·K) near its melting point. The gas
+    // is single atoms, 5/2·R = 20.79 J/(mol·K).
+    mp: -38.8,
+    bp: 356.7,
+    from: -60,
+    to: 380,
+    properties: { cSolid: 0.141, cLiquid: 0.14, cGas: 0.104, fusH: 2.29, vapH: 59.11, molarMass: 200.59 },
+  },
+  {
+    id: 'sodium-chloride',
+    name: 'Sodium chloride',
+    // NaCl, 58.44 g/mol. CRC: mp 801 °C, bp 1465 °C. The rest is from the
+    // NIST-JANAF tables (Chase, 1998) via the NIST Chemistry WebBook: the
+    // solid 64.8 J/(mol·K) at 1000 K, the liquid 66.9 J/(mol·K), ΔHfus
+    // 28.2 kJ/mol (CRC: 28.16), and ΔHvap about 166 kJ/mol at the boiling
+    // point, from JANAF's enthalpies of the liquid and of NaCl molecules,
+    // whose heat capacity is about 37.4 J/(mol·K). Real NaCl vapor is partly
+    // Na₂Cl₂, so the boiling plateau and the gas segment are rough.
+    mp: 801,
+    bp: 1465,
+    from: 700,
+    to: 1600,
+    properties: { cSolid: 1.11, cLiquid: 1.15, cGas: 0.64, fusH: 28.2, vapH: 166, molarMass: 58.44 },
+  },
+  {
+    id: 'x',
+    name: 'Substance X',
+    // Made up, with round numbers, for questions about an unknown substance.
+    mp: 40,
+    bp: 120,
+    from: 0,
+    to: 160,
+    properties: { cSolid: 1.5, cLiquid: 3, cGas: 1, fusH: 10, vapH: 30, molarMass: 100 },
+  },
+] as const satisfies readonly Substance[]
+
+export type SubstanceId = (typeof SUBSTANCES)[number]['id']
 
 /** One segment of a curve: which it is, and the temperatures it runs from and to. */
 export type Segment = { key: SegmentKey; t0: number; t1: number }

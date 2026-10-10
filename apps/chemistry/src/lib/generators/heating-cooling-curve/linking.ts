@@ -7,6 +7,7 @@ import { EVERY, LABEL_MODES, MINOR, TITLE_MODES } from '$shared/graph/axes'
 import { LABEL_SIZES } from '$shared/labelSize'
 import { describeLinking, type ParamDoc } from '$lib/linking/define'
 import type { FieldAbout } from '$lib/shared/settings'
+import { SUBSTANCES } from './curve'
 import { curveSettings } from './settings'
 
 /** The most characters $shared's text() keeps. */
@@ -22,35 +23,39 @@ const range = (axis: 'x' | 'y', end: string, unit: string): ParamDoc => ({
 })
 const cap = (axis: 'x' | 'y', end: string): ParamDoc => ({ what: `How the ${axis}-axis’s ${end} end is finished.`, about: caps })
 const LENGTHS = 'source=lengths, and the curve passes through this segment'
+const CUSTOM = 'substance=custom and source=properties'
+const setups = SUBSTANCES.map((x) => `${x.id}: ${x.name.toLowerCase()} (mp ${x.mp} °C, bp ${x.bp} °C)`).join('; ')
 
 export const curveLinking = describeLinking(curveSettings, {
   id: 'heating-cooling-curve',
   summary:
-    'A graph of a substance’s temperature in °C (up the side) as it is heated or cooled steadily, against the time or the heat added or removed (along the bottom). Each phase warms or cools in a sloped segment and each phase change is a flat plateau. Segment lengths are either typed (source=lengths) or worked out from the substance’s properties (source=properties).',
+    'A graph of a substance’s temperature in °C (up the side) as it is heated or cooled steadily, against the time or the heat added or removed (along the bottom). Each phase warms or cools in a sloped segment and each phase change is a flat plateau. The substance is a setup or custom (substance=custom, with mp and bp). Segment lengths are either typed for a schematic curve (source=lengths) or worked out to scale from the substance’s properties (source=properties).',
   notes: [
     'The curve runs from startT to endT and has only the segments those pass through: solid, melting, liquid, boiling and gas when heating, in the opposite order when cooling. A heating curve must end hotter than it starts, a cooling curve colder, and bp must be above mp, or nothing is drawn.',
-    'With source=lengths (the default) each segment is as long along the x-axis as solidW, meltW, liquidW, boilW and gasW say. The properties are ignored.',
-    'With source=properties each sloped segment takes q = m·c·ΔT and each plateau q = n·ΔH, from mass, cSolid, cLiquid, cGas, fusH, vapH and molarMass, so the curve is to scale. With xQuantity=time the heat is turned into minutes at rate kJ per minute; with xQuantity=heat the x-axis is the heat in kJ.',
-    'The defaults are water (mp 0 °C, bp 100 °C) heated from −20 to 120 °C, with OpenStax Chemistry 2e’s properties for water and 100 g heated at 10 kJ per minute.',
-    'The x-axis title is not changed by the link: with xQuantity=heat also set xTitle, e.g. “Heat added (kJ)”. The axes are not fitted to the curve either: set xTo (and the y range) so the whole curve is on the grid.',
+    'A setup (any substance but custom) brings its own melting and boiling points and properties; mp, bp, cSolid, cLiquid, cGas, fusH, vapH and molarMass are then ignored. The link doesn’t move startT and endT to suit the substance: set them too.',
+    'With source=lengths (the default) each segment is as long along the x-axis as solidW, meltW, liquidW, boilW and gasW say, whatever the substance.',
+    'With source=properties each sloped segment takes q = m·c·ΔT and each plateau q = n·ΔH, from the substance’s specific heats, enthalpies and molar mass and the sample’s mass, so the curve is to scale. With xQuantity=time the heat is turned into minutes at rate kJ per minute; with xQuantity=heat the x-axis is the heat in kJ.',
+    'The defaults are water heated from −20 to 120 °C; to scale, 100 g heated at 10 kJ per minute.',
+    'The x-axis title is not changed by the link: with xQuantity=heat also set xTitle, e.g. “Heat added (kJ)”. The axes are not fitted to the curve either: set xTo and the y range so the whole curve is on the grid.',
     'Axis ranges are text holding plain numbers. From xFrom to xTo counting by xStep makes the gridlines, at most 50 blocks per axis.',
   ],
   params: {
     direction: { what: 'Whether the substance is heated or cooled.' },
-    source: { what: 'What the segment lengths come from.', values: 'properties: worked out from the substance’s properties, to scale; lengths: typed' },
+    substance: { what: 'The substance heated or cooled.', values: `${setups}; custom: the melting and boiling points mp and bp` },
+    source: { what: 'What the segment lengths come from.', values: 'properties: worked out to scale from the substance’s properties; lengths: typed, for a schematic curve' },
     xQuantity: { what: 'What runs along the x-axis.', values: 'time: minutes, at a steady rate; heat: the heat added or removed, in kJ' },
     startT: { what: 'The temperature the curve starts at, in °C.' },
     endT: { what: 'The temperature the curve ends at, in °C.' },
-    mp: { what: 'The melting (and freezing) point, in °C.' },
-    bp: { what: 'The boiling (and condensation) point, in °C.' },
+    mp: { what: 'The melting (and freezing) point, in °C.', when: 'substance=custom' },
+    bp: { what: 'The boiling (and condensation) point, in °C.', when: 'substance=custom' },
     mass: { what: 'The sample’s mass, in g.', when: 'source=properties' },
     rate: { what: 'The heat added or removed each minute, in kJ.', when: 'source=properties and xQuantity=time' },
-    cSolid: { what: 'The solid’s specific heat, in J/(g·°C).', when: 'source=properties' },
-    cLiquid: { what: 'The liquid’s specific heat, in J/(g·°C).', when: 'source=properties' },
-    cGas: { what: 'The gas’s specific heat, in J/(g·°C).', when: 'source=properties' },
-    fusH: { what: 'The enthalpy of fusion, in kJ/mol.', when: 'source=properties' },
-    vapH: { what: 'The enthalpy of vaporization, in kJ/mol.', when: 'source=properties' },
-    molarMass: { what: 'The molar mass, in g/mol, for the plateaus’ moles.', when: 'source=properties' },
+    cSolid: { what: 'The solid’s specific heat, in J/(g·°C).', when: CUSTOM },
+    cLiquid: { what: 'The liquid’s specific heat, in J/(g·°C).', when: CUSTOM },
+    cGas: { what: 'The gas’s specific heat, in J/(g·°C).', when: CUSTOM },
+    fusH: { what: 'The enthalpy of fusion, in kJ/mol.', when: CUSTOM },
+    vapH: { what: 'The enthalpy of vaporization, in kJ/mol.', when: CUSTOM },
+    molarMass: { what: 'The molar mass, in g/mol, for the plateaus’ moles.', when: CUSTOM },
     solidW: { what: 'How long the solid segment is along the x-axis.', when: LENGTHS },
     meltW: { what: 'How long the melting (freezing) plateau is along the x-axis.', when: LENGTHS },
     liquidW: { what: 'How long the liquid segment is along the x-axis.', when: LENGTHS },
@@ -66,6 +71,10 @@ export const curveLinking = describeLinking(curveSettings, {
       values: 'states: both states (Solid + liquid); change: the change (Melting, Boiling, Freezing, Condensing)',
     },
     guides: { what: 'Whether dashed lines run from each plateau across to the temperature axis.' },
+    pointLabels: {
+      what: 'What is written by the temperature axis just above each plateau’s dashed line.',
+      values: 'values: the temperature (78.3 °C); names: m.p. and b.p. (f.p. and b.p. when cooling); blank: a blank line for students; none: nothing',
+    },
     color: { what: 'The curve’s color.' },
     xFrom: range('x', 'start', 'in minutes or kJ'),
     xTo: range('x', 'end', 'in minutes or kJ'),
@@ -93,10 +102,13 @@ export const curveLinking = describeLinking(curveSettings, {
     labelSize: { what: 'How big the figure’s text is compared to its lines.', about: { type: 'choice', options: Object.keys(LABEL_SIZES) } },
   },
   examples: [
-    { shows: 'Water heated from ice at −20 °C to steam at 120 °C, its corners lettered A to F and each segment labeled with its state.', settings: { letters: true } },
+    { shows: 'Water heated from ice at −20 °C to steam at 120 °C, its corners lettered A to F and each segment labeled with its state or change.', settings: { letters: true } },
     {
-      shows: 'Water cooled from steam at 120 °C to ice at −20 °C, its plateaus labeled Condensing and Freezing.',
-      settings: { direction: 'cooling', startT: 120, endT: -20, plateauLabels: 'change' },
+      shows: 'Ethanol cooled from 100 °C to −140 °C, its freezing and boiling points written by the temperature axis.',
+      settings: {
+        direction: 'cooling', substance: 'ethanol', startT: 100, endT: -140, pointLabels: 'values',
+        yFrom: '-140', yTo: '100', yStep: '20', yEvery: 1,
+      },
     },
     {
       shows: 'The heating curve of 100 g of ice at −20 °C to steam at 120 °C against the heat added, to scale, with blank lines for students to label the segments.',

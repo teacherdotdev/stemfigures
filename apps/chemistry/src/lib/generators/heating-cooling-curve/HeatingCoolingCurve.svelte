@@ -1,9 +1,10 @@
 <script lang="ts">
-  // Heating and Cooling Curve: pick heating or cooling and the temperatures
-  // it runs between, then give either the substance's properties (so every
-  // segment is to scale) or how long each segment is, and get the curve on a
-  // graph with its corners lettered and its segments labeled. The grid and
-  // axes are $shared/graph's, the same as Math's coordinate grid.
+  // Heating and Cooling Curve: pick heating or cooling, a substance (a setup,
+  // or your own melting and boiling points) and the temperatures it runs
+  // between, then type how long each segment is or have them worked out to
+  // scale, and get the curve on a graph with its corners lettered and its
+  // segments labeled. The grid and axes are $shared/graph's, the same as
+  // Math's coordinate grid.
   import { Maximize, Spline, Tag } from '@lucide/svelte'
   import GeneratorPage from '$shared/GeneratorPage.svelte'
   import { generatorState } from '$shared/generatorState.svelte'
@@ -15,10 +16,10 @@
   import Section from '$shared/Section.svelte'
   import HelpTip from '$lib/shared/HelpTip.svelte'
   import { SUBSTANCES, isPlateau, segmentsOf, type Direction, type SegmentKey } from './curve'
-  import { buildCurve, niceRange, placedSegments, segmentName } from './figure'
+  import { buildCurve, degrees, fittedAxes, placedSegments, segmentName } from './figure'
   import {
-    PAGE_X_TITLES, SEGMENT_LABELS, SEGMENT_LABEL_NAMES, WIDTH_KEYS, curveSettings, temperaturesOf, xTitleFor,
-    type CurveSettings, type XQuantity,
+    PAGE_X_TITLES, POINT_LABELS, POINT_LABEL_NAMES, SEGMENT_LABELS, SEGMENT_LABEL_NAMES, WIDTH_KEYS, curveSettings, propertiesOf,
+    setupOf, substanceName, temperaturesOf, xTitleFor, type CurveSettings, type XQuantity,
   } from './settings'
   import CurveFigure from './CurveFigure.svelte'
 
@@ -27,7 +28,9 @@
   const clean = $derived(gen.snapshot())
   const axes = $derived(readAxes(clean))
   const g = $derived(buildCurve(clean))
-  const segs = $derived(clean.bp > clean.mp ? segmentsOf(clean.direction, temperaturesOf(clean)) : [])
+  const temps = $derived(temperaturesOf(clean))
+  const setup = $derived(setupOf(clean))
+  const segs = $derived(temps.bp > temps.mp ? segmentsOf(clean.direction, temps) : [])
   const has = (key: SegmentKey) => segs.some((seg) => seg.key === key)
   const freezes = $derived(clean.direction === 'cooling' && segs.some((seg, i) => seg.key === 'melt' && segs[i - 1]?.key === 'liquid'))
   let svg = $state<SVGSVGElement>()
@@ -59,22 +62,40 @@
     s.source = source
   }
 
-  function chooseSubstance(id: string) {
-    const sub = SUBSTANCES.find((x) => x.id === id)
-    if (sub) Object.assign(s, { mp: sub.mp, bp: sub.bp, ...sub.properties })
+  /**
+   * A setup runs from below its melting point to above its boiling point,
+   * on axes fitted to it. Custom starts from the substance already there,
+   * so the curve doesn't change until the teacher types something new.
+   */
+  function chooseSubstance(id: CurveSettings['substance']) {
+    if (id === clean.substance) return
+    if (id === 'custom') {
+      const { mp, bp } = temperaturesOf(clean)
+      Object.assign(s, { substance: id, mp, bp, ...propertiesOf(clean) })
+      return
+    }
+    const sub = SUBSTANCES.find((x) => x.id === id)!
+    const [startT, endT] = clean.direction === 'heating' ? [sub.from, sub.to] : [sub.to, sub.from]
+    const fitted = fittedAxes(curveSettings.tidy({ ...clean, substance: id, startT, endT }))
+    Object.assign(s, { substance: id, startT, endT, ...fitted })
   }
 
   /** Axes that just fit the curve, counting in tidy steps. */
   function fitAxes() {
-    if (!g.span) return
-    const [x0, x1, xs] = niceRange(0, g.end, true)
-    const [y0, y1, ys] = niceRange(g.span.lo, g.span.hi)
-    const blocks = (a: number, b: number, step: number) => Math.round((b - a) / step)
-    Object.assign(s, {
-      xFrom: String(x0), xTo: String(x1), xStep: String(xs), xEvery: blocks(x0, x1, xs) > 10 ? 2 : 1,
-      yFrom: String(y0), yTo: String(y1), yStep: String(ys), yEvery: blocks(y0, y1, ys) > 10 ? 2 : 1,
-    })
+    const fitted = fittedAxes(clean)
+    if (fitted) Object.assign(s, fitted)
   }
+
+  /** A setup's properties, as far as its curve uses them. */
+  const setupProperties = $derived.by(() => {
+    if (!setup) return ''
+    const p = setup.properties
+    const heats = [has('solid') && `${p.cSolid} (solid)`, has('liquid') && `${p.cLiquid} (liquid)`, has('gas') && `${p.cGas} (gas)`]
+    const parts = [`specific heats ${heats.filter(Boolean).join(', ')} J/g·°C`]
+    if (has('melt')) parts.push(`ΔH of fusion ${p.fusH} kJ/mol`)
+    if (has('boil')) parts.push(`ΔH of vaporization ${p.vapH} kJ/mol`)
+    return `${setup.name}${setup.id === 'x' ? ' (made up)' : ''}: ${parts.join('; ')}.`
+  })
 
   const xUnit = $derived(clean.xQuantity === 'time' ? 'min' : 'kJ')
   const totalHeat = $derived(g.rows.reduce((sum, r) => sum + r.heat, 0))
@@ -104,20 +125,35 @@
       <div class="head-row">
         <h2 class="card-head">Curve</h2>
         <HelpTip id="curve-tip" label="How the curve is worked out">
-          From a substance, each sloped segment takes q = m·c·ΔT and each plateau q = n·ΔH, so the curve is to scale:
-          water's boiling plateau is almost 7 times as long as its melting plateau. From segment lengths, you set how
-          long each one is, for a simpler worksheet curve.
+          Schematic, you set how long each segment is, for a simple worksheet curve. To scale, each sloped segment takes
+          q = m·c·ΔT and each plateau q = n·ΔH, from the substance's specific heats and enthalpies: water's boiling
+          plateau is almost 7 times as long as its melting plateau.
         </HelpTip>
       </div>
       <div class="segmented" role="radiogroup" aria-label="Heating or cooling">
         <button type="button" role="radio" aria-checked={s.direction === 'heating'} class:on={s.direction === 'heating'} onclick={() => chooseDirection('heating')}>Heating</button>
         <button type="button" role="radio" aria-checked={s.direction === 'cooling'} class:on={s.direction === 'cooling'} onclick={() => chooseDirection('cooling')}>Cooling</button>
       </div>
+      <label class="field">
+        <span>Substance</span>
+        <select value={s.substance} onchange={(e) => chooseSubstance(e.currentTarget.value as CurveSettings['substance'])}>
+          {#each SUBSTANCES as sub}<option value={sub.id}>{sub.name}</option>{/each}
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+      {#if setup}
+        <p class="help">
+          {clean.direction === 'heating' ? 'Melts' : 'Freezes'} at {degrees(setup.mp)} and {clean.direction === 'heating' ? 'boils' : 'condenses'}
+          at {degrees(setup.bp)}{setup.id === 'x' ? ' (made up)' : ''}.
+        </p>
+      {/if}
       <div class="fields">
+        {#if s.substance === 'custom'}
+          {@render numberField('mp', clean.direction === 'heating' ? 'Melting point' : 'Freezing point', '°C', 'mp', -273.15)}
+          {@render numberField('bp', 'Boiling point', '°C', 'bp', -273.15, g.problems.bp)}
+        {/if}
         {@render numberField('start-t', 'Starting temperature', '°C', 'startT', -273.15)}
         {@render numberField('end-t', 'Ending temperature', '°C', 'endT', -273.15, g.problems.endT)}
-        {@render numberField('mp', clean.direction === 'heating' ? 'Melting point' : 'Freezing point', '°C', 'mp', -273.15)}
-        {@render numberField('bp', 'Boiling point', '°C', 'bp', -273.15, g.problems.bp)}
       </div>
       {#each ['endT', 'bp'] as key}
         {#if g.problems[key]}<p class="help problem">{g.problems[key]}</p>{/if}
@@ -132,26 +168,24 @@
       </div>
 
       <div class="field">
-        <span>Work the curve out from</span>
-        <div class="segmented" role="radiogroup" aria-label="Work the curve out from">
-          <button type="button" role="radio" aria-checked={s.source === 'properties'} class:on={s.source === 'properties'} onclick={() => chooseSource('properties')}>A substance</button>
-          <button type="button" role="radio" aria-checked={s.source === 'lengths'} class:on={s.source === 'lengths'} onclick={() => chooseSource('lengths')}>Segment lengths</button>
+        <span>Segment lengths</span>
+        <div class="segmented" role="radiogroup" aria-label="Segment lengths">
+          <button type="button" role="radio" aria-checked={s.source === 'lengths'} class:on={s.source === 'lengths'} onclick={() => chooseSource('lengths')}>Schematic</button>
+          <button type="button" role="radio" aria-checked={s.source === 'properties'} class:on={s.source === 'properties'} onclick={() => chooseSource('properties')}>To scale</button>
         </div>
       </div>
 
       {#if s.source === 'properties'}
-        <label class="field">
-          <span>Fill in a substance <span class="hint">values from OpenStax Chemistry 2e</span></span>
-          <select value="" onchange={(e) => { chooseSubstance(e.currentTarget.value); e.currentTarget.value = '' }}>
-            <option value="" disabled>Choose one…</option>
-            {#each SUBSTANCES as sub}<option value={sub.id}>{sub.name}</option>{/each}
-          </select>
-        </label>
         <div class="fields">
           {@render numberField('mass', 'Mass', 'g', 'mass', 0.001)}
           {#if clean.xQuantity === 'time'}
             {@render numberField('rate', clean.direction === 'heating' ? 'Heat added per minute' : 'Heat removed per minute', 'kJ', 'rate', 0.001)}
           {/if}
+        </div>
+        {#if setup}
+          <p class="help">{setupProperties}</p>
+        {:else}
+        <div class="fields">
           {#if has('solid')}{@render numberField('c-solid', 'Specific heat of the solid', 'J/g·°C', 'cSolid', 0.001)}{/if}
           {#if has('liquid')}{@render numberField('c-liquid', 'Specific heat of the liquid', 'J/g·°C', 'cLiquid', 0.001)}{/if}
           {#if has('gas')}{@render numberField('c-gas', 'Specific heat of the gas', 'J/g·°C', 'cGas', 0.001)}{/if}
@@ -159,6 +193,7 @@
           {#if has('boil')}{@render numberField('vap-h', 'ΔH of vaporization', 'kJ/mol', 'vapH', 0.001)}{/if}
           {#if has('melt') || has('boil')}{@render numberField('molar-mass', 'Molar mass', 'g/mol', 'molarMass', 0.001)}{/if}
         </div>
+        {/if}
         {#if g.rows.length}
           <ul class="readout">
             {#each g.rows as r}
@@ -229,6 +264,16 @@
           <small>Across to the temperature axis, to read the {clean.direction === 'heating' ? 'melting' : 'freezing'} and boiling points.</small>
         </span>
       </label>
+      {#if segs.some((seg) => isPlateau(seg.key))}
+        <label class="field setting points">
+          <span>By the temperature axis</span>
+          <select bind:value={s.pointLabels}>
+            {#each POINT_LABELS as m}
+              <option value={m}>{m === 'names' && clean.direction === 'cooling' ? 'f.p. and b.p.' : POINT_LABEL_NAMES[m]}</option>
+            {/each}
+          </select>
+        </label>
+      {/if}
     </Section>
 
     <Section title="Curve" icon={Spline} summary="{clean.color[0].toUpperCase()}{clean.color.slice(1)}">
@@ -245,7 +290,7 @@
     <TitleSettings
       bind:title={s.title} bind:titleMode={s.titleMode} bind:xTitle={s.xTitle} bind:xTitleMode={s.xTitleMode}
       bind:yTitle={s.yTitle} bind:yTitleMode={s.yTitleMode}
-      placeholders={{ title: 'Heating curve of water', xTitle: xTitleFor(clean.direction, clean.xQuantity), yTitle: 'Temperature (°C)' }}
+      placeholders={{ title: `${clean.direction === 'heating' ? 'Heating' : 'Cooling'} curve of ${substanceName(clean) ?? 'a substance'}`, xTitle: xTitleFor(clean.direction, clean.xQuantity), yTitle: 'Temperature (°C)' }}
     />
     <AxisSettings
       axis="x" read={axes.x} problems={axes.problems}
@@ -270,7 +315,6 @@
   .curve-card { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.75rem; }
   .head-row { display: flex; align-items: center; justify-content: space-between; }
   .field { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.88rem; }
-  .field .hint { font-weight: 400; color: var(--muted); }
   .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
   .number-field { display: flex; flex-direction: column; justify-content: flex-end; gap: 0.3rem; font-weight: 600; font-size: 0.88rem; min-width: 0; }
   .number-field input { width: 100%; min-width: 0; }
@@ -282,6 +326,7 @@
   .readout .total { padding-top: 0.25rem; border-top: 1px solid var(--blue-border); }
   .fit { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.4rem; }
   .setting { margin-bottom: 0.75rem; }
+  .setting.points { margin: 0.75rem 0 0; }
   .check { display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 0.75rem; cursor: pointer; }
   .check input { width: 1.1rem; height: 1.1rem; margin: 0.15rem 0 0; accent-color: var(--blue); }
   .check span { display: flex; flex-direction: column; }

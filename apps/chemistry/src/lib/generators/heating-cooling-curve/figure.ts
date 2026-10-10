@@ -1,12 +1,18 @@
 // Lays out a heating or cooling curve for CurveFigure.svelte to draw: the grid
 // from $shared/graph, the curve on it, dashed lines from its plateaus to the
-// temperature axis, a letter at each corner, and each segment's label.
+// temperature axis with the melting and boiling points by them, a letter at
+// each corner, and each segment's label.
 
 import { axisEnd, readAxes } from '$shared/graph/axes'
 import { COLORS } from '$shared/graph/colors'
 import { clipPath, layoutGrid, pathOf, round, type Point } from '$shared/graph/grid'
 import { curveEnd, curvePoints, heatOf, isPlateau, placeSegments, segmentsOf, type Direction, type SegmentKey } from './curve'
 import { propertiesOf, temperaturesOf, WIDTH_KEYS, type CurveSettings } from './settings'
+
+const POINT_NAMES: Record<Direction, Record<'melt' | 'boil', string>> = {
+  heating: { melt: 'm.p.', boil: 'b.p.' },
+  cooling: { melt: 'f.p.', boil: 'b.p.' },
+}
 
 const LETTER_GAP = 0.9 // from a corner to its letter's middle, in label heights
 const LABEL_GAP = 10 // from a segment to its label
@@ -68,7 +74,8 @@ export const letter = (i: number) => String.fromCharCode(65 + i)
 /** What the teacher typed that doesn't make a curve, by field. */
 export function checkCurve(s: CurveSettings): Record<string, string> {
   const problems: Record<string, string> = {}
-  if (s.bp <= s.mp) problems.bp = 'The boiling point has to be higher than the melting point.'
+  const { mp, bp } = temperaturesOf(s)
+  if (bp <= mp) problems.bp = 'The boiling point has to be higher than the melting point.'
   if (s.direction === 'heating' && s.endT <= s.startT)
     problems.endT = 'A heating curve ends hotter than it starts, so make the ending temperature higher than the starting one.'
   if (s.direction === 'cooling' && s.endT >= s.startT)
@@ -84,6 +91,9 @@ export function placedSegments(s: CurveSettings) {
   return placeSegments(segs, (seg) => heatOf(seg, s.mass, p) / (s.xQuantity === 'time' ? s.rate : 1))
 }
 
+/** A temperature as written on the figure: −114.1 °C. */
+export const degrees = (t: number) => `${String(round(t)).replace('-', '−')} °C`
+
 /** A tidy axis range covering from..to: [start, end, step], in 8 to 20 blocks. */
 export function niceRange(from: number, to: number, zero = false): [number, number, number] {
   const span = Math.max(to - from, 1e-6)
@@ -97,6 +107,19 @@ export function niceRange(from: number, to: number, zero = false): [number, numb
     }
   }
   return [from, to, span / 10]
+}
+
+/** Axes that just fit the curve, counting in tidy steps, or none when there's no curve. */
+export function fittedAxes(s: CurveSettings) {
+  const g = buildCurve(s)
+  if (!g.span) return null
+  const [x0, x1, xs] = niceRange(0, g.end, true)
+  const [y0, y1, ys] = niceRange(g.span.lo, g.span.hi)
+  const blocks = (a: number, b: number, step: number) => Math.round((b - a) / step)
+  return {
+    xFrom: String(x0), xTo: String(x1), xStep: String(xs), xEvery: blocks(x0, x1, xs) > 10 ? 2 : 1,
+    yFrom: String(y0), yTo: String(y1), yStep: String(ys), yEvery: blocks(y0, y1, ys) > 10 ? 2 : 1,
+  }
 }
 
 export function buildCurve(s: CurveSettings) {
@@ -165,7 +188,27 @@ export function buildCurve(s: CurveSettings) {
     within(b, figure) && free(b) && !overlaps(onTheGrid, grow(b, 3)) &&
     !axisLines.some((l) => crosses(l, grow(b, 3))) && !numbers.some((o) => overlaps(o, grow(b, 2)))
 
-  const corners = placed.length ? [{ x: 0, y: placed[0].t0 }, ...placed.map((seg) => ({ x: seg.x0 + seg.width, y: seg.t1 }))] : []
+  // The melting and boiling points by the temperature axis, just above (or
+  // below) each dashed line, or further along it where the curve is in the way.
+  const pointLabels: Text[] = []
+  const pointBlanks: Segment[] = []
+  if (s.pointLabels !== 'none') {
+    for (const seg of placed) {
+      if (!isPlateau(seg.key) || !onGrid({ x: box.x0, y: seg.t0 })) continue
+      const y = px({ x: box.x0, y: seg.t0 }).y
+      const text = s.pointLabels === 'values' ? degrees(seg.t0) : POINT_NAMES[s.direction][seg.key as 'melt' | 'boil']
+      const w = s.pointLabels === 'blank' ? BLANK_W * 0.75 : text.length * CHAR
+      const spots: Box[] = []
+      for (const along of [6, 30, 60, 100, 150])
+        for (const y0 of [y - 6 - LFS, y + 6]) spots.push({ x0: grid.grid.x + along, y0, x1: grid.grid.x + along + w, y1: y0 + LFS })
+      const spot = spots.find(clear) ?? spots[0]
+      taken.push(spot)
+      if (s.pointLabels === 'blank') pointBlanks.push({ x1: spot.x0, y1: spot.y1, x2: spot.x1, y2: spot.y1 })
+      else pointLabels.push({ x: spot.x0, y: spot.y1 - LFS * 0.22, text, anchor: 'start' })
+    }
+  }
+
+  const corners = placed.length ?[{ x: 0, y: placed[0].t0 }, ...placed.map((seg) => ({ x: seg.x0 + seg.width, y: seg.t1 }))] : []
   const drawn = corners.map(px)
 
   // Where each corner's letter could go: outside the turn the curve makes
@@ -273,6 +316,8 @@ export function buildCurve(s: CurveSettings) {
     letters,
     segmentLabels: labels,
     segmentBlanks: blanks,
+    pointLabels,
+    pointBlanks,
     lfs: LFS,
     problems: { ...axes.problems, ...problems },
     rows,
