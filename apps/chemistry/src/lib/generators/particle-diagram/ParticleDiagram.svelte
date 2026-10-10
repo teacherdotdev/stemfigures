@@ -66,7 +66,7 @@
   const KEY_EXAMPLES: Record<ReturnType<typeof kindName>, string> = {
     Atom: 'e.g. Ne atom',
     Ion: 'e.g. Any positive ion',
-    Molecule: 'e.g. CCl₄ molecule',
+    Molecule: 'e.g. CCl_4 molecule',
     'Ion cluster': 'e.g. NaCl ion pair',
   }
 
@@ -240,12 +240,12 @@
       {#if lattice}
         <label class="key-field">
           <span>{s.pattern === 'pure' ? 'Name' : 'Main name'}</span>
-          <input type="text" maxlength={MAX_NAME} placeholder={s.main.charge ? 'e.g. Cl⁻ ion' : 'e.g. Cu atom'} bind:value={s.mainName} />
+          <input type="text" maxlength={MAX_NAME} placeholder={s.main.charge ? 'e.g. Cl^- ion' : 'e.g. Cu atom'} bind:value={s.mainName} />
         </label>
         {#if s.pattern !== 'pure'}
           <label class="key-field">
             <span>{SECOND_NAMES[s.pattern]} name</span>
-            <input type="text" maxlength={MAX_NAME} placeholder={s.second.charge ? 'e.g. Na⁺ ion' : 'e.g. Zn atom'} bind:value={s.secondName} />
+            <input type="text" maxlength={MAX_NAME} placeholder={s.second.charge ? 'e.g. Na^+ ion' : 'e.g. Zn atom'} bind:value={s.secondName} />
           </label>
         {/if}
       {:else}
@@ -265,7 +265,7 @@
               <input
                 type="text"
                 maxlength={MAX_NAME}
-                placeholder={atom.look.charge ? 'e.g. Na⁺ ion' : 'e.g. H atom'}
+                placeholder={atom.look.charge ? 'e.g. Na^+ ion' : 'e.g. H atom'}
                 value={atom.name ?? ''}
                 oninput={(e) => setAtomName(atom.look, e.currentTarget.value)}
               />
@@ -282,8 +282,9 @@
       {/if}
       <label class="key-field">
         <span>Note</span>
-        <input type="text" maxlength={MAX_NOTE} placeholder="e.g. H₂O molecules are not shown" bind:value={s.keyNote} />
+        <input type="text" maxlength={MAX_NOTE} placeholder="e.g. H_2O molecules are not shown" bind:value={s.keyNote} />
       </label>
+      <p class="note">Type _ for a subscript and ^ for a superscript: H_2O, SO_4^{'{'}2-{'}'}.</p>
     </Section>
     <Section title="Box" summary="{BORDER_NAMES[box.border]} border" icon={Square}>
       <p class="field-label">Border</p>

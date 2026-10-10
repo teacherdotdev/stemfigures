@@ -17,7 +17,11 @@ describe('an address from before these settings', () => {
       const drawn = boxContents(s)
       expect(drawn).toEqual(box)
       const k = keyLayout(keyKinds(s, drawn), s.keyNote)
-      expect({ ...k, lines: k.lines.map(({ name, discs, nameX, nameY }) => ({ name, discs, nameX, nameY })) }).toEqual(key)
+      const note = k.note && { text: k.note.text, x: k.note.x, y: k.note.y }
+      expect({ ...k, lines: k.lines.map(({ name, discs, nameX, nameY }) => ({ name, discs, nameX, nameY })), note }).toEqual(key)
+      // each name and the note is still one piece, as before subscripts
+      for (const line of k.lines) expect(line.spans.length).toBeLessThanOrEqual(1)
+      expect(k.note?.spans.length ?? 1).toBe(1)
       expect(figureLayout(s.show, k, drawn)).toEqual(figure)
     })
   }

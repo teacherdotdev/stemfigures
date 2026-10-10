@@ -342,6 +342,10 @@ export const COPY: Record<string, GeneratorCopy> = {
         a: 'No. Atoms are drawn as plain shaded discs, and ions show only their charge. Put names like “Na⁺ ion” or “CCl₄ molecule” in the key instead.',
       },
       {
+        q: 'How do I type subscripts and superscripts in the key?',
+        a: 'Type _ before a subscript and ^ before a superscript, with braces around more than one character: H_2O for H₂O, SO_4^{2-} for SO₄²⁻, Na^+ for Na⁺. They work in the key’s names and its note line, and in a link to the figure.',
+      },
+      {
         q: 'Can the key show each atom on its own, for writing formulas?',
         a: 'Yes. Set the key’s List to Each atom and it shows every different atom once, drawn alone with its own name, instead of each molecule whole. An atom in two kinds of molecule, like the O in H₂O and CO₂, is listed once. Students can then work out each molecule’s formula from the box.',
       },
