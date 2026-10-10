@@ -187,6 +187,17 @@ export function buildCurve(s: CurveSettings) {
   const clearOff = (b: Box) =>
     within(b, figure) && free(b) && !overlaps(onTheGrid, grow(b, 3)) &&
     !axisLines.some((l) => crosses(l, grow(b, 3))) && !numbers.some((o) => overlaps(o, grow(b, 2)))
+  // Where no spot is clear: the one on the grid crossing the fewest lines and
+  // labels, so it never lands on the axes or their numbers.
+  const intoGrid = (b: Box): Box => {
+    const dx = Math.max(inside.x0 - b.x0, Math.min(0, inside.x1 - b.x1))
+    const dy = Math.max(inside.y0 - b.y0, Math.min(0, inside.y1 - b.y1))
+    return { x0: b.x0 + dx, y0: b.y0 + dy, x1: b.x1 + dx, y1: b.y1 + dy }
+  }
+  const inTheWay = (b: Box) =>
+    lines.filter((l) => crosses(l, grow(b, 3))).length + 2 * taken.filter((o) => overlaps(o, grow(b, 2))).length
+  const leastInTheWay = (spots: Box[]) =>
+    spots.map(intoGrid).reduce((best, b) => (inTheWay(b) < inTheWay(best) ? b : best))
 
   // The melting and boiling points by the temperature axis, just above (or
   // below) each dashed line, or further along it where the curve is in the way.
@@ -201,7 +212,7 @@ export function buildCurve(s: CurveSettings) {
       const spots: Box[] = []
       for (const along of [6, 30, 60, 100, 150])
         for (const y0 of [y - 6 - LFS, y + 6]) spots.push({ x0: grid.grid.x + along, y0, x1: grid.grid.x + along + w, y1: y0 + LFS })
-      const spot = spots.find(clear) ?? spots[0]
+      const spot = spots.find(clear) ?? leastInTheWay(spots.slice(0, 4))
       taken.push(spot)
       if (s.pointLabels === 'blank') pointBlanks.push({ x1: spot.x0, y1: spot.y1, x2: spot.x1, y2: spot.y1 })
       else pointLabels.push({ x: spot.x0, y: spot.y1 - LFS * 0.22, text, anchor: 'start' })
@@ -276,8 +287,15 @@ export function buildCurve(s: CurveSettings) {
             const p = at(t)
             spots.push(boxAt(p.x - gap - w, p.y), boxAt(p.x + gap, p.y))
           }
+        // A short segment by the axis may have no room beside it; then above
+        // or below it.
+        for (const gap of [LABEL_GAP, LABEL_GAP + h, LABEL_GAP + h * 2])
+          for (const t of [0.5, 0, 1]) {
+            const p = at(t)
+            spots.push(boxAt(p.x - w / 2, p.y - gap - h / 2), boxAt(p.x - w / 2, p.y + gap + h / 2))
+          }
       }
-      const spot = spots.find((b) => clear(b) && !kept.some((k) => overlaps(k, grow(b, 2)))) ?? spots.find(clear) ?? spots[0]
+      const spot = spots.find((b) => clear(b) && !kept.some((k) => overlaps(k, grow(b, 2)))) ?? spots.find(clear) ?? leastInTheWay(spots)
       taken.push(spot)
       placedLabels.push({ i, spot })
     }
@@ -291,7 +309,7 @@ export function buildCurve(s: CurveSettings) {
   const letters: Text[] = []
   letterSpots.forEach((spots, i) => {
     if (!spots.length) return
-    const spot = bestLetterSpot(spots) ?? spots[0]
+    const spot = bestLetterSpot(spots) ?? leastInTheWay(spots)
     taken.push(spot)
     letters.push({ x: (spot.x0 + spot.x1) / 2, y: spot.y1 - LFS * 0.15, text: letter(i), anchor: 'middle' })
   })
