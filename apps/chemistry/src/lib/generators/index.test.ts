@@ -9,6 +9,11 @@ describe('searching the directory', () => {
       expect(ids(query)).toContain('volume-by-displacement')
   })
 
+  it('finds the volume generators in cm³ as well as mL', () => {
+    for (const query of ['cm3', 'cm³', 'cubic centimeter', 'cubic centimetre'])
+      expect(ids(query), query).toEqual(expect.arrayContaining(['volume-reading', 'volume-by-displacement']))
+  })
+
   it('finds Orbital Diagram the ways teachers ask for it', () => {
     for (const query of ['electron configuration', 'orbital notation', 'box diagram', 'aufbau', 'hund', 'pauli', 'noble gas'])
       expect(ids(query)).toContain('orbital-diagram')

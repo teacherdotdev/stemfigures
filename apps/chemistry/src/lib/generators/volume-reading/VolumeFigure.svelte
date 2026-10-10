@@ -10,8 +10,8 @@
   import { beakerLayout } from './beaker'
   import { buretLayout } from './buret'
   import { cylinderLayout } from './cylinder'
-  import { formatReading, instrumentName, volumeScale } from './scale'
-  import { answerLine, magnifierView, type VolumeSettings } from './settings'
+  import { UNIT_SYMBOLS, instrumentName, volumeScale } from './scale'
+  import { answerLine, magnifierView, readingText, type VolumeSettings } from './settings'
 
   let { settings, svg = $bindable() }: { settings: VolumeSettings; svg?: SVGSVGElement } = $props()
 
@@ -25,16 +25,17 @@
     r: (settings.span * scale.labelEvery * at.perMl) / 2,
   })
   const layout = $derived(magnifierLayout(magnifierView(settings), at.width, at.height, source))
-  const label = $derived(`A ${instrumentName(settings)} reading ${formatReading(scale, settings.reading)} mL`)
+  const unit = $derived(UNIT_SYMBOLS[settings.unit])
+  const label = $derived(`A ${instrumentName(settings, settings.unit)} reading ${readingText(settings)}`)
 </script>
 
 {#snippet instrument(zoom: number)}
   {#if settings.instrument === 'buret'}
-    <Buret {scale} reading={settings.reading} tint={settings.tint} {zoom} />
+    <Buret {scale} reading={settings.reading} tint={settings.tint} {unit} guide={settings.guide} {zoom} />
   {:else if settings.instrument === 'beaker'}
-    <Beaker {scale} reading={settings.reading} tint={settings.tint} {zoom} />
+    <Beaker {scale} reading={settings.reading} tint={settings.tint} {unit} {zoom} />
   {:else}
-    <GraduatedCylinder {scale} size={settings.size} reading={settings.reading} tint={settings.tint} {zoom} />
+    <GraduatedCylinder {scale} size={settings.size} reading={settings.reading} tint={settings.tint} {unit} guide={settings.guide} {zoom} />
   {/if}
 {/snippet}
 

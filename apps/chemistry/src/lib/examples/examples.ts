@@ -77,6 +77,14 @@ export const EXAMPLES: Example[] = [
         'A 250 mL beaker marked every 25 mL and numbered every 50 mL, holding red liquid a little under halfway from the 150 mL mark to the next mark, 175 mL. Beaker marks are coarse, so the volume is estimated to the whole mL: 160 mL. Use it to compare how precisely a beaker and a graduated cylinder measure.',
       settings: { instrument: 'beaker', beaker: 'medium', reading: 160, tint: 'red' },
     },
+    {
+      slug: '25-cm3-graduated-cylinder-reading-18-25-cm3',
+      title: '25 cm³ graduated cylinder reading 18.25 cm³',
+      alt: 'A 25 cm³ graduated cylinder reading 18.25 cm³, with a dotted line from the bottom of the meniscus to the marks and a magnified view',
+      caption:
+        'A 25 cm³ graduated cylinder marked every 0.5 cm³ and numbered every 5 cm³, with the scale printed in cm³ rather than mL. A dotted line runs from the bottom of the meniscus across to the marks, halfway between the 18.0 and 18.5 cm³ marks, so the reading is 18.25 cm³. A magnified circle shows the marks around the meniscus.',
+      settings: { size: '25', unit: 'cm3', reading: 18.25, guide: true },
+    },
   ]),
 
   ...examplesOf('volume-by-displacement', [
@@ -93,7 +101,7 @@ export const EXAMPLES: Example[] = [
       title: 'Volume of 3 marbles by water displacement',
       alt: 'Two 25 mL graduated cylinders: water at 12.00 mL before, and at 15.50 mL after three marbles are added',
       caption:
-        'Two 25 mL graduated cylinders, marked every 0.25 mL. Before, the water is at 12.00 mL; after three marbles are dropped in, it is at 15.50 mL. The three marbles together have a volume of 3.50 mL.',
+        'Two 25 mL graduated cylinders, marked every 0.5 mL and numbered every 5 mL. Before, the water is at 12.00 mL; after three marbles are dropped in, it is at 15.50 mL. The three marbles together have a volume of 3.50 mL.',
       settings: { size: '25', before: 12, after: 15.5, object: 'marbles', marbles: 3 },
     },
     {
@@ -111,6 +119,14 @@ export const EXAMPLES: Example[] = [
       caption:
         'Two 10 mL graduated cylinders, marked every 0.1 mL. The water reads 5.20 mL before and 7.45 mL after a small metal cylinder is added. The metal cylinder’s volume is 2.25 mL, read to the hundredth of a mL.',
       settings: { size: '10', before: 5.2, after: 7.45, object: 'cylinder' },
+    },
+    {
+      slug: 'water-displacement-cube-100-cm3-graduated-cylinder-2-cm3-marks',
+      title: 'Volume of a cube in cm³, on a scale marked every 2 cm³',
+      alt: 'Two 100 cm³ graduated cylinders marked every 2 cm³: water at 46.0 cm³ before, and at 61.0 cm³ after a cube is added',
+      caption:
+        'Two 100 cm³ graduated cylinders, marked every 2 cm³ and numbered every 20 cm³, so students first work out what each mark is worth. Before, the water is at 46.0 cm³; after a cube is dropped in, it is halfway between the 60 and 62 cm³ marks, at 61.0 cm³. The cube’s volume is 15.0 cm³.',
+      settings: { size: '100', marks: '2', numbers: '20', unit: 'cm3', before: 46, after: 61, object: 'cube' },
     },
   ]),
 
