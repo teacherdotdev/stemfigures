@@ -36,13 +36,22 @@ describe('a mass spectrum figure', () => {
     expect(build('scale=relative').peakLabels.map((l) => l.text)).toEqual(['100', '12.66', '13.94'])
   })
 
+  it('names the heights in the y-axis title, unless the teacher typed their own', () => {
+    const yTitle = (query: string) => build(query).labels.find((l) => l.kind === 'side' && l.rotate)?.text
+    expect(yTitle('')).toBe('Abundance (%)')
+    expect(yTitle('scale=relative')).toBe('Relative abundance')
+    expect(yTitle('scale=relative&yTitle=Abundance%20(%25)')).toBe('Relative abundance')
+    expect(yTitle('yTitle=Relative%20abundance')).toBe('Abundance (%)')
+    expect(yTitle('scale=relative&yTitle=Intensity')).toBe('Intensity')
+  })
+
   it('keeps the abundances and the name on the figure, under the chart title, and the axis titles', () => {
     for (const query of ['element=F', 'element=F&scale=relative&titleMode=text&title=Fluorine', 'element=Br&scale=relative']) {
       const g = build(query)
       const title = g.labels.find((l) => l.kind === 'title')
       const below = title ? title.y + 4 : 0
       for (const l of [...g.peakLabels, ...(g.name ? [g.name] : [])]) expect(l.y - g.fs * 1.2, query).toBeGreaterThan(below)
-      expect(g.labels.filter((l) => l.kind === 'side').map((l) => l.text), query).toEqual(['Mass-to-charge ratio (m/z)', 'Abundance (%)'])
+      expect(g.labels.filter((l) => l.kind === 'side').map((l) => l.text), query).toEqual(['Mass-to-charge ratio (m/z)', query.includes('relative') ? 'Relative abundance' : 'Abundance (%)'])
       expect(g.grid.y + g.grid.h).toBeLessThan(g.height)
     }
   })

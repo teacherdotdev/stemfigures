@@ -34,7 +34,7 @@ export const massSpectrumLinking = describeLinking(massSpectrumSettings, {
     'The relative atomic mass is the average of the exact masses weighted by abundance; it is printed only by answerKey, as is the element when names=0.',
     'leaveOut is the m/z of one peak to leave off the figure for students to draw; it must be a peak’s m/z, or it becomes 0. The answer key names it and its abundance.',
     'With xFit=1 (the default) the x-axis fits the peaks, a block for each half m/z, and xFrom, xTo and xStep are ignored. The y-axis is as given, 0 to 100 by 10 unless set.',
-    'The y-axis title is not changed by the link: with scale=relative also set yTitle, e.g. “Relative abundance”.',
+    'The y-axis title follows scale (“Abundance (%)” or “Relative abundance”) unless yTitle gives other words.',
   ],
   params: {
     source: { what: 'Where the peaks come from.', values: 'element: an element’s natural isotopes; custom: the isotopes given' },
@@ -81,7 +81,7 @@ export const massSpectrumLinking = describeLinking(massSpectrumSettings, {
     { shows: 'An unnamed element’s spectrum for students to identify, with its peak at m/z 25 left out to draw.', settings: { names: false, leaveOut: 25 } },
     {
       shows: 'A made-up Element X with isotopes of mass 10 (20%) and 11 (80%), its abundances relative to the tallest peak.',
-      settings: { source: 'custom', scale: 'relative', yTitle: 'Relative abundance' },
+      settings: { source: 'custom', scale: 'relative' },
     },
   ],
 })

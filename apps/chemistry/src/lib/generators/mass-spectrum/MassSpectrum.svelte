@@ -60,7 +60,7 @@
     s.leaveOut = 0
   }
 
-  // Picking a scale names it in the y-axis title, if the title is still one this page wrote.
+  // The y-axis title follows the heights (see settings), so its box shows the new one.
   function chooseScale(scale: Scale) {
     if (Object.values(Y_TITLES).includes(s.yTitle)) s.yTitle = Y_TITLES[scale]
     s.scale = scale

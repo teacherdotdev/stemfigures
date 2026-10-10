@@ -799,7 +799,7 @@ export const EXAMPLES: Example[] = [
       alt: 'The mass spectrum of zirconium with five peaks from m/z 90 to 96, the tallest at m/z 90 scaled to 100',
       caption:
         'The mass spectrum of zirconium, its five natural isotopes from m/z 90 to 96, drawn with the tallest peak, zirconium-90, scaled to 100 and the others against it, as many textbooks and instruments show a spectrum.',
-      settings: { element: 'Zr', scale: 'relative', yTitle: 'Relative abundance' },
+      settings: { element: 'Zr', scale: 'relative' },
     },
   ]),
 ]

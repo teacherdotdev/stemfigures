@@ -73,7 +73,9 @@ export const massSpectrumSettings = defineSettings(
   (s) => {
     // Only a peak that's there can be left out.
     const leaveOut = peaksOf(s).some((p) => p.mz === s.leaveOut) ? s.leaveOut : 0
-    return { ...s, leaveOut }
+    // The y-axis title names the heights, unless the teacher typed their own.
+    const yTitle = Object.values(Y_TITLES).includes(s.yTitle) ? Y_TITLES[s.scale] : s.yTitle
+    return { ...s, leaveOut, yTitle }
   },
 )
 
