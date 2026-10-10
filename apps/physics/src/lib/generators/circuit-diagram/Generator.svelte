@@ -99,6 +99,7 @@
         {full ? `A circuit holds up to ${MAX_LOADS} resistors and bulbs` : 'Add a resistor or bulb'}
       </button>
       <p class="note">Leave a name empty to number it automatically.</p>
+      <p class="note">Need a mixed or more complex circuit? An advanced circuit editor is coming soon.</p>
     </Section>
 
     <Section title="Cell or battery" icon={BatteryFull} summary={sourceSummary}>

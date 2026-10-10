@@ -298,8 +298,8 @@ export const COPY: Record<string, GeneratorCopy> = {
         a: 'A cell is one long plate and one short one; the long plate is the positive terminal. A battery is two cells joined in a row. Turn on + and − to mark which side is which.',
       },
       {
-        q: 'Can it draw resistors in series and in parallel in the same circuit?',
-        a: 'No. This generator keeps to all in series or all in parallel, the circuits most questions start with, so a figure is quick to set up and always drawn neatly.',
+        q: 'Can I draw a circuit that mixes series and parallel?',
+        a: 'Not yet; an advanced circuit editor is coming soon. This generator keeps to all in series or all in parallel, the circuits most questions start with, so a figure is quick to set up and always drawn neatly.',
       },
       {
         q: 'Where do the ammeter and voltmeter go?',
