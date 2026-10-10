@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { RADIUS } from './particles'
-import { figureLayout, keyLayout } from './key'
-import { ARROW_GAP, BOX_SIDE, boxContents, boxesSize, keyKinds, particleSettings } from './settings'
+import { ARROW_GAP, ARROW_PAD, arrowLayout, boxesSize, figureLayout, keyLayout } from './key'
+import { BOX_SIDE, boxContents, keyKinds, particleSettings } from './settings'
 
 describe('key settings in the address', () => {
   it('are left out of the address at their defaults', () => {
@@ -195,6 +195,34 @@ describe('before and after boxes', () => {
   it('counts what doesn’t fit in the after box', () => {
     const crowd = { ...s, particles: [{ ...s.particles[0], after: 60, look: { ...white, size: 'xl' as const }, outer: { ...white, size: 'xl' as const } }] }
     expect(boxContents(crowd).after!.missing).toBeGreaterThan(0)
+  })
+
+  it('has no arrow label until one is typed, and keeps the arrow’s usual gap', () => {
+    expect(d.arrowLabel).toBe('')
+    expect(particleSettings.toQuery(s)).not.toContain('arrowLabel')
+    expect(arrowLayout('').spans).toEqual([])
+    expect(arrowLayout('   ').gap).toBe(ARROW_GAP)
+  })
+
+  it('labels the arrow with short text, subscripts and superscripts as in key names', () => {
+    const heat = arrowLayout('heat')
+    expect(heat.gap).toBe(ARROW_GAP)
+    expect(heat.spans.map((sp) => sp.text)).toEqual(['heat'])
+    expect(arrowLayout('+ O_2').spans.map((sp) => sp.text)).toEqual(['+ O', '2'])
+  })
+
+  it('widens the gap for a long label, so it never runs onto the boxes', () => {
+    const long = arrowLayout('cooled to −20 °C slowly')
+    expect(long.gap).toBeGreaterThan(ARROW_GAP)
+    expect(long.gap).toBeGreaterThanOrEqual(2 * ARROW_PAD + long.spans.reduce((w, sp) => w + 0.55 * sp.size * [...sp.text].length, 0))
+    expect(boxesSize(boxContents(s), long.gap).width).toBe(2 * BOX_SIDE + long.gap)
+  })
+
+  it('keeps the arrow label in the address, clipped to 24 characters', () => {
+    const t = { ...s, arrowLabel: 'heat' }
+    expect(particleSettings.toQuery(t)).toContain('arrowLabel=heat')
+    expect(particleSettings.fromParams(new URLSearchParams(particleSettings.toQuery(t)))).toEqual(t)
+    expect(particleSettings.fromParams(new URLSearchParams('arrowLabel=' + 'x'.repeat(40))).arrowLabel).toHaveLength(24)
   })
 
   it('doesn’t apply to a lattice', () => {

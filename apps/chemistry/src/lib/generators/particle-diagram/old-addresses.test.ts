@@ -4,8 +4,8 @@
 // address with what it drew (the box, the key and where they sat).
 
 import { describe, expect, it } from 'vitest'
-import { figureLayout, keyLayout } from './key'
-import { boxContents, boxesSize, keyKinds, particleSettings } from './settings'
+import { boxesSize, figureLayout, keyLayout } from './key'
+import { boxContents, keyKinds, particleSettings } from './settings'
 import old from './old-addresses.json'
 
 describe('an address from before these settings', () => {

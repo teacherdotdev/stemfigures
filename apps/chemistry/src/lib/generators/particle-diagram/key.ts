@@ -6,7 +6,7 @@
 
 import { plainText, textRuns } from './keyText'
 import { describeParticle, discBounds, particleDiscs, type Disc, type ParticleKind } from './particles'
-import { BOX_SIDE, type Show } from './settings'
+import { BOX_SIDE, type BoxContents, type Show } from './settings'
 
 /** Space inside the key's border. */
 export const KEY_PAD = 12
@@ -120,6 +120,31 @@ export function keyLayout(kinds: ParticleKind[], note: string): KeyLayout {
     note: noteLine,
   }
 }
+
+/** The least space between a before box and its after box, for the arrow. */
+export const ARROW_GAP = 72
+/** Space between the arrow's ends, or its label's, and the boxes. */
+export const ARROW_PAD = 14
+const ARROW_LABEL_SIZE = 15
+
+export interface ArrowLayout {
+  /** the space between the boxes */
+  gap: number
+  /** the label over the arrow, with subscripts and superscripts like key names */
+  spans: Span[]
+  labelSize: number
+}
+
+/** The arrow between a before box and its after box: the usual gap, or one
+ *  wide enough for its label. */
+export function arrowLayout(label: string): ArrowLayout {
+  const spans = textSpans(label.trim(), ARROW_LABEL_SIZE)
+  return { gap: Math.max(ARROW_GAP, Math.ceil(spansWidth(spans)) + 2 * ARROW_PAD), spans, labelSize: ARROW_LABEL_SIZE }
+}
+
+/** The size of what the figure shows for its box: the box, or both boxes
+ *  with `gap` between them for the arrow. */
+export const boxesSize = (box: BoxContents, gap = ARROW_GAP) => ({ width: box.after ? 2 * box.width + gap : box.width, height: box.height })
 
 type Place = { x: number; y: number }
 

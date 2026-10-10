@@ -15,7 +15,7 @@ export const particleLinking = describeLinking(particleSettings, {
     'Atoms, ions and molecules drawn as plain discs, either in a fixed square box as a gas, liquid or solid (layout=scattered, from the particles list and state) or packed in a lattice (layout=lattice, from main and second). An optional key beside the box names each kind.',
   notes: [
     `particles is a URL-encoded JSON array of 1 to ${MAX_KINDS} particle kinds, each {"count":0–${MAX_COUNT},"after":0–${MAX_COUNT},"shape":…,"look":LOOK,"outer":LOOK,"name":"…"}. shape is one of ${SHAPE_WORDS}; look is the center (or only) disc and outer every disc around it. A look is ${LOOK}. after is how many the after box has when boxes=two (missing, it is the same as count). A missing count is 1, a missing look is medium white with no charge, a missing outer is small white with no charge, and name (up to ${MAX_NAME} characters) is what the key calls the kind. A kind with count 0 appears only in the key. Particles that don’t fit in the box are left out.`,
-    'Key names (name, mainName, secondName, atomNames) and keyNote can have subscripts and superscripts: _ before a subscript and ^ before a superscript, with braces around more than one character, so H_2O is H₂O and SO_4^{2-} is SO₄²⁻ (a hyphen in a superscript is drawn as a minus sign).',
+    'Key names (name, mainName, secondName, atomNames), keyNote and arrowLabel can have subscripts and superscripts: _ before a subscript and ^ before a superscript, with braces around more than one character, so H_2O is H₂O and SO_4^{2-} is SO₄²⁻ (a hyphen in a superscript is drawn as a minus sign).',
     'seed picks the random positions (and, in a lattice, which sites get the second kind); the same seed always gives the same figure.',
     `In a lattice, pattern=pure uses main only; alternate alternates main and second like an ionic solid; substitute swaps secondCount sites for second (room for rows × columns); interstitial puts secondCount second atoms in the gaps between four (room for (rows − 1) × (columns − 1), e.g. ${latticeRoom({ pattern: 'interstitial', rows: 4, columns: 5 })} in a 4 × 5 lattice).`,
     'border applies to the box of particles and latticeBorder to the lattice (none by default).',
@@ -34,6 +34,7 @@ export const particleLinking = describeLinking(particleSettings, {
       values: 'one: one box; two: before and after, for a reaction or a change of state, each kind drawn count times before and after times after',
     },
     afterState: { what: 'How the particles sit in the after box, with the same values as state.', when: 'boxes=two' },
+    arrowLabel: { what: 'Short text over the arrow, e.g. “heat” or “+ energy”, with subscripts and superscripts written as in key names. Empty for none.', when: 'boxes=two' },
     particles: { what: 'The particle kinds in the box, as JSON (see notes).', when: 'layout=scattered' },
     seed: { what: 'Which random arrangement is drawn. Rounded to a whole number.' },
     border: { what: 'The box’s border.', when: 'layout=scattered' },

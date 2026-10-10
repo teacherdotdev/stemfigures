@@ -335,7 +335,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'Can I show a reaction, before and after?',
-        a: 'Yes. Set Boxes to Before and after and give each kind a count for each box: 4 H₂ and 3 O₂ before, say, and 4 H₂O and 1 O₂ after. The two boxes are the same size with an arrow between them and share one key, so they work for conservation of mass and limiting reactant questions. Each box has its own state, so the same particles can also show a change of state, like a solid melting.',
+        a: 'Yes. Set Boxes to Before and after and give each kind a count for each box: 4 H₂ and 3 O₂ before, say, and 4 H₂O and 1 O₂ after. The two boxes are the same size with an arrow between them, which can have a short label such as “heat”, and share one key, so they work for conservation of mass and limiting reactant questions. Each box has its own state, so the same particles can also show a change of state, like a solid melting.',
       },
       {
         q: 'Can it show solids, liquids and gases?',

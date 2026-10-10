@@ -7,16 +7,18 @@
   import FigureFrame from '$lib/shared/FigureFrame.svelte'
   import Discs from './Discs.svelte'
   import KeyDrawing from './KeyDrawing.svelte'
-  import { figureLayout, keyLabel, keyLayout } from './key'
+  import { ARROW_PAD, arrowLayout, boxesSize, figureLayout, keyLabel, keyLayout } from './key'
+  import { plainText } from './keyText'
   import type { State } from './layout'
   import { describeKind, describeParticle, type Disc, type ParticleKind } from './particles'
-  import { ARROW_GAP, DOUBLE_INSET, boxesSize, keyKinds, type BoxContents, type ParticleSettings } from './settings'
+  import { DOUBLE_INSET, keyKinds, type BoxContents, type ParticleSettings } from './settings'
 
   let { settings, box, svg = $bindable() }: { settings: ParticleSettings; box: BoxContents; svg?: SVGSVGElement } = $props()
 
   const listed = $derived(keyKinds(settings, box))
   const key = $derived(keyLayout(listed, settings.keyNote))
-  const layout = $derived(figureLayout(settings.show, key, boxesSize(box)))
+  const arrowed = $derived(arrowLayout(settings.arrowLabel))
+  const layout = $derived(figureLayout(settings.show, key, boxesSize(box, arrowed.gap)))
 
   /** How a box's state reads after what's in it; a gas reads as boxes always did. */
   const STATE_WORDS: Record<State, string> = { gas: '', liquid: ', close together at the bottom as a liquid', solid: ', packed in rows as a solid' }
@@ -32,7 +34,7 @@
     settings.layout === 'lattice'
       ? `A particle diagram: a lattice of ${box.kinds.map((k) => `${describeParticle(k)}s`).join(' and ')}`
       : box.after
-        ? `A particle diagram before and after: before, ${contents(box.kinds, settings.state)}; after, ${contents(box.after.kinds, settings.afterState)}`
+        ? `A particle diagram before and after${settings.arrowLabel.trim() ? ` (${plainText(settings.arrowLabel.trim())})` : ''}: before, ${contents(box.kinds, settings.state)}; after, ${contents(box.after.kinds, settings.afterState)}`
         : `A particle diagram: ${contents(box.kinds, settings.state)}`,
   )
   const label = $derived(
@@ -43,8 +45,9 @@
         : keyLabel(listed, settings.keyNote, 'A particle diagram key'),
   )
 
-  /** The arrow from the before box to the after box, across the gap between. */
-  const arrow = $derived({ from: box.width + 14, to: box.width + ARROW_GAP - 14, y: box.height / 2 })
+  /** The arrow from the before box to the after box, across the gap between,
+   *  with its label centered over it. */
+  const arrow = $derived({ from: box.width + ARROW_PAD, to: box.width + arrowed.gap - ARROW_PAD, y: box.height / 2 })
 </script>
 
 {#snippet boxDrawing(discs: Disc[], x: number)}
@@ -74,7 +77,12 @@
       {#if box.after}
         <line x1={arrow.from} y1={arrow.y} x2={arrow.to - 10} y2={arrow.y} stroke="#222" stroke-width="2.5" />
         <path d="M {arrow.to} {arrow.y} l -14 -7 v 14 z" fill="#222" />
-        {@render boxDrawing(box.after.discs, box.width + ARROW_GAP)}
+        {#if arrowed.spans.length}
+          <text x={(arrow.from + arrow.to) / 2} y={arrow.y - 12} text-anchor="middle" font-size={arrowed.labelSize} fill="#111"
+            >{#each arrowed.spans as span, i (i)}<tspan font-size={span.size} dy={span.dy || undefined}>{span.text}</tspan>{/each}</text
+          >
+        {/if}
+        {@render boxDrawing(box.after.discs, box.width + arrowed.gap)}
       {/if}
     </g>
   {/if}

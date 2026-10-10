@@ -176,7 +176,7 @@ The container a particle diagram is drawn in, with a single, double or no border
 _Avoid_: Container, vessel, frame
 
 **Before box** / **After box**:
-The two boxes of a before-and-after figure, side by side with an arrow from the first to the second, for a reaction or a change of state. Both hold the same particle kinds, each with a before count and an after count (the same as the before count until the teacher sets one), and share one key; each has its own state and its own arrangement from the seed. Both are the fixed square, so they line up with one-box figures.
+The two boxes of a before-and-after figure, side by side with an arrow from the first to the second, for a reaction or a change of state. The arrow can carry a short label over it ("heat", "+ energy"), typed like key names. Both hold the same particle kinds, each with a before count and an after count (the same as the before count until the teacher sets one), and share one key; each has its own state and its own arrangement from the seed. Both are the fixed square, so they line up with one-box figures.
 _Avoid_: Reactants box, products box, start/end
 
 **Key**:

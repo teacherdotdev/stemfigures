@@ -36,9 +36,6 @@ export const BOX_SIDE = 300
 export const BOXES = ['one', 'two'] as const
 export type Boxes = (typeof BOXES)[number]
 
-/** The space between a before box and its after box, for the arrow. */
-export const ARROW_GAP = 72
-
 /** How far a double border's inner line sits inside the outer one. */
 export const DOUBLE_INSET = 6
 
@@ -54,6 +51,7 @@ export const SHOWS = ['box', 'both', 'key'] as const
 export type Show = (typeof SHOWS)[number]
 
 export const MAX_NOTE = 80
+export const MAX_ARROW_LABEL = 24
 
 /** What the key of scattered particles lists: each kind whole, or each
  *  different atom in them, for students to write formulas from. */
@@ -74,6 +72,8 @@ export const particleSettings = defineSettings(
     state: choice(STATES, 'gas'),
     boxes: choice(BOXES, 'one'),
     afterState: choice(STATES, 'gas'),
+    // nothing over the arrow unless the teacher types something
+    arrowLabel: text('', MAX_ARROW_LABEL),
     particles: json(DEFAULT_KINDS, tidyKinds),
     seed: number({ min: 1, max: MAX_SEED, fallback: 2 }),
     border: choice(BORDERS, 'single'),
@@ -175,10 +175,6 @@ export function boxContents(s: ParticleSettings): BoxContents {
     kinds: latticeKinds(s, grid.discs),
   }
 }
-
-/** The size of what the figure shows for its box: the box, or both boxes
- *  and the arrow between them. */
-export const boxesSize = (box: BoxContents) => ({ width: box.after ? 2 * box.width + ARROW_GAP : box.width, height: box.height })
 
 /** What the key lists: the box's kinds, or each different atom in them when
  *  the teacher lists each atom (a lattice's kinds are atoms already). */

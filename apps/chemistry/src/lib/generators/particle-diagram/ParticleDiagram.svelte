@@ -32,6 +32,7 @@
     BOXES,
     KEY_LISTS,
     LAYOUTS,
+    MAX_ARROW_LABEL,
     MAX_LATTICE,
     MAX_NOTE,
     SHOWS,
@@ -190,6 +191,10 @@
           {@render stateChoice('Before state', s.state, (st) => (s.state = st))}
           <p class="field-label spaced">After</p>
           {@render stateChoice('After state', s.afterState, (st) => (s.afterState = st))}
+          <label class="key-field">
+            <span>Over the arrow</span>
+            <input type="text" maxlength={MAX_ARROW_LABEL} placeholder="e.g. heat" bind:value={s.arrowLabel} />
+          </label>
         {:else}
           <p class="field-label spaced">State</p>
           {@render stateChoice('State', s.state, (st) => (s.state = st))}
