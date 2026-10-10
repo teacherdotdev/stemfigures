@@ -17,7 +17,7 @@ const PAD = 14
 const INSET = 4 // how far inside the grid's border letters stay
 const DOT_R = 4.5
 /** How far the tangent runs each way from where it touches, on the drawing. */
-const TANGENT_REACH = 110
+const TANGENT_REACH = 150
 /** Each segment's line style and color, in turn, when segments are told apart. */
 export const DASHES = [undefined, '12 6', '2 6', '14 5 2 5', '7 5', '22 6']
 const SEGMENT_COLORS: Color[] = ['blue', 'red', 'green', 'orange', 'purple', 'black']
@@ -239,7 +239,7 @@ export function buildMotion(s: MotionSettings) {
   // layoutGrid put them, and the graphs move apart to keep a long y-axis
   // title off the next one's.
   const chart = modeOf(s.title)
-  const titleRow = chart !== 'none' ? fs * 1.6 + 14 : 0
+  const titleRow = chart !== 'none' ? fs * 1.6 + 20 : 0
   const gx = Math.max(...panels.map((p) => p.layout.grid.x))
   const titles: Title[] = []
   let y = titleRow

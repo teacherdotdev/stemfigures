@@ -50,7 +50,9 @@
         {/each}
         {#if p.tangent}
           {@const t = p.tangent}
-          <line x1={t.line.x1} y1={t.line.y1} x2={t.line.x2} y2={t.line.y2} stroke={INK} stroke-width="1.8" stroke-dasharray="9 5" />
+          <!-- White under the dashes, so the tangent still reads where it runs along the curve. -->
+          <line x1={t.line.x1} y1={t.line.y1} x2={t.line.x2} y2={t.line.y2} stroke="#fff" stroke-width="5" />
+          <line x1={t.line.x1} y1={t.line.y1} x2={t.line.x2} y2={t.line.y2} stroke={INK} stroke-width="2" stroke-dasharray="9 5" />
           <circle cx={t.at.x} cy={t.at.y} r={g.r} fill={INK} stroke="#fff" stroke-width="1.5" />
         {/if}
         {#each p.dots as d}
