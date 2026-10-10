@@ -311,6 +311,42 @@ export const COPY: Record<string, GeneratorCopy> = {
     educationalLevel: ['High school', 'AP Chemistry'],
   },
 
+  'heating-cooling-curve': {
+    heading: 'Heating and cooling curves',
+    intro: [
+      'Heating and Cooling Curve graphs a substance’s temperature as it is heated or cooled steadily, through its melting and boiling points. Each phase warms or cools in a sloped segment and each phase change is a flat plateau, and the curve has only the segments its starting and ending temperatures pass through. Type how long each segment is for a simple worksheet curve, or give the substance’s mass, specific heats and enthalpies of fusion and vaporization and the curve is worked out to scale, with the heat each segment takes listed for your answer key.',
+      'Teachers use it for questions on phase changes, heat and temperature: what is happening between B and C, why the temperature doesn’t change while ice melts, which plateau is longer and why. Letter the corners, label each segment with its state or leave a blank line for students, and draw dashed lines from the plateaus to the temperature axis to read the melting and boiling points.',
+    ],
+    settings: [
+      'Heating or cooling, and the starting and ending temperatures',
+      'The melting and boiling points',
+      'Segment lengths typed, or worked out from the mass, specific heats, enthalpies of fusion and vaporization and molar mass (water’s filled in with one pick)',
+      'Time or the heat added or removed along the x-axis, at a heating rate you choose',
+      'Letters at the corners, segment labels (states, the phase change, or blank lines), dashed lines at the plateaus, and supercooling on a cooling curve',
+      'The curve’s color, the chart and axis titles (or blank lines), the axis ranges and numbering, gridlines, and label size',
+    ],
+    faqs: [
+      {
+        q: 'Why is the temperature flat during a phase change?',
+        a: 'While a substance melts or boils, the heat added goes into pulling its particles apart (raising their potential energy) instead of making them move faster, so the temperature stays at the melting or boiling point until the change is complete. On a cooling curve the same heat comes back out while it freezes or condenses.',
+      },
+      {
+        q: 'Why is the boiling plateau longer than the melting plateau?',
+        a: 'Boiling separates the particles completely, which takes much more energy than loosening them into a liquid. For water the enthalpy of vaporization, 40.67 kJ/mol, is about 6.8 times the enthalpy of fusion, 6.01 kJ/mol, so drawn to scale its boiling plateau is about 6.8 times as long.',
+      },
+      {
+        q: 'Can I make a curve for a substance other than water?',
+        a: 'Yes. Type its melting and boiling points and the temperatures the curve runs between. For a curve to scale, choose A substance and type its specific heats, enthalpies of fusion and vaporization and molar mass.',
+      },
+      {
+        q: 'Can I show supercooling?',
+        a: 'Yes, on a cooling curve that freezes: tick Supercooled and type how far below the freezing point the liquid cools before it starts to freeze. The curve dips below the freezing point and climbs back to it, and the rest of the curve stays where it was.',
+      },
+    ],
+    imageAlt: 'A printable heating curve of water from ice to steam, its corners lettered A to F and each segment labeled with its state, made with Heating and Cooling Curve',
+    educationalLevel: ['Middle school', 'High school', 'AP Chemistry'],
+  },
+
   'particle-diagram': {
     heading: 'Particle diagrams of atoms, ions and molecules',
     intro: [

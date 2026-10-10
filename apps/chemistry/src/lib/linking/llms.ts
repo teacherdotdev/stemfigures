@@ -13,7 +13,7 @@ const exampleLines = ({ generator, linking }: LinkedGenerator, count = linking.e
 const SUMMARY =
   `${SITE_NAME} (${SITE_URL}) is a free set of generators that make clean, printable chemistry figures for teachers to put in tests, ` +
   'worksheets and slides: lab instruments showing a reading for students to read (graduated cylinders, burets, beakers, gas syringes, ' +
-  'rulers, balances, thermometers, pH meters and pH paper), titration curves, particle diagrams, Bohr models, Lewis structures and ' +
+  'rulers, balances, thermometers, pH meters and pH paper), titration curves, heating and cooling curves, particle diagrams, Bohr models, Lewis structures and ' +
   `orbital diagrams. There is no account or sign-up. It is part of ${FAMILY.name} (${FAMILY.url}), with sister sites ` +
   `${SISTER_SITES.map((s) => `${s.name} (${s.url})`).join(' and ')}.`
 

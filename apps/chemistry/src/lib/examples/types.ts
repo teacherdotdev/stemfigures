@@ -4,6 +4,7 @@
 
 import type { BohrSettings } from '$lib/generators/bohr-model/settings'
 import type { SyringeSettings } from '$lib/generators/gas-syringe/settings'
+import type { CurveSettings } from '$lib/generators/heating-cooling-curve/settings'
 import type { LengthSettings } from '$lib/generators/length-reading/settings'
 import type { LewisSettings } from '$lib/generators/lewis-structures/settings'
 import type { SpectrumSettings } from '$lib/generators/line-spectrum/settings'
@@ -27,6 +28,7 @@ export interface SettingsById {
   'temperature-reading': TemperatureSettings
   'ph-reading': PhSettings
   'titration-curve': TitrationSettings
+  'heating-cooling-curve': CurveSettings
   'particle-diagram': ParticleSettings
   'bohr-model': BohrSettings
   'lewis-structures': LewisSettings

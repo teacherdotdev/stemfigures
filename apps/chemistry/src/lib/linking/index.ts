@@ -5,6 +5,7 @@ import { CATALOG, type CatalogEntry } from '$shared/catalog/index'
 import { SITE_ID } from '$lib/site/config'
 import { bohrLinking } from '$lib/generators/bohr-model/linking'
 import { syringeLinking } from '$lib/generators/gas-syringe/linking'
+import { curveLinking } from '$lib/generators/heating-cooling-curve/linking'
 import { lengthLinking } from '$lib/generators/length-reading/linking'
 import { lewisLinking } from '$lib/generators/lewis-structures/linking'
 import { spectrumLinking } from '$lib/generators/line-spectrum/linking'
@@ -29,6 +30,7 @@ const BY_ID: Record<string, GeneratorLinking> = Object.fromEntries(
     temperatureLinking,
     phLinking,
     titrationLinking,
+    curveLinking,
     particleLinking,
     bohrLinking,
     lewisLinking,

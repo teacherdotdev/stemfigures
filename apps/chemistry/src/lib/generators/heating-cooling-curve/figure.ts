@@ -257,6 +257,8 @@ export function buildCurve(s: CurveSettings) {
   const props = propertiesOf(s)
   const rows = placed.map((seg, i) => ({
     key: seg.key,
+    t0: seg.t0,
+    t1: seg.t1,
     from: letter(i),
     to: letter(i + 1),
     width: seg.width,

@@ -10,6 +10,8 @@
 import { chargeOf, bohrSettings } from '$lib/generators/bohr-model/settings'
 import { element } from '$lib/generators/bohr-model/elements'
 import { syringeSettings, answerLine as syringeAnswer } from '$lib/generators/gas-syringe/settings'
+import { buildCurve, segmentName } from '$lib/generators/heating-cooling-curve/figure'
+import { curveSettings } from '$lib/generators/heating-cooling-curve/settings'
 import { lengthSettings, answerLine as lengthAnswer } from '$lib/generators/length-reading/settings'
 import { figureOf, lewisSettings } from '$lib/generators/lewis-structures/settings'
 import { formalCharge, valenceElectrons, type Structure } from '$lib/generators/lewis-structures/structure'
@@ -109,6 +111,18 @@ function titrationAnswer(s: SettingsById['titration-curve']): ExampleDetails['an
   return { heading: 'Answer key', lines: out }
 }
 
+function curveAnswer(s: SettingsById['heating-cooling-curve']): ExampleDetails['answer'] {
+  const g = buildCurve(s)
+  if (!g.rows.length) throw new Error('The heating or cooling curve example can’t be drawn')
+  const heat = s.source === 'properties'
+  const deg = (t: number) => `${two(t).replace('-', '−')} °C`
+  const out = g.rows.map((r) => {
+    const at = r.t0 === r.t1 ? `at ${deg(r.t0)}` : `from ${deg(r.t0)} to ${deg(r.t1)}`
+    return `${r.from}–${r.to}: ${segmentName(s.direction, r.key)} ${at}${heat ? `, ${two(r.heat)} kJ` : ''}`
+  })
+  return { heading: 'Answer key', lines: out }
+}
+
 function lineSpectrumAnswer(s: SettingsById['line-spectrum']): ExampleDetails['answer'] {
   const layout = buildSpectrum(s)
   const out = s.strips.flatMap((strip, i) => {
@@ -134,6 +148,7 @@ const GENERATORS: { [G in ExampleGeneratorId]: { definition: Definition<Settings
   'temperature-reading': { definition: temperatureSettings, answer: (s) => lines(temperatureAnswer(s)) },
   'ph-reading': { definition: phSettings, answer: (s) => lines(phAnswer(s)) },
   'titration-curve': { definition: titrationSettings, answer: titrationAnswer },
+  'heating-cooling-curve': { definition: curveSettings, answer: curveAnswer },
   'particle-diagram': { definition: particleSettings, answer: particleAnswer },
   'bohr-model': { definition: bohrSettings, answer: bohrAnswer },
   'lewis-structures': { definition: lewisSettings, answer: lewisAnswer },

@@ -38,6 +38,11 @@ describe('searching the directory', () => {
       expect(ids(query), query).toContain('titration-curve')
   })
 
+  it('finds Heating and Cooling Curve the ways teachers ask for it', () => {
+    for (const query of ['heating curve', 'cooling curve', 'phase change', 'melting point', 'boiling point', 'plateau', 'supercooling'])
+      expect(ids(query), query).toContain('heating-cooling-curve')
+  })
+
   it('finds Length Reading the ways teachers ask for it', () => {
     for (const query of ['ruler', 'length', 'measuring length', 'centimeter', 'millimeter', 'inches', 'metric ruler'])
       expect(ids(query), query).toContain('length-reading')
