@@ -30,6 +30,7 @@ export type Settings = {
   step: string
   every: number
   outliers: boolean
+  whiskerCaps: boolean
   title: string
   titleMode: TitleMode
   axisTitle: string
@@ -48,6 +49,7 @@ export const DEFAULT_SETTINGS: Settings = {
   step: '',
   every: 1,
   outliers: false, // whiskers reach the minimum and maximum
+  whiskerCaps: true, // a short upright line across each whisker's end
   title: '',
   titleMode: 'none',
   axisTitle: '', // under the number line, e.g. "Height (cm)"
@@ -79,6 +81,7 @@ export function cleanSettings(s: RawSettings): Settings {
     step: text(s.step, d.step),
     every: oneOf(EVERY, Number(s.every), d.every),
     outliers: bool(s.outliers, d.outliers),
+    whiskerCaps: bool(s.whiskerCaps, d.whiskerCaps),
     title: text(s.title, d.title),
     titleMode: oneOf(TITLE_MODES, s.titleMode, d.titleMode),
     axisTitle: text(s.axisTitle, d.axisTitle),

@@ -24,6 +24,13 @@ describe('data sets in the page address', () => {
     expect(settingsToQuery(s)).toBe('outliers=1&q1Label=text&q1Text=x&medianLabel=measure')
     expect(settingsFromParams(new URLSearchParams(settingsToQuery(s)))).toEqual(s)
   })
+
+  test('whisker end lines are on unless turned off', () => {
+    expect(cleanSettings({}).whiskerCaps).toBe(true)
+    const s = cleanSettings({ whiskerCaps: false })
+    expect(settingsToQuery(s)).toBe('whiskerCaps=0')
+    expect(settingsFromParams(new URLSearchParams(settingsToQuery(s))).whiskerCaps).toBe(false)
+  })
 })
 
 describe('reading the rows', () => {
