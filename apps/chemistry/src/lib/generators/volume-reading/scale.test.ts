@@ -5,7 +5,7 @@ import { formatReading, randomReading, roundReading, volumeScale } from './scale
 describe('graduated cylinder marks', () => {
   it.each([
     ['10', 10, 1, 0.1, 2],
-    ['25', 25, 5, 0.25, 2],
+    ['25', 25, 1, 0.5, 2],
     ['50', 50, 10, 1, 1],
     ['100', 100, 10, 1, 1],
     ['250', 250, 20, 2, 1],
@@ -13,6 +13,16 @@ describe('graduated cylinder marks', () => {
   ] as const)('%s mL: labeled every %s, minor every %s, read to %s decimals', (size, capacity, label, minor, decimals) => {
     const s = volumeScale({ instrument: 'cylinder', size, beaker: 'medium' })
     expect(s).toMatchObject({ capacity, labelEvery: label, minorEvery: minor, decimals, readsDown: false })
+  })
+})
+
+describe('the 25 mL graduated cylinder', () => {
+  it('has 0.5 mL marks between numbers every 1 mL, with no mark at 2.5 standing out', () => {
+    const s = volumeScale({ instrument: 'cylinder', size: '25', beaker: 'medium' })
+    const list = marks({ max: s.capacity, labelEvery: s.labelEvery, minorEvery: s.minorEvery })
+    expect(list.flatMap((m) => m.label ?? []).slice(0, 4)).toEqual(['0', '1', '2', '3'])
+    expect(list.find((m) => m.value === 2.5)).toEqual({ value: 2.5, kind: 'minor' })
+    expect(list.some((m) => m.kind === 'medium')).toBe(false)
   })
 })
 

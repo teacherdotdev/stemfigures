@@ -34,12 +34,13 @@ export interface Scale {
 type Marks = Omit<Scale, 'decimals' | 'readsDown' | 'lowest'> & { lowest?: number }
 
 // Numbered every tenth of capacity, except where real cylinders differ: the
-// 50 mL has 1 mL marks rather than 0.5 mL, and is numbered every 10 mL like
-// the 100 mL so it gets the same medium mark halfway between numbers; the
-// 250 mL has 2 mL marks from 10 mL up, numbered 10, 30, 50… 250.
+// 25 mL has 0.5 mL marks numbered every 1 mL; the 50 mL has 1 mL marks
+// rather than 0.5 mL, and is numbered every 10 mL like the 100 mL so it gets
+// the same medium mark halfway between numbers; the 250 mL has 2 mL marks
+// from 10 mL up, numbered 10, 30, 50… 250.
 const CYLINDERS: Record<CylinderSize, Marks> = {
   '10': { capacity: 10, labelEvery: 1, minorEvery: 0.1 },
-  '25': { capacity: 25, labelEvery: 5, minorEvery: 0.25 },
+  '25': { capacity: 25, labelEvery: 1, minorEvery: 0.5 },
   '50': { capacity: 50, labelEvery: 10, minorEvery: 1 },
   '100': { capacity: 100, labelEvery: 10, minorEvery: 1 },
   '250': { capacity: 250, lowest: 10, labelEvery: 20, minorEvery: 2 },
@@ -53,7 +54,7 @@ const BEAKERS: Record<BeakerSize, Marks> = {
   large: { capacity: 600, labelEvery: 100, minorEvery: 50 },
 }
 
-/** Decimal places that reach one digit past the smallest mark: 0.1 → 2, 0.25 → 2, 1 → 1, 10 → 0, 50 → 0. */
+/** Decimal places that reach one digit past the smallest mark: 0.1 → 2, 0.5 → 2, 1 → 1, 10 → 0, 50 → 0. */
 const estimatedDecimals = (minorEvery: number) => Math.max(0, Math.ceil(-Math.log10(minorEvery) - 1e-9) + 1)
 
 export function volumeScale({ instrument, size, beaker }: VolumeInstrument): Scale {
