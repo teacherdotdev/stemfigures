@@ -71,18 +71,26 @@ _Avoid_: Current direction, flow arrow
 ### Inclined Plane
 
 **Inclined Plane**:
-A figure of a ramp at an angle with one object on it: a block, a ball or a cart. Its generator is the Inclined Plane Generator. A ramp with a string on it belongs to the Pulley.
+A figure of a ramp at an angle with an object on it, a block, a ball or a cart, or a row of up to three. Its generator is the Inclined Plane Generator. A ramp with a pulley on it belongs to the Pulley.
 _Avoid_: Ramp (fine as a search word), slope, wedge
+
+**Row**:
+Two or three objects side by side on a slope, table or ramp, tied by strings or touching. Each one has its own gravity, normal force and friction, numbered from the back (or the foot) on. Objects touching push on each other with a pair of contact forces, move as one, and get one velocity or acceleration arrow.
+_Avoid_: Train, chain, system (fine as a search word)
 
 ### Pulley
 
 **Pulley**:
-A figure of objects connected by string over one or more pulleys, in one of its setups. Its generator is the Pulley Generator. Every figure with a string is a Pulley figure.
+A figure of objects connected by string over one or more pulleys, in one of its setups. Its generator is the Pulley Generator. Every figure with a pulley is a Pulley figure; objects tied in a row on a slope with no pulley are an Inclined Plane.
 _Avoid_: Pulley system, rope diagram
 
 **Setup**:
-One arrangement a Pulley figure can take: Atwood machine (two hanging objects over one fixed pulley), table and hanging mass, ramp and hanging mass, or block and tackle (one load held by 1 to 4 strands).
+One arrangement a Pulley figure can take: Atwood machine (two hanging objects over one fixed pulley, and maybe a third hanging below one of them), table and hanging mass, ramp and hanging mass (each with one object, or a row of two, on the table or ramp), or block and tackle (one load held by 1 to 4 strands).
 _Avoid_: Mode, type, scenario
+
+**String**:
+One piece of string between two objects, over any pulleys between them. When a figure has more than one, each has its own tension, numbered T₁, T₂.
+_Avoid_: Rope (fine in a block and tackle), cord, segment
 
 ### Free Body Diagram
 

@@ -3,6 +3,7 @@
   // cleanly. Shapes are drawn inside the mirror transform; labels outside it,
   // so they stay readable.
   import FigureLabel from '$lib/shared/FigureLabel.svelte'
+  import { baselineBelowMiddle } from '$lib/shared/label'
   import ObjectShape from '$lib/shared/ObjectShape.svelte'
   import VectorArrow from '$lib/shared/VectorArrow.svelte'
   import { styleOf } from '$lib/shared/vector'
@@ -25,12 +26,13 @@
     }
     return `M${at(from)} A${wheel.r},${wheel.r} 0 ${to - from > 180 ? 1 : 0} 1 ${at(to)}`
   }
-  const labelOf = (which: 'a' | 'b' | 'load') => (which === 'a' ? settings.aLabel : which === 'b' ? settings.bLabel : settings.loadLabel)
+  const three = $derived(settings.objects.length > 2)
+  const row = $derived(three ? `Two objects ${settings.joined === 'touching' ? 'touching' : 'tied together'}` : 'An object')
   const description = $derived(
     {
-      atwood: 'An Atwood machine: two objects hanging from a string over a pulley',
-      table: 'An object on a table tied over a pulley at its edge to a hanging object',
-      ramp: 'An object on a ramp tied over a pulley at its top to a hanging object',
+      atwood: `An Atwood machine: two objects hanging from a string over a pulley${three ? `, and a third hanging below the ${settings.below === 'a' ? 'left' : 'right'} one` : ''}`,
+      table: `${row} on a table tied over a pulley at its edge to a hanging object`,
+      ramp: `${row} on a ramp tied over a pulley at its top to a hanging object`,
       tackle: `A block and tackle: a load held up by ${settings.strands} strand${settings.strands === 1 ? '' : 's'} of rope`,
     }[settings.setup],
   )
@@ -110,6 +112,6 @@
     <FigureLabel label={settings.angleLabel} x={mx(fig.ramp.angleLabelAt.x)} y={fig.ramp.angleLabelAt.y + SIZE * 0.35} size={SIZE} color={p.ink} />
   {/if}
   {#each fig.objects as o}
-    <FigureLabel label={labelOf(o.which)} x={mx(o.middle.x)} y={o.middle.y + SIZE * 0.35} size={SIZE} color={p.ink} halo={false} blank={30} />
+    <FigureLabel label={o.label} x={mx(o.labelAt.x)} y={o.labelAt.y + baselineBelowMiddle(o.label, SIZE)} size={SIZE} color={p.ink} halo={false} blank={30} />
   {/each}
 </svg>

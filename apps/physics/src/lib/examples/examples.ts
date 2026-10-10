@@ -12,6 +12,8 @@
 
 import { CATALOG } from '$shared/catalog/index'
 import type { Force } from '$lib/generators/free-body-diagram/settings'
+import type { InclineObject } from '$lib/generators/inclined-plane/settings'
+import type { PulleyObject } from '$lib/generators/pulley/settings'
 import type { Vector } from '$lib/generators/vector-diagram/settings'
 import type { Label } from '$lib/shared/label'
 import { SITE_ID } from '$lib/site/config'
@@ -62,6 +64,18 @@ const vector = (magnitude: number, angle: number, label: string, more: Partial<V
   yLabel: text('A_y'),
   ...more,
 })
+
+/** A Pulley object labeled m_n, with its weight m_n g and its other fields at their defaults. */
+const mass = (n: number, more: Partial<PulleyObject> = {}): PulleyObject => ({
+  label: text(`m_${n}`),
+  gravityLabel: text(`m_${n} g`),
+  kind: 'block',
+  size: 1,
+  ...more,
+})
+
+/** An Inclined Plane object, a block of the usual size unless `more` says otherwise. */
+const onRamp = (label: string, more: Partial<InclineObject> = {}): InclineObject => ({ label: text(label), kind: 'block', size: 1, ...more })
 
 export const EXAMPLES: Example[] = [
   ...examplesOf('free-body-diagram', [
@@ -160,7 +174,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A cart labeled m on a smooth ramp at 20°, with dashed velocity v and acceleration a arrows pointing down the slope',
       caption:
         'A cart labeled m on a smooth ramp rising to the right, its angle labeled 20° at the foot. Dashed arrows above the cart show its velocity v and acceleration a, both pointing down the slope. No forces are drawn, so students can add them.',
-      settings: { object: 'cart', angle: 20, angleLabel: text('20deg'), velocity: 'down', acceleration: 'down' },
+      settings: { objects: [onRamp('m', { kind: 'cart' })], angle: 20, angleLabel: text('20deg'), velocity: 'down', acceleration: 'down' },
     },
     {
       slug: 'ball-on-ramp-length-height-angle-labeled',
@@ -168,7 +182,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A ball labeled m on a ramp, with the slope’s length marked L, the ramp’s height marked h and its angle marked θ',
       caption:
         'A ball labeled m on a smooth ramp rising to the right at 25°. The length of the slope is marked L along it, the ramp’s height is marked h beside its tall side, and the angle at the foot is marked θ. Use it for energy questions, such as the ball’s speed at the bottom.',
-      settings: { object: 'ball', angle: 25, lengthMark: true, heightMark: true },
+      settings: { objects: [onRamp('m', { kind: 'ball' })], angle: 25, lengthMark: true, heightMark: true },
     },
     {
       slug: 'label-the-forces-block-on-a-35-degree-incline',
@@ -177,7 +191,7 @@ export const EXAMPLES: Example[] = [
       caption:
         'A block labeled 5 kg on a rough, hatched ramp at 35°. Three force arrows are drawn from the block, straight down, out of the slope and up the slope, each with a blank line where its name goes, for students to label gravity, the normal force and friction.',
       settings: {
-        objectLabel: text('5 kg'),
+        objects: [onRamp('5 kg')],
         angle: 35,
         angleLabel: text('35deg'),
         surface: 'rough',
@@ -196,6 +210,14 @@ export const EXAMPLES: Example[] = [
       caption:
         'A block labeled m pushed up a rough ramp at 30°, its angle marked θ. The applied force F_A points up the slope and friction F_f points down it, opposing the motion; gravity F_g points straight down and the normal force F_N out of the slope. A dashed velocity arrow v points up the slope.',
       settings: { surface: 'rough', gravity: true, normal: true, friction: 'down', applied: 'up', velocity: 'up' },
+    },
+    {
+      slug: 'two-blocks-tied-by-a-string-pulled-up-an-incline',
+      title: 'Two blocks tied by a string, pulled up an incline',
+      alt: 'Blocks m_1 and m_2 on a ramp at θ, tied by a string, with F_A pulling m_2 up the slope, tension T at both ends of the string, F_g1 and F_g2 down and F_N1 and F_N2 out of the slope',
+      caption:
+        'Two blocks on a smooth ramp at 30°, its angle marked θ: m_1 lower down and m_2 above it, tied together by a string parallel to the slope. An applied force F_A pulls m_2 up the slope, and tension T is drawn at both ends of the string, pulling each block toward the other. Each block has its own weight, F_g1 and F_g2, straight down, and its own normal force, F_N1 and F_N2, out of the slope.',
+      settings: { objects: [onRamp('m_1'), onRamp('m_2')], tension: true, gravity: true, normal: true, applied: 'up' },
     },
   ]),
 
@@ -238,7 +260,15 @@ export const EXAMPLES: Example[] = [
       alt: 'A cart on a smooth table tied over a pulley to a hanging block, with blank lines on the cart and the block for their masses',
       caption:
         'A cart on a smooth table, tied by a string over a pulley at the table’s edge to a block hanging below. Both have a blank line in place of a label, so you can write in the masses for your problem. No forces are drawn.',
-      settings: { setup: 'table', aKind: 'cart', aLabel: blank('m_1'), bLabel: blank('m_2') },
+      settings: { setup: 'table', objects: [mass(1, { kind: 'cart', label: blank('m_1') }), mass(2, { label: blank('m_2') })] },
+    },
+    {
+      slug: 'atwood-machine-with-three-masses',
+      title: 'Atwood machine with three masses',
+      alt: 'An Atwood machine with m_1 on the left, m_2 on the right and m_3 hanging below m_2 on a second string, with tensions T_1 and T_2, weights m_1 g, m_2 g and m_3 g, and dashed acceleration arrows a',
+      caption:
+        'Blocks m_1 and m_2 hang from one string over a fixed pulley, and a third block, m_3, hangs below m_2 on a second string. Tension T_1 is drawn at both ends of the first string and T_2 at both ends of the second, and the weights m_1 g, m_2 g and m_3 g point straight down. Dashed acceleration arrows a point up beside m_1 and down beside m_2 and m_3.',
+      settings: { objects: [mass(1), mass(2), mass(3)], tension: true, gravity: true, acceleration: 'forward' },
     },
   ]),
 

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { Editor } from '@caret-js/core'
-import { SHORTCUTS, asVector, commands, decodeLabel, encodeLabel, italicPieces, labelFromText, labelRuns, labelToText, schema, typeLabel, typingRules, withoutVectors, type Label } from './label'
+import { SHORTCUTS, asVector, baselineBelowMiddle, commands, decodeLabel, encodeLabel, italicPieces, labelFromText, labelRuns, labelToText, schema, typeLabel, typingRules, withoutVectors, type Label } from './label'
 
 describe('typing a label', () => {
   test.each([
@@ -205,5 +205,21 @@ describe('italics', () => {
     // With no space it's still a product of quantities.
     expect(italic('2mg')).toEqual(['mg'])
     expect(italic('R_x')).toEqual(['R', 'x'])
+  })
+})
+
+describe('centering a label on a point', () => {
+  const text = (t: string) => ({ mode: 'text' as const, text: t })
+  test('a capital sits lower than a lowercase letter, and a subscript lifts the label further', () => {
+    const [F, m, m1] = [text('F'), text('m'), text('m_1')].map((l) => baselineBelowMiddle(l, 22))
+    expect(F).toBeCloseTo(22 * 0.34, 1)
+    expect(m).toBeLessThan(F)
+    expect(m1).toBeLessThan(m)
+    expect(m1).toBeGreaterThan(0)
+  })
+
+  test('a blank or missing label takes the offset a capital would', () => {
+    expect(baselineBelowMiddle({ mode: 'blank', text: 'm' }, 20)).toBe(7)
+    expect(baselineBelowMiddle(text(' '), 20)).toBe(7)
   })
 })

@@ -116,4 +116,35 @@ describe('list', () => {
       { angle: 45, length: 1, label: F, marked: false },
     ])
   })
+
+  test('a list with a minimum is filled up from the default', () => {
+    const pair = defineSettings({ sizes: list({ size: number(1, 0.5, 2) }, [{ size: 1 }, { size: 2 }], 3, 2) })
+    expect(pair.clean({ sizes: [{ size: 0.5 }] }).sizes).toEqual([{ size: 0.5 }, { size: 2 }])
+    expect(pair.fromParams(new URLSearchParams('sizes=')).sizes).toEqual([{ size: 1 }, { size: 2 }])
+    expect(pair.clean({ sizes: [{ size: 0.5 }, { size: 0.5 }, { size: 0.5 }] }).sizes).toHaveLength(3)
+  })
+})
+
+describe('legacy settings', () => {
+  // Once there was one `weight`; now there are `weights`.
+  const def = defineSettings(
+    { weights: list({ kg: number(1, 0, 10) }, [{ kg: 1 }], 3), mirror: bool(false) },
+    {
+      fields: { weight: number(1, 0, 10) },
+      upgrade: (raw) => ('weights' in raw || !('weight' in raw) ? raw : { ...raw, weights: [{ kg: raw.weight }] }),
+    },
+  )
+
+  test('an old link still loads', () => {
+    expect(def.fromParams(new URLSearchParams('weight=4&mirror=1'))).toEqual({ weights: [{ kg: 4 }], mirror: true })
+  })
+
+  test('an old preset still loads', () => {
+    expect(def.clean({ weight: 6, mirror: false })).toEqual({ weights: [{ kg: 6 }], mirror: false })
+  })
+
+  test('today’s settings win, and are written today’s way', () => {
+    expect(def.fromParams(new URLSearchParams('weight=4&weights=2'))).toEqual({ weights: [{ kg: 2 }], mirror: false })
+    expect(def.toQuery(def.fromParams(new URLSearchParams('weight=4')))).toBe('weights=4')
+  })
 })

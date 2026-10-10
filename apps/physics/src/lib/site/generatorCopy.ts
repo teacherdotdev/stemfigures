@@ -121,13 +121,16 @@ export const COPY: Record<string, GeneratorCopy> = {
     heading: 'Inclined plane diagrams: a block, ball or cart on a ramp',
     intro: [
       'The Inclined Plane Generator draws a ramp at any angle from 5° to 60° with a block, ball or cart on its slope and the angle marked at its foot. Mark the slope’s length and the ramp’s height, hatch the slope to show it’s rough, and add the forces on the object: gravity straight down, the normal force out of the slope, and friction or an applied force along it.',
+      'For connected objects, put two or three on the slope in a row, tied together by strings or touching. Each gets its own gravity, normal force and friction, numbered, with the tension in the strings or the contact forces where they touch.',
       'Teachers use it for Newton’s laws, friction and energy questions. Every label can be written, a blank line for students, or left off, so the same ramp works as the question and as its key. Velocity and acceleration are drawn dashed, above the object, so they’re never taken for forces.',
     ],
     settings: [
-      'The object: a block, ball or cart, its label, its size, and how far up the ramp it sits',
+      'Up to three objects, each a block, ball or cart with its own label and size, and how far up the ramp they sit',
+      'Two or three objects tied by strings or touching',
       'The ramp’s angle, 5° to 60°, and its label, like θ or 30°',
       'A smooth slope or a rough, hatched one',
       'Gravity and the normal force, and friction and an applied force up or down the slope, each with its label',
+      'Tension in the strings between objects, or the contact forces where they touch',
       'Velocity and acceleration up or down the slope, drawn dashed',
       'Marks for the slope’s length and the ramp’s height',
       'Mirror, so the ramp rises to the left, and color for slides',
@@ -150,6 +153,10 @@ export const COPY: Record<string, GeneratorCopy> = {
         a: 'No. Every object starts the same size, so a 5 kg block isn’t drawn bigger than a 2 kg one. Its size is a setting of its own, from 50% to 200%, apart from its label.',
       },
       {
+        q: 'Can I put more than one object on the ramp?',
+        a: 'Yes, up to three in a row, tied together by strings or touching. Each one’s gravity, normal force and friction are numbered from the foot up, like F_g1 and F_g2. Tied objects show the tension at both ends of each string (T₁ and T₂ with two strings); touching objects show the pair of contact forces where they touch. The applied force pulls the object in front of a tied row, or pushes the one at the back of a touching row, and a touching row gets one velocity and one acceleration arrow, since it moves as one.',
+      },
+      {
         q: 'Can the ramp rise to the left?',
         a: 'Yes. Turn on Mirror under Figure to flip the figure left to right. The labels stay readable.',
       },
@@ -161,15 +168,16 @@ export const COPY: Record<string, GeneratorCopy> = {
   'pulley': {
     heading: 'Pulley diagrams: Atwood machines, tables, ramps and block and tackle',
     intro: [
-      'The Pulley Generator draws objects tied by string over pulleys, in four setups: an Atwood machine, with two masses hanging over one fixed pulley; a block or cart on a table, tied over a pulley at its edge to a hanging mass; a block or cart on a ramp, tied over a pulley at its top to a hanging mass; and a block and tackle, with 1 to 4 strands holding up a load. Strings are always drawn taut.',
-      'Turn on tension, gravity, the normal force and friction to draw the forces for a Newton’s second law problem, and an acceleration arrow for each object. Every label can be written, a blank line for students, or left off.',
+      'The Pulley Generator draws objects tied by string over pulleys, in four setups: an Atwood machine, with two masses hanging over one fixed pulley and, if you like, a third hanging below one of them; one or two blocks or carts on a table, tied over a pulley at its edge to a hanging mass; the same on a ramp, tied over a pulley at its top; and a block and tackle, with 1 to 4 strands holding up a load. Strings are always drawn taut.',
+      'Turn on tension, gravity, the normal force and friction to draw the forces for a Newton’s second law problem, and an acceleration arrow for each object. Two blocks on a table or ramp can be tied by a string or touching, with the contact forces between them. Every label can be written, a blank line for students, or left off.',
     ],
     settings: [
       'The setup: Atwood machine, table and hanging mass, ramp and hanging mass, or block and tackle',
       'Each object’s label and size; on a table or ramp, a block or a cart; in an Atwood machine, which side hangs lower',
+      'A third object: in an Atwood machine, hanging below the left or right one; on a table or ramp, a second one behind the first, tied by a string or touching',
       'The ramp’s angle, 10° to 60°, and its label, and a smooth or rough surface',
       'In a block and tackle, 1 to 4 strands holding up the load',
-      'Tension along the strings, gravity on each object, the normal force and friction on the object on a table or ramp, and each object’s acceleration',
+      'Tension along the strings, gravity on each object, the normal force and friction on each object on a table or ramp, the contact forces between objects touching, and each object’s acceleration',
       'Mirror, to flip the figure left to right, and color for slides',
     ],
     faqs: [
@@ -178,8 +186,12 @@ export const COPY: Record<string, GeneratorCopy> = {
         a: 'Two masses hanging from one string over a fixed pulley. With a light string and a frictionless pulley, the heavier mass falls and the lighter one rises, both with acceleration a = (m₂ − m₁)g / (m₁ + m₂), where m₂ is the heavier mass.',
       },
       {
-        q: 'Why is every tension arrow labeled T?',
-        a: 'With a light string over a light, frictionless pulley, the tension is the same all along the string, so every tension arrow has the same label. Change it to a blank line if students should work that out.',
+        q: 'Why are the tension arrows labeled T, or T₁ and T₂?',
+        a: 'With a light string over a light, frictionless pulley, the tension is the same all along the string, so every tension arrow on it has the same label. With two strings, as in a three-mass Atwood machine or two blocks tied on a table, each string has its own tension, so they’re numbered T₁ and T₂. Change the label to a blank line if students should work that out.',
+      },
+      {
+        q: 'Can I add a third mass?',
+        a: 'Yes. In an Atwood machine, hang a third object below the left or right one on a string of its own. On a table or ramp, add a second object behind the first, tied to it by a string or touching it; then the normal force and friction on each are numbered, and objects touching can show the pair of contact forces where they touch. Up to three objects in all.',
       },
       {
         q: 'How does a block and tackle make lifting easier?',
