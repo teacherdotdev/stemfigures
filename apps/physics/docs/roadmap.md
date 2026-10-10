@@ -36,6 +36,19 @@ teachers ask: vector subtraction, tail-to-tail (parallelogram) addition,
 setting a vector by its components, tick marks or a scale, and more than
 three vectors.
 
+## Wave (built)
+
+A transverse wave against distance or time, a longitudinal wave as vertical
+lines bunched at its compressions, or the longitudinal one above its matching
+transverse one, on numbered axes fitted to the wave (gridlines or tick
+marks), or with no axes about a dashed rest line. The amplitude, wavelength
+or period, and cycles are set; λ (or T) and A are marked with arrows, and a
+crest, trough, compression and rarefaction can be labeled. Next, in the same
+generator: standing waves (harmonic n, nodes and antinodes) and
+superposition (two waves and their sum). Left for later: sound waves (loud
+and quiet, high and low pitch), the Doppler effect, the EM spectrum,
+diffraction and interference.
+
 ## Torque Balance
 
 A beam balanced on a pivot with objects hanging from it at different

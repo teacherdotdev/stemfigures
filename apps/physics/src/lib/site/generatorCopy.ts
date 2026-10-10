@@ -291,6 +291,47 @@ export const COPY: Record<string, GeneratorCopy> = {
     imageAlt: 'A printable 10 N spring scale figure with a block on its hook and a magnified view of the pointer, made with the Spring Scale Generator',
     educationalLevel: ['Middle school', 'High school'],
   },
+
+  'waves': {
+    heading: 'Transverse and longitudinal wave diagrams to measure',
+    intro: [
+      'The Wave Generator draws a transverse wave, a longitudinal wave, or a longitudinal wave above its matching transverse one. You type the amplitude and the wavelength, or the period for a wave drawn against time, and choose how many cycles to draw, from half a cycle to eight. The transverse wave is the exact sine curve, starting on its rest line and rising; the longitudinal one is a row of vertical lines, bunched at its compressions and spread out at its rarefactions.',
+      'Draw it on numbered axes, displacement against distance or against time, so students measure the wavelength, period and amplitude, with gridlines or just tick marks. The axes fit the wave, a whole number of blocks to a wavelength, unless you type your own ranges. Mark the wavelength (or period) and the amplitude with arrows, labeled or left blank, and label a crest, a trough, a compression and a rarefaction, or leave blank lines for students to write them in.',
+    ],
+    settings: [
+      'A transverse wave, a longitudinal wave, or both, the longitudinal one above with its compressions over the crests',
+      'A transverse wave’s displacement against distance, showing its wavelength, or against time, showing its period',
+      'The amplitude, the wavelength or period, and 0.5 to 8 cycles',
+      'Arrows marking the wavelength (or period) and the amplitude, each labeled, blank or unlabeled',
+      'Crest, trough, compression and rarefaction labels, written, blank for students, or left off',
+      'Numbered axes with gridlines or tick marks, fitted to the wave or set by hand, or no axes and a dashed rest line',
+      'A chart title and axis titles, the axis numbering and end caps, minor gridlines, label size, and color for slides',
+    ],
+    faqs: [
+      {
+        q: 'How do you measure the wavelength and amplitude of a wave?',
+        a: 'The wavelength is the distance from one crest to the next, or between any two points one whole cycle apart, read off the distance axis. The amplitude is the height of a crest above the rest line, the axis through the middle, not the height from a trough to a crest, which is twice the amplitude. The generator fits the axes so a wavelength is a whole number of blocks.',
+      },
+      {
+        q: 'How do I make a wave for a frequency question?',
+        a: 'Draw the transverse wave against time instead of distance. The repeat along the time axis is then the period, T, marked in place of the wavelength, and the frequency is 1/T: a period of 0.5 s is a frequency of 2 Hz. The generator shows the frequency under the period as you type it, and on the example pages’ answer keys.',
+      },
+      {
+        q: 'How does a longitudinal wave line up with a transverse one?',
+        a: 'With both drawn, the longitudinal wave’s compressions sit right above the transverse wave’s crests and its rarefactions above the troughs, the way a sound wave lines up with a graph of its pressure. The lines are spaced so the bunching rises and falls smoothly, one compression and one rarefaction per wavelength.',
+      },
+      {
+        q: 'Can I draw a standing wave, or two waves adding up?',
+        a: 'Not yet. Standing waves, with their nodes and antinodes, and superposition, two waves and their sum, are planned next.',
+      },
+      {
+        q: 'Can I make the axes go further than the wave?',
+        a: 'Yes. Untick “Fit to the cycles drawn” or type in the x-axis range, and the wave keeps its cycles from 0 while the axis runs as far as you set. The same goes for the displacement axis. Without axes, the wave is drawn the same size about a dashed rest line.',
+      },
+    ],
+    imageAlt: 'A printable transverse wave on numbered axes of displacement against distance, with its wavelength λ and amplitude A marked, made with the Wave Generator',
+    educationalLevel: ['Middle school', 'High school'],
+  },
 }
 
 /** The copy for a generator; every generator on the site has some. */
