@@ -90,4 +90,19 @@ export const PHYSICS: CatalogEntry[] = [
       'scale', 'zero error', 'zero offset', 'magnifier', 'slotted masses', 'hanging mass', 'mechanics', 'printable',
     ],
   },
+  {
+    id: 'waves',
+    site: 'physics',
+    name: 'Waves Generator',
+    path: '/waves',
+    blurb: 'Transverse and longitudinal waves on numbered axes, to measure.',
+    description:
+      'Make printable wave diagrams for physics tests. Set the amplitude, wavelength or period, and mark them on axes students measure.',
+    keywords: [
+      'wave', 'waves', 'transverse', 'transverse wave', 'longitudinal', 'longitudinal wave', 'wavelength', 'lambda',
+      'amplitude', 'period', 'frequency', 'crest', 'trough', 'compression', 'rarefaction', 'sound', 'sound wave',
+      'displacement', 'displacement distance graph', 'displacement time graph', 'sine wave', 'measuring', 'oscillation',
+      'printable',
+    ],
+  },
 ]

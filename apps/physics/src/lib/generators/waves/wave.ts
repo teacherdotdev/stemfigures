@@ -1,0 +1,426 @@
+// Lays out a Waves figure for Waves.svelte to draw: the transverse wave on a
+// graph from $shared/graph, the longitudinal one as vertical lines bunched at
+// its compressions, or the longitudinal one above the transverse one, lined up
+// with it. Without axes the graph is still there, just not drawn, so hiding
+// the axes never changes the wave.
+//
+// The wave starts on its rest line at 0 and rises: y = A sin(2πx / λ), its
+// crests at λ/4, 5λ/4… and its troughs halfway between. A longitudinal wave
+// has its compressions where the transverse one has its crests, and its
+// rarefactions at the troughs, the way a sound wave lines up with its
+// pressure graph. The axes fit the wave unless the teacher types their own
+// ranges.
+
+import { readAxes, type Axes, type GridSettings, type RangeSettings } from '$shared/graph/axes'
+import { COLORS } from '$shared/graph/colors'
+import { CELL, INK, clipPath, layoutGrid, pathOf, round, type GridLayout, type Point } from '$shared/graph/grid'
+import { LABEL_SCALE } from '$shared/labelSize'
+import { labelRuns, type Label } from '$lib/shared/label'
+import type { Segment } from '$lib/shared/vector'
+import { partsOf, repeatOf, type WaveSettings } from './settings'
+
+const PAD = 14 // the figure's margin, as the grid's
+const BASE_FS = 14 // the grid's tick-number size, at medium labels
+/** How tall the longitudinal wave's lines are. */
+export const BAND_H = 64
+/** How bunched a compression is: its lines are this much closer than average, a rarefaction's this much farther apart. */
+export const BUNCHING = 0.65
+/** About how far apart a longitudinal wave's lines are on average, in pixels. */
+const LINE_SPACING = 11
+/** From the wave to a wavelength mark beside it. */
+const MARK_GAP = 18
+/** How far an extension line runs past its mark, and stops short of the wave. */
+const OVERRUN = 6
+const SHORT = 4
+const TICK = 4
+
+export type MarkKind = 'wavelength' | 'amplitude'
+
+/** A dimension line with its arrowheads, the lines out to it from what it measures, and its label. */
+export interface Mark {
+  kind: MarkKind
+  line: Segment
+  extensions: Segment[]
+  label: Label
+  at: Point
+}
+
+/** A word on the figure: crest, trough, compression or rarefaction. */
+export interface Note {
+  label: Label
+  at: Point
+}
+
+export interface WaveFigure {
+  width: number
+  height: number
+  /** the size of tick numbers, and of the labels on the wave */
+  fs: number
+  labelSize: number
+  /** the graph's grid, axes, numbers and axis titles, moved down under the chart title and the longitudinal wave; null without axes */
+  graph: (GridLayout & { gridlines: boolean; yDrawn: boolean; ticks: Segment[] }) | null
+  title: { x: number; y: number; text: string } | null
+  titleBlank: Segment | null
+  /** the dashed rest line a transverse wave drawn without axes swings about */
+  rest: Segment | null
+  /** the transverse wave, as path data cut to the grid */
+  wave: string[]
+  /** the longitudinal wave's lines */
+  band: Segment[]
+  color: string
+  marks: Mark[]
+  notes: Note[]
+  /** where the crests and troughs of the transverse wave are drawn, and the middles of the compressions and rarefactions */
+  crests: Point[]
+  troughs: Point[]
+  compressions: number[]
+  rarefactions: number[]
+  /** pixels to one unit along each axis */
+  unit: { x: number; y: number }
+  /** the ranges the axes fit to, and the ranges drawn (typed, or fitted) */
+  fitted: RangeSettings
+  ranges: RangeSettings
+  problems: Record<string, string | null>
+}
+
+const NICE = [1, 2, 2.5, 5]
+const whole = (v: number) => Math.abs(v - Math.round(v)) < 1e-9
+const numText = (v: number) => String(Number(v.toPrecision(12)))
+
+/** Nice steps (1, 2, 2.5 or 5 times a power of ten) within a hundred times of `v` either way. */
+function* niceSteps(v: number) {
+  const e0 = Math.floor(Math.log10(v))
+  for (let e = e0 - 2; e <= e0 + 2; e++) for (const m of NICE) yield { step: Number((m * 10 ** e).toPrecision(12)), m }
+}
+
+/**
+ * An axis from 0 to `end`, counted by a nice step that makes about 16
+ * blocks, with `repeat` (the wavelength or period) a whole number of blocks,
+ * so the crests land on gridlines, and the axis ending on the wave's end.
+ */
+export function fitX(end: number, repeat: number) {
+  let best = { step: 1, blocks: Math.ceil(end), score: Infinity }
+  for (const { step, m } of niceSteps(end / 16)) {
+    const exact = end / step
+    const blocks = Math.ceil(exact - 1e-9)
+    if (blocks < 6 || blocks > 32 || repeat / step < 2) continue
+    const score =
+      0.3 * Math.abs(blocks - 16) + (whole(repeat / step) ? 0 : 10) + (whole(repeat / step / 4) ? 0 : 1) + (whole(exact) ? 0 : 3) + (m === 2.5 ? 1 : 0)
+    if (score < best.score) best = { step, blocks, score }
+  }
+  return { step: best.step, blocks: best.blocks }
+}
+
+/**
+ * A displacement axis centered on 0, counted by a nice step that makes the
+ * amplitude about 3 or 4 whole blocks, with `room` pixels to spare above the
+ * crests and below the troughs for the marks there.
+ */
+export function fitY(amplitude: number, room: number) {
+  let best = { step: amplitude / 3, score: Infinity }
+  for (const { step, m } of niceSteps(amplitude / 3.5)) {
+    const a = amplitude / step
+    if (a < 1.5 || a > 6) continue
+    const score = 0.5 * Math.abs(a - 3.5) + (whole(a) ? 0 : 4) + (m === 2.5 ? 1 : 0)
+    if (score < best.score) best = { step, score }
+  }
+  const half = Math.ceil(amplitude / best.step + room / CELL - 1e-9)
+  return { step: best.step, half }
+}
+
+/** How wide a label is drawn, roughly. */
+export function labelWidth(l: Label, size: number) {
+  if (l.mode === 'blank') return size * 2.4
+  if (l.mode === 'none') return 0
+  return [...labelRuns(l.text).map((r) => r.text).join('')].length * size * 0.5
+}
+
+const shown = (l: Label) => l.mode !== 'none'
+
+/** The x of every crest and trough in [from, to], `repeat` apart, from a wave starting at 0 that ends at `end`. */
+function peaks(repeat: number, end: number, from: number, to: number) {
+  const at = (offset: number) => {
+    const out: number[] = []
+    for (let x = offset * repeat; x <= end + 1e-9; x += repeat) if (x >= from - 1e-9 && x <= to + 1e-9) out.push(x)
+    return out
+  }
+  return { crests: at(0.25), troughs: at(0.75) }
+}
+
+/** Neighbouring crests (or troughs) with no label on either, for the wavelength mark. */
+function pairClear(xs: number[], taken: number | null) {
+  for (let k = 0; k + 1 < xs.length; k++) if (xs[k] !== taken && xs[k + 1] !== taken) return [xs[k], xs[k + 1]] as const
+  return null
+}
+
+/**
+ * Where the marks go along the wave, before it's scaled: the crest and
+ * trough labels on the last of each, the wavelength mark between
+ * neighbouring crests clear of the crest label (or below neighbouring
+ * troughs clear of the trough label, or else over the crest label), and the
+ * amplitude on a crest or trough the wavelength mark doesn't use.
+ */
+export function planMarks(s: WaveSettings, crests: number[], troughs: number[], repeat: number) {
+  const crestAt = shown(s.crestLabel) ? (crests.at(-1) ?? null) : null
+  const troughAt = shown(s.troughLabel) ? (troughs.at(-1) ?? null) : null
+  type Span = { from: number; to: number; side: 'above' | 'below'; over: 'peaks' | 'rest'; raised: boolean }
+  let span: Span | null = null
+  if (s.wavelengthMark && s.cycles >= 1) {
+    const up = pairClear(crests, crestAt)
+    const down = up ? null : pairClear(troughs, troughAt)
+    if (up) span = { from: up[0], to: up[1], side: 'above', over: 'peaks', raised: false }
+    else if (down) span = { from: down[0], to: down[1], side: 'below', over: 'peaks', raised: false }
+    else if (crests.length > 1) span = { from: crests[0], to: crests[1], side: 'above', over: 'peaks', raised: true }
+    // Less than a cycle and a quarter has only one crest: from the start to one wavelength on, along the rest line.
+    else span = { from: 0, to: repeat, side: 'above', over: 'rest', raised: crestAt !== null }
+  }
+  let amplitude: { x: number; up: boolean } | null = null
+  if (s.amplitudeMark) {
+    const used = (x: number, side: 'above' | 'below') => span?.side === side && span.over === 'peaks' && (x === span.from || x === span.to)
+    const crest = crests.find((x) => !used(x, 'above'))
+    const trough = troughs.find((x) => !used(x, 'below'))
+    amplitude = crest !== undefined ? { x: crest, up: true } : trough !== undefined ? { x: trough, up: false } : null
+  }
+  return { crestAt, troughAt, span, amplitude }
+}
+
+/** A grid layout moved `dy` down the drawing. */
+function lowered(g: GridLayout, dy: number): GridLayout {
+  const y = (v: number) => round(v + dy)
+  return {
+    ...g,
+    grid: { ...g.grid, y: y(g.grid.y) },
+    hLines: g.hLines.map(y),
+    minorH: g.minorH.map(y),
+    xAxis: { ...g.xAxis, y: y(g.xAxis.y) },
+    yAxis: { ...g.yAxis, y1: y(g.yAxis.y1), y2: y(g.yAxis.y2) },
+    numbers: g.numbers.map((n) => ({ ...n, y: y(n.y) })),
+    labels: g.labels.map((l) => ({ ...l, y: y(l.y) })),
+    blanks: g.blanks.map((b) => ({ ...b, y1: y(b.y1), y2: y(b.y2) })),
+  }
+}
+
+/** The ranges the axes are drawn with: the ones typed, or for an axis that fits, the fitted ones. */
+export function rangesOf(s: WaveSettings, fitted: RangeSettings): RangeSettings {
+  return {
+    ...(s.xFit ? { xFrom: fitted.xFrom, xTo: fitted.xTo, xStep: fitted.xStep } : { xFrom: s.xFrom, xTo: s.xTo, xStep: s.xStep }),
+    ...(s.yFit ? { yFrom: fitted.yFrom, yTo: fitted.yTo, yStep: fitted.yStep } : { yFrom: s.yFrom, yTo: s.yTo, yStep: s.yStep }),
+  }
+}
+
+/** The longitudinal wave's lines along x (in the axis's units): evenly spaced, then each moved so they bunch at the crests' places and spread at the troughs'. */
+export function lineXs(repeat: number, end: number, perRepeat: number) {
+  const n = Math.max(1, Math.round(perRepeat * (end / repeat)))
+  const out: number[] = []
+  for (let i = 0; i <= n; i++) {
+    const u = (end * i) / n
+    const x = u - ((BUNCHING * repeat) / (2 * Math.PI)) * Math.sin((2 * Math.PI * (u - repeat / 4)) / repeat)
+    if (x >= -1e-9 && x <= end + 1e-9) out.push(x)
+  }
+  return out
+}
+
+export function buildWave(s: WaveSettings): WaveFigure {
+  const { transverse, longitudinal } = partsOf(s)
+  const stacked = transverse && longitudinal
+  const fs = BASE_FS * LABEL_SCALE[s.labelSize]
+  const ls = round(fs * 1.5)
+  const repeat = repeatOf(s)
+  const end = s.cycles * repeat
+  const A = s.amplitude
+  const color = s.color ? COLORS.blue : INK
+
+  // The x-axis first: which crests are on it decides the marks, and the marks the room the y-axis leaves.
+  const fx = fitX(end, repeat)
+  const xRead = readAxes({ ...s, ...(s.xFit ? { xFrom: '0', xTo: numText(fx.blocks * fx.step), xStep: numText(fx.step) } : {}) })
+  const x0 = xRead.x.start
+  const x1 = x0 + xRead.x.blocks * xRead.x.step
+  const { crests, troughs } = peaks(repeat, end, Math.max(0, x0), x1)
+  const plan = transverse ? planMarks(s, crests, troughs, repeat) : null
+  const raise = ls + 8
+  const above = plan
+    ? Math.max(
+        plan.span?.side === 'above' ? MARK_GAP + (plan.span.raised ? raise : 0) + 8 + ls : 0,
+        plan.crestAt !== null ? 8 + ls : 0,
+        8,
+      )
+    : 0
+  const below = plan
+    ? Math.max(plan.span?.side === 'below' ? MARK_GAP + 6 + ls : 0, plan.troughAt !== null ? 6 + ls : 0, 8)
+    : 0
+  const fy = fitY(A, Math.max(above, below))
+  const fitted: RangeSettings = {
+    xFrom: '0',
+    xTo: numText(fx.blocks * fx.step),
+    xStep: numText(fx.step),
+    yFrom: numText(-fy.half * fy.step),
+    yTo: numText(fy.half * fy.step),
+    yStep: numText(fy.step),
+  }
+  const ranges = rangesOf(s, fitted)
+  const read = readAxes(ranges)
+
+  // The compression and rarefaction labels, in rows: a label that would run into the one before it goes on the next row.
+  const notesAt: { label: Label; x: number; row: number }[] = []
+  let rows = 0
+  if (longitudinal) {
+    const xUnit = CELL / read.x.step
+    const want = [
+      shown(s.compressionLabel) && crests.length ? { label: s.compressionLabel, x: crests[0] } : null,
+      shown(s.rarefactionLabel) && troughs.length ? { label: s.rarefactionLabel, x: troughs.at(-1)! } : null,
+    ].filter((n) => n !== null)
+    for (const n of want) {
+      const clash = notesAt.some((m) => Math.abs(m.x - n.x) * xUnit < (labelWidth(m.label, ls) + labelWidth(n.label, ls)) / 2 + 10)
+      const row = clash ? notesAt.length : 0
+      notesAt.push({ ...n, row })
+      rows = Math.max(rows, row + 1)
+    }
+  }
+  const rowH = ls + 6
+  const wavelengthOnBand = longitudinal && !transverse && s.wavelengthMark && s.cycles >= 1
+  // A longitudinal wave alone sits on a grid of its own with only its x-axis: its wavelength mark above it, then the lines, then its labels.
+  const bandTop = 10 + (wavelengthOnBand ? MARK_GAP + 8 + ls : 0)
+  const content = bandTop + BAND_H + rows * rowH + (rows ? 6 : 0) + 10
+  const axes: Axes = transverse ? read : { x: read.x, y: { start: 0, step: 1, blocks: Math.ceil(content / CELL - 1e-9), numbering: 'decimal' } }
+
+  const plain = { xEvery: 0, yEvery: 0, xTitleMode: 'none', yTitleMode: 'none', xLabelMode: 'none', yLabelMode: 'none' } as const
+  const capless = { xStartCap: 'none', xEndCap: 'none', yStartCap: 'none', yEndCap: 'none' } as const
+  const look: GridSettings = {
+    ...s,
+    titleMode: 'none',
+    ...(!s.axes ? { ...plain, ...capless } : !transverse ? { yEvery: 0, yTitleMode: 'none', yLabelMode: 'none', yStartCap: 'none', yEndCap: 'none' } : {}),
+  }
+  const g0 = layoutGrid(look, axes)
+
+  // Down the drawing: the chart title, the longitudinal wave when it's above the transverse one, then the graph.
+  let cursor = PAD
+  const titleText = s.axes && s.titleMode === 'text' ? s.title.trim() : ''
+  const titleRow = s.axes && (titleText || s.titleMode === 'blank')
+  const titleY = cursor + fs * 1.6
+  if (titleRow) cursor += fs * 1.6 + 14
+  const stackTop = cursor
+  if (stacked) cursor += rows * rowH + BAND_H
+  const dy = cursor - PAD
+  const g = lowered(g0, dy)
+  const X = (v: number) => round(g0.px({ x: v, y: 0 }).x)
+  const Y = (v: number) => round(g0.px({ x: 0, y: v }).y + dy)
+  const width = g.width
+  const height = round(g.height + dy)
+  const unit = { x: CELL / axes.x.step, y: CELL / axes.y.step }
+  const midX = g.grid.x + g.grid.w / 2
+
+  const ticks: Segment[] = []
+  if (s.axes && (!s.gridlines || !transverse)) {
+    for (const x of g.vLines) if (Math.abs(x - g.yAxis.x) > 0.5 || !transverse) ticks.push({ x1: x, y1: g.xAxis.y - TICK, x2: x, y2: g.xAxis.y + TICK })
+    if (transverse) for (const y of g.hLines) if (Math.abs(y - g.xAxis.y) > 0.5) ticks.push({ x1: g.yAxis.x - TICK, y1: y, x2: g.yAxis.x + TICK, y2: y })
+  }
+
+  // The transverse wave, sampled finely enough to look smooth, and cut to the grid.
+  let wave: string[] = []
+  let rest: Segment | null = null
+  if (transverse) {
+    const n = Math.ceil(s.cycles * 96)
+    const pts = Array.from({ length: n + 1 }, (_, i) => {
+      const x = (end * i) / n
+      return { x, y: A * Math.sin((2 * Math.PI * x) / repeat) }
+    })
+    wave = clipPath(pts, g0.box).map((run) => pathOf(run.map((p) => ({ x: X(p.x), y: Y(p.y) }))))
+    if (!s.axes) rest = { x1: X(Math.max(0, x0)), y1: Y(0), x2: X(Math.min(end, x1)), y2: Y(0) }
+  }
+
+  // The longitudinal wave: above the graph, or on a grid of its own.
+  let band: Segment[] = []
+  let top = 0
+  if (longitudinal) {
+    top = stacked ? round(stackTop + rows * rowH) : round(g.grid.y + (g.grid.h - content) / 2 + bandTop)
+    const perRepeat = Math.min(20, Math.max(8, Math.round((repeat * unit.x) / LINE_SPACING)))
+    band = lineXs(repeat, end, perRepeat)
+      .filter((x) => x >= x0 - 1e-9 && x <= x1 + 1e-9)
+      .map((x) => ({ x1: X(x), y1: top, x2: X(x), y2: round(top + BAND_H) }))
+  }
+
+  const marks: Mark[] = []
+  const notes: Note[] = []
+  /** A label's x, kept on the drawing. */
+  const inside = (x: number, l: Label) => {
+    const half = labelWidth(l, ls) / 2 + 4
+    return round(Math.min(width - half, Math.max(half, x)))
+  }
+  const repeatLabel = partsOf(s).time ? s.periodLabel : s.wavelengthLabel
+
+  if (plan) {
+    const crestTop = Y(A)
+    const troughBottom = Y(-A)
+    const { span, amplitude } = plan
+    if (span) {
+      const up = span.side === 'above'
+      const y = up ? crestTop - MARK_GAP - (span.raised ? raise : 0) : troughBottom + MARK_GAP
+      const from = span.over === 'rest' ? Y(0) : up ? crestTop : troughBottom
+      const ext = (x: number) => ({ x1: X(x), y1: round(from + (up ? -SHORT : SHORT)), x2: X(x), y2: round(y + (up ? -OVERRUN : OVERRUN)) })
+      marks.push({
+        kind: 'wavelength',
+        line: { x1: X(span.from), y1: round(y), x2: X(span.to), y2: round(y) },
+        extensions: [ext(span.from), ext(span.to)],
+        label: repeatLabel,
+        at: { x: inside((X(span.from) + X(span.to)) / 2, repeatLabel), y: round(up ? y - 8 : y + 6 + ls * 0.8) },
+      })
+    }
+    if (amplitude) {
+      const tip = amplitude.up ? crestTop : troughBottom
+      const w = labelWidth(s.amplitudeLabel, ls)
+      marks.push({
+        kind: 'amplitude',
+        line: { x1: X(amplitude.x), y1: Y(0), x2: X(amplitude.x), y2: tip },
+        extensions: [],
+        label: s.amplitudeLabel,
+        at: { x: round(X(amplitude.x) - 8 - w / 2), y: round((Y(0) + tip) / 2 + ls * 0.35) },
+      })
+    }
+    if (plan.crestAt !== null) notes.push({ label: s.crestLabel, at: { x: inside(X(plan.crestAt), s.crestLabel), y: round(crestTop - 8) } })
+    if (plan.troughAt !== null) notes.push({ label: s.troughLabel, at: { x: inside(X(plan.troughAt), s.troughLabel), y: round(troughBottom + 6 + ls * 0.8) } })
+  }
+
+  if (longitudinal) {
+    for (const n of notesAt) {
+      // Above the lines when the transverse wave is below them, else below.
+      const y = stacked ? top - 8 - n.row * rowH : top + BAND_H + 6 + ls * 0.8 + n.row * rowH
+      notes.push({ label: n.label, at: { x: inside(X(n.x), n.label), y: round(y) } })
+    }
+    if (wavelengthOnBand) {
+      const pair = crests.length > 1 ? [crests[0], crests[1]] : [0, repeat]
+      const y = top - MARK_GAP
+      marks.push({
+        kind: 'wavelength',
+        line: { x1: X(pair[0]), y1: round(y), x2: X(pair[1]), y2: round(y) },
+        extensions: pair.map((x) => ({ x1: X(x), y1: round(top - SHORT), x2: X(x), y2: round(y - OVERRUN) })),
+        label: s.wavelengthLabel,
+        at: { x: inside((X(pair[0]) + X(pair[1])) / 2, s.wavelengthLabel), y: round(y - 8) },
+      })
+    }
+  }
+
+  return {
+    width,
+    height,
+    fs,
+    labelSize: ls,
+    graph: s.axes ? { ...g, gridlines: s.gridlines && transverse, yDrawn: transverse, ticks } : null,
+    title: titleText ? { x: midX, y: titleY, text: titleText } : null,
+    titleBlank:
+      titleRow && !titleText ? { x1: midX - Math.min(130, g.grid.w / 2), y1: titleY, x2: midX + Math.min(130, g.grid.w / 2), y2: titleY } : null,
+    rest,
+    wave,
+    band,
+    color,
+    marks,
+    notes,
+    crests: transverse ? crests.map((x) => ({ x: X(x), y: Y(A) })) : [],
+    troughs: transverse ? troughs.map((x) => ({ x: X(x), y: Y(-A) })) : [],
+    compressions: longitudinal ? crests.map(X) : [],
+    rarefactions: longitudinal ? troughs.map(X) : [],
+    unit,
+    fitted,
+    ranges,
+    problems: read.problems,
+  }
+}

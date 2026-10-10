@@ -16,6 +16,7 @@ import ProjectileMotionPreview from './projectile-motion/Preview.svelte'
 import PulleyPreview from './pulley/Preview.svelte'
 import SpringScalePreview from './spring-scale/Preview.svelte'
 import VectorDiagramPreview from './vector-diagram/Preview.svelte'
+import WavesPreview from './waves/Preview.svelte'
 
 /** Each generator's directory preview, by id. */
 export const PREVIEWS: Record<string, Component> = {
@@ -25,6 +26,7 @@ export const PREVIEWS: Record<string, Component> = {
   'pulley': PulleyPreview,
   'projectile-motion': ProjectileMotionPreview,
   'spring-scale': SpringScalePreview,
+  'waves': WavesPreview,
 }
 
 export const GENERATORS = generatorsOn(SITE_ID, PREVIEWS)

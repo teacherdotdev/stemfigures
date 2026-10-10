@@ -8,6 +8,7 @@ import type { ProjectileSettings } from '$lib/generators/projectile-motion/setti
 import type { PulleySettings } from '$lib/generators/pulley/settings'
 import type { SpringScaleSettings } from '$lib/generators/spring-scale/settings'
 import type { VectorSettings } from '$lib/generators/vector-diagram/settings'
+import type { WaveSettings } from '$lib/generators/waves/settings'
 
 /** Each generator's settings, by generator id. */
 export interface SettingsById {
@@ -17,6 +18,7 @@ export interface SettingsById {
   'pulley': PulleySettings
   'projectile-motion': ProjectileSettings
   'spring-scale': SpringScaleSettings
+  'waves': WaveSettings
 }
 
 export type ExampleGeneratorId = keyof SettingsById

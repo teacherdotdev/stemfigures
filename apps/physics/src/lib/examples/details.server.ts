@@ -14,6 +14,7 @@ import { pulleySettings } from '$lib/generators/pulley/settings'
 import { answerLines as springScaleAnswer, springScaleSettings } from '$lib/generators/spring-scale/settings'
 import { resultantOf } from '$lib/generators/vector-diagram/vd'
 import { vectorSettings } from '$lib/generators/vector-diagram/settings'
+import { answerLines as waveAnswer, waveSettings } from '$lib/generators/waves/settings'
 import type { Label } from '$lib/shared/label'
 import type { SettingsDef } from '$lib/shared/settings'
 import type { Example, ExampleGeneratorId, SettingsById } from './types'
@@ -84,6 +85,7 @@ const GENERATORS: { [G in ExampleGeneratorId]: { definition: Definition<Settings
   'pulley': { definition: physics(pulleySettings), answer: none },
   'projectile-motion': { definition: physics(projectileSettings), answer: none },
   'spring-scale': { definition: springScaleSettings, answer: (s) => ({ heading: 'Answer key', lines: springScaleAnswer(s).split('\n') }) },
+  'waves': { definition: waveSettings, answer: (s) => ({ heading: 'Answer key', lines: waveAnswer(s) }) },
 }
 
 function detailsOf<G extends ExampleGeneratorId>(generator: G, example: Example): ExampleDetails {
