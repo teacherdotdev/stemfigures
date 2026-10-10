@@ -1,9 +1,10 @@
 // The generator's settings as a series/parallel tree (tree.ts), the form the
-// layout draws from and the Circuit Editor takes a circuit over in. In series,
-// round the loop from the cell or battery: the resistors and bulbs, then the
-// ammeter and the switch. In parallel, the switch and ammeter come straight
-// after the battery and the resistors and bulbs are the branches of one
-// group, so the circuit is drawn as a ladder (see layout.ts).
+// layout draws from, and the one a planned Circuit Editor would take a circuit
+// over in (docs/adr/0005). In series, round the loop from the cell or
+// battery: the resistors and bulbs, then the ammeter and the switch. In
+// parallel, the switch and ammeter come straight after the battery and the
+// resistors and bulbs are the branches of one group, so the circuit is drawn
+// as a ladder (see layout.ts).
 
 import { labelRuns, type Label } from '$lib/shared/label'
 import { newGroup, newPart, renumber, type Circuit, type Item, type Part } from './tree'

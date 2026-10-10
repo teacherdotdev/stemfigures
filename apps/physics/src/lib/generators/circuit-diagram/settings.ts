@@ -2,8 +2,9 @@
 // default: a 12 V battery and three resistors in series. The generator keeps
 // to the circuits worksheets start with, a cell or battery and 1 to 4
 // resistors or bulbs, all in series or all in parallel (docs/adr/0005);
-// anything else is drawn by hand in the Circuit Editor. The figure is laid
-// out from a series/parallel tree built from these settings (see circuit.ts).
+// anything else is left to a Circuit Editor, planned but not built yet. The
+// figure is laid out from a series/parallel tree built from these settings
+// (see circuit.ts).
 
 import { bool, choice, defineSettings, label, list, type Field, type SettingsOf } from '$lib/shared/settings'
 

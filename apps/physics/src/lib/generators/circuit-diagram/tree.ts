@@ -3,7 +3,13 @@
 // branch is a part or a series group. Parts name themselves (R₁, R₂, ε) until
 // the teacher types a name.
 //
-// The whole tree is one setting. In a page address it is a short string:
+// The generator builds its tree from flat settings (circuit.ts), so it only
+// ever makes one loop or one parallel group. Nested groups, points, current
+// arrows, tidying and the address string below aren't used by it for now;
+// they're kept, with their tests, for the Circuit Editor planned in
+// docs/adr/0005, which would take a generated circuit over as a tree.
+//
+// As one setting, the whole tree is a short string:
 //
 //   b.r.[r.(r.l)]    a battery, then R₁, then R₂ in parallel with R₃ and a bulb
 //
@@ -24,7 +30,7 @@ export const MAX_PARTS = 8
 /** How deep groups can nest: a parallel group in the loop is 1 deep. */
 export const MAX_DEPTH = 3
 
-/** A current arrow on a branch, forward or backward along the outline's order. */
+/** A current arrow on a branch, forward or backward along the tree's order. */
 export interface Arrow {
   dir: 'forward' | 'backward'
   label: Label
@@ -104,7 +110,7 @@ export const DEFAULT_CIRCUIT: Circuit = renumber({
   current: null,
 })
 
-/** Every part, in reading order (down the outline). */
+/** Every part, in reading order (the tree's order). */
 export function* partsOf(items: Item[]): Generator<Part> {
   for (const item of items) {
     if (item.type === 'part') yield item

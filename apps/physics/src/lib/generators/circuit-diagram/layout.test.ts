@@ -18,7 +18,7 @@ function random(seed: number) {
   }
 }
 
-/** A random circuit the outline editor could make: within the part and depth limits, with some labels shown. */
+/** A random circuit within the tree's part and depth limits, with some labels shown. */
 function randomCircuit(rand: () => number): Circuit {
   let budget = MAX_PARTS - 1
   const kinds: PartKind[] = ['resistor', 'resistor', 'bulb', 'switch', 'ammeter', 'battery']
@@ -204,7 +204,7 @@ describe('the ladder layout', () => {
     const [battery, ...rungs] = fig.parts
     expect(battery.angle).toBe(270)
     for (const r of rungs) expect(r.angle).toBe(90)
-    // Rungs run left to right in outline order, each to the right of the one before.
+    // Rungs run left to right in the tree's order, each to the right of the one before.
     const xs = [battery.x, ...rungs.map((r) => r.x)]
     expect([...xs].sort((a, b) => a - b)).toEqual(xs)
     // The middle rungs meet each rail at a T.

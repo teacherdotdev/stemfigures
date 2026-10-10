@@ -155,7 +155,7 @@ On a Vector Diagram, an **angle mark** is drawn at the arrow's tail and a **comp
 ### Circuit Diagram
 
 **Circuit Diagram**:
-A schematic of a cell or battery with 1 to 4 resistors or bulbs, all in series or all in parallel, for current and resistance problems. Its generator is the Circuit Diagram Generator. It is drawn from a series/parallel tree built from its settings, not placed by hand (ADRs 0004 and 0005). Any other circuit is drawn in the Circuit Editor.
+A schematic of a cell or battery with 1 to 4 resistors or bulbs, all in series or all in parallel, for current and resistance problems. Its generator is the Circuit Diagram Generator. It is drawn from a series/parallel tree built from its settings, not placed by hand (ADRs 0004 and 0005). Any other circuit is left to a Circuit Editor, planned but not built yet.
 _Avoid_: Circuit (alone, for the figure), schematic (fine as a search word), wiring diagram
 
 **Arrangement**:

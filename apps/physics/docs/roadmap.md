@@ -59,8 +59,8 @@ lines.
 
 The Circuit Diagram Generator draws a cell or battery with 1 to 4 resistors
 or bulbs, all in series or all in parallel, with a switch, an ammeter and a
-voltmeter (ADR 0005). Anything else is drawn by hand in the Circuit Editor.
-Left for later:
+voltmeter (ADR 0005). Anything else is left to a Circuit Editor, planned but
+not built yet, where a teacher would draw a circuit by hand. Left for later:
 
 - A pictorial style (drawn bulbs, D-cells, real-looking wires) for middle
   school, drawn from the same tree

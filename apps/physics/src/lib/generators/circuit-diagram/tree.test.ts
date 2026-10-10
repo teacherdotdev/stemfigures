@@ -95,7 +95,7 @@ describe('automatic names', () => {
   test("renumber as the circuit changes, but leave a name the teacher typed", () => {
     const c = cleanCircuit(loop(p('battery'), p(), p(), p(), p()))
     ;[...partsOf(c.items)][2].name.text = 'R_x'
-    // The editor settles who was renamed before changing the circuit, and renumbers after.
+    // Whatever edits the tree (the planned Circuit Editor) settles who was renamed before changing it, and renumbers after.
     settle(c)
     const again = cleanCircuit(renumber({ ...c, items: [c.items[0], c.items[2], c.items[3], c.items[4]] }))
     // The teacher's name is left out of the numbering.
