@@ -131,6 +131,18 @@ export const EXAMPLES: Example[] = [
         ],
       },
     },
+    {
+      slug: 'free-body-diagram-normal-force-and-tension-both-up-vector-notation',
+      title: 'Free body diagram with the normal force and tension both pointing up, in vector notation',
+      alt: 'A free body diagram of a block with F_g straight down and two shorter arrows side by side pointing up, F_N and T, every label with an arrow over its letter',
+      caption:
+        'A block resting on a floor while a rope pulls up on it, too weakly to lift it. Gravity F_g points straight down; the normal force F_N and the tension T both point straight up, drawn side by side and each shorter than F_g. Every label has an arrow over its letter, the way vectors are written.',
+      settings: {
+        body: 'block',
+        forces: [force(270, 1, 'F_g'), force(90, 0.6, 'F_N'), force(90, 0.4, 'T')],
+        notation: 'arrow',
+      },
+    },
   ]),
 
   ...examplesOf('inclined-plane', [
