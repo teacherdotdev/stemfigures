@@ -5,7 +5,8 @@
 
 import type { Point } from '$lib/shared/field'
 import { objectHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
-import type { Label } from '$lib/shared/label'
+import { labelRuns, type Label } from '$lib/shared/label'
+import { boxAround, boxesMeet, polygonHits, segmentHits, type Box } from '$lib/shared/overlap'
 import { labelPoint, numbered, type LabeledVector, type Segment } from '$lib/shared/vector'
 import type { PulleyObject, PulleySettings } from './settings'
 
@@ -305,28 +306,30 @@ function table(s: PulleySettings): PulleyFigure {
  * the ramp. A ramp too low for the hanging object to hang below its pulley
  * stands on a platform. The ramp is as big as fits, but always long enough
  * for its row of objects (the figure growing, if need be), and the whole
- * figure is centered.
+ * figure is centered. A row starts at least `back` up the slope from the
+ * foot (see buildPulley, which moves it up until it's clear of the angle's
+ * label).
  */
-function ramp(s: PulleySettings): PulleyFigure {
+function ramp(s: PulleySettings, back = END_ROOM): PulleyFigure {
   const room = { left: FIT_MARGIN, right: WIDTH - FIT_MARGIN, top: FIT_MARGIN }
   const narrow = (f: ReturnType<typeof rampAt>) => {
     const b = boundsOf(f.extent)
     return b.right - b.left <= room.right - room.left
   }
   const fits = (f: ReturnType<typeof rampAt>) => narrow(f) && boundsOf(f.extent).top >= room.top
-  const least = rowOf(s).length > 1 ? (rowLength(s) + END_ROOM + FRONT_ROOM) * Math.cos((s.angle * Math.PI) / 180) : 0
+  const least = rowOf(s).length > 1 ? (rowLength(s) + back + FRONT_ROOM) * Math.cos((s.angle * Math.PI) / 180) : 0
   // The biggest ramp that fits, with the hanging object a good way below its
   // pulley if there's room, or else as little string as looks right. A ramp
   // on a platform already stands as high as its hanging object needs, so a
   // smaller one would stand no lower: once it's narrow enough, the figure
   // grows taller instead.
   let base = Math.max(MAX_RAMP_BASE, least)
-  let f = rampAt(s, base, HANG_DROP)
+  let f = rampAt(s, base, HANG_DROP, back)
   for (let i = 0; i < 80 && !fits(f); i++) {
-    f = rampAt(s, base, MIN_DROP)
+    f = rampAt(s, base, MIN_DROP, back)
     if (fits(f) || base <= least || (f.platform && narrow(f))) break
     base = Math.max(least, base * 0.95)
-    f = rampAt(s, base, HANG_DROP)
+    f = rampAt(s, base, HANG_DROP, back)
   }
   const b = boundsOf(f.extent)
   const width = Math.max(WIDTH, Math.ceil(b.right - b.left + 2 * FIT_MARGIN))
@@ -334,7 +337,7 @@ function ramp(s: PulleySettings): PulleyFigure {
   return { ...shift(f, (width - (b.right - b.left)) / 2 - b.left, down), width, height: HEIGHT + down }
 }
 
-function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure & { extent: Point[] } {
+function rampAt(s: PulleySettings, base: number, wantDrop: number, back: number): PulleyFigure & { extent: Point[] } {
   const a = (s.angle * Math.PI) / 180
   const u = { x: Math.cos(a), y: -Math.sin(a) }
   const n = { x: -Math.sin(a), y: -Math.cos(a) }
@@ -371,7 +374,7 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
   let middles = [slope * 0.45]
   if (row.length > 1) {
     const length = rowLength(s)
-    let d = Math.min(Math.max(slope * 0.45, END_ROOM + length / 2), slope - FRONT_ROOM - length / 2) - length / 2
+    let d = Math.min(Math.max(slope * 0.45, back + length / 2), slope - FRONT_ROOM - length / 2) - length / 2
     middles = row.map((o) => {
       const w = objectWidth(o.kind as ObjectKind, o.size)
       const middle = d + w / 2
@@ -719,9 +722,49 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
   return out
 }
 
+/** The box around a ramp's angle label. */
+export function angleLabelBox(f: PulleyFigure, s: PulleySettings): Box {
+  const width = [...labelRuns(s.angleLabel.text).map((r) => r.text).join('')].length * LABEL_SIZE * 0.5
+  return boxAround(f.ramp!.angleLabelAt, width / 2 + 4, 14)
+}
+
+/** Is a ramp's angle label clear of every object on it, its strings, and their vectors and the vectors' labels? */
+export function angleLabelClear(f: PulleyFigure, s: PulleySettings): boolean {
+  // With a little room to spare around it.
+  const { left, top, right, bottom } = angleLabelBox(f, s)
+  const box = { left: left - LABEL_MARGIN, top: top - LABEL_MARGIN, right: right + LABEL_MARGIN, bottom: bottom + LABEL_MARGIN }
+  const widthOf = (l: Label) => [...labelRuns(l.text).map((r) => r.text).join('')].length * LABEL_SIZE * 0.45
+  return (
+    !f.objects.some((o) => polygonHits(box, cornersOf(o))) &&
+    !f.strings.some((st) => st.slice(1).some((p, i) => segmentHits(box, seg(st[i], p)))) &&
+    !f.vectors.some((v) => segmentHits(box, v.v) || (v.label.mode !== 'none' && boxesMeet(box, boxAround(v.labelAt, widthOf(v.label) / 2 + 2, 11))))
+  )
+}
+
+/** An object's four corners, in order round it. */
+function cornersOf(o: PlacedObject): Point[] {
+  const { u, n } = axes(o)
+  return [[-0.5, 0], [0.5, 0], [0.5, 1], [-0.5, 1]].map(([du, dn]) => ({
+    x: o.at.x + u.x * du * o.width + n.x * dn * o.height,
+    y: o.at.y + u.y * du * o.width + n.y * dn * o.height,
+  }))
+}
+
+/** How far up the slope a row moves at a time to clear the ramp's angle label. */
+const ROW_STEP = 8
+const LABEL_MARGIN = 8
+
 export function buildPulley(s: PulleySettings): PulleyFigure {
-  const f = s.setup === 'tackle' ? tackle(s) : s.setup === 'table' ? table(s) : s.setup === 'ramp' ? ramp(s) : atwood(s)
-  const vectors = vectorsFor(f, s)
+  let f = s.setup === 'tackle' ? tackle(s) : s.setup === 'table' ? table(s) : s.setup === 'ramp' ? ramp(s) : atwood(s)
+  let vectors = vectorsFor(f, s)
+  // A row of objects on a ramp moves up the slope, a little at a time, until it
+  // and its vectors are clear of the angle's label (the ramp growing, if it must).
+  if (s.setup === 'ramp' && rowOf(s).length > 1) {
+    for (let back = END_ROOM + ROW_STEP; !angleLabelClear({ ...f, vectors }, s) && back < 1000; back += ROW_STEP) {
+      f = ramp(s, back)
+      vectors = vectorsFor(f, s)
+    }
+  }
   // Should a vector or its label still reach past the bottom, the figure grows to hold it.
   const lowest = Math.max(...vectors.flatMap((v) => [v.v.y2, v.labelAt.y + 14]))
   return { ...f, vectors, height: Math.max(f.height, Math.ceil(lowest + 10)) }

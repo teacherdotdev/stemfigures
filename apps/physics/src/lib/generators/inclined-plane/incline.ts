@@ -7,6 +7,7 @@
 import type { Point } from '$lib/shared/field'
 import { labelRuns, type Label } from '$lib/shared/label'
 import { objectHeight, objectLabelHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
+import { boxAround, boxesMeet, polygonHits, segmentHits, type Box } from '$lib/shared/overlap'
 import { labelPoint, numbered, type LabeledVector, type Segment } from '$lib/shared/vector'
 import type { InclineSettings } from './settings'
 
@@ -32,8 +33,10 @@ const CONTACT_LENGTH = 34
 /** The gap between objects tied in a row: room for the tension and friction between them, more up a steep slope, where weight points along it into the gap. */
 const TIE_GAP = 130
 const STEEP_GAP = 110
-/** The least room left on the slope at each end of a row. */
+/** The least room left on the slope at each end of a row, and how far up the slope a row moves at a time to clear the angle's label. */
 const END_ROOM = 20
+const ROW_STEP = 8
+const LABEL_MARGIN = 8
 
 export type VectorKind = 'gravity' | 'normal' | 'friction' | 'applied' | 'tension' | 'contact' | 'velocity' | 'acceleration'
 
@@ -89,8 +92,12 @@ const gapOf = (s: InclineSettings) => (touching(s) ? 0 : TIE_GAP + STEEP_GAP * M
 const rowLength = (s: InclineSettings) =>
   s.objects.reduce((sum, o) => sum + objectWidth(o.kind as ObjectKind, o.size), 0) + gapOf(s) * (s.objects.length - 1)
 
-/** The figure with the ramp's foot at (0, 0) and its base `base` long. */
-function layout(s: InclineSettings, base: number): InclineFigure {
+/**
+ * The figure with the ramp's foot at (0, 0) and its base `base` long. A row
+ * of objects starts at least `back` up the slope from the foot (see
+ * buildIncline, which moves it up until it's clear of the angle's label).
+ */
+function layout(s: InclineSettings, base: number, back = END_ROOM): InclineFigure {
   const a = (s.angle * Math.PI) / 180
   const rise = base * Math.tan(a)
   const foot = pt(0, 0)
@@ -108,7 +115,7 @@ function layout(s: InclineSettings, base: number): InclineFigure {
   let reaches = [Math.min(Math.max(s.position * slope, sizes[0].w / 2), slope - sizes[0].w / 2)]
   if (sizes.length > 1) {
     const length = rowLength(s)
-    let d = Math.min(Math.max(s.position * slope, length / 2 + END_ROOM), slope - length / 2 - END_ROOM) - length / 2
+    let d = Math.min(Math.max(s.position * slope, length / 2 + back), slope - length / 2 - END_ROOM) - length / 2
     reaches = sizes.map(({ w }) => {
       const reach = d + w / 2
       d += w + gapOf(s)
@@ -136,11 +143,12 @@ function layout(s: InclineSettings, base: number): InclineFigure {
   // the gap between the slope and the ground is tall enough for the label.
   // The label sits past the arc, pushed out by about half its width.
   // A ramp too shallow for that has its label just above the slope instead,
-  // beside the end of the arc.
+  // beside the end of the arc; with a row of objects the arc stays small, so
+  // its label is near the foot and the row has the rest of the slope.
   const labelWidth = [...labelRuns(s.angleLabel.text).map((r) => r.text).join('')].length * LABEL_SIZE * 0.5
   const wanted = Math.max(ARC_R + LABEL_GAP, LABEL_ROOM / Math.tan(a))
   const labelR = Math.min(wanted, base * 0.45)
-  const arcR = labelR - LABEL_GAP
+  const arcR = wanted <= labelR || objects.length === 1 ? labelR - LABEL_GAP : ARC_R
   const arc = `M${r2(arcR)},0 A${r2(arcR)},${r2(arcR)} 0 0 0 ${r2(u.x * arcR)},${r2(u.y * arcR)}`
   const half = a / 2
   const angleLabelAt =
@@ -351,19 +359,58 @@ function shifted(f: InclineFigure, dx: number, dy: number): InclineFigure {
   }
 }
 
-export function buildIncline(s: InclineSettings): InclineFigure {
+/** The box around the angle's label. */
+export function angleLabelBox(f: InclineFigure, s: InclineSettings): Box {
+  const width = [...labelRuns(s.angleLabel.text).map((r) => r.text).join('')].length * LABEL_SIZE * 0.5
+  return boxAround(f.angleLabelAt, width / 2 + 4, 14)
+}
+
+/** Is the angle's label clear of every object, string and vector, and the vectors' labels? */
+export function angleLabelClear(f: InclineFigure, s: InclineSettings): boolean {
+  // With a little room to spare around it.
+  const { left, top, right, bottom } = angleLabelBox(f, s)
+  const box = { left: left - LABEL_MARGIN, top: top - LABEL_MARGIN, right: right + LABEL_MARGIN, bottom: bottom + LABEL_MARGIN }
+  const corners = (o: PlacedObject) => {
+    const t = (o.tilt * Math.PI) / 180
+    const u = { x: Math.cos(t), y: Math.sin(t) }
+    const n = { x: Math.sin(t), y: -Math.cos(t) }
+    return [[-0.5, 0], [0.5, 0], [0.5, 1], [-0.5, 1]].map(([du, dn]) => ({
+      x: o.at.x + u.x * du * o.width + n.x * dn * o.height,
+      y: o.at.y + u.y * du * o.width + n.y * dn * o.height,
+    }))
+  }
+  const widthOf = (l: Label) => [...labelRuns(l.text).map((r) => r.text).join('')].length * LABEL_SIZE * 0.45
+  return (
+    !f.objects.some((o) => polygonHits(box, corners(o))) &&
+    !f.strings.some((st) => segmentHits(box, st)) &&
+    !f.vectors.some((v) => segmentHits(box, v.v) || (v.label.mode !== 'none' && boxesMeet(box, boxAround(v.labelAt, widthOf(v.label) / 2 + 2, 11))))
+  )
+}
+
+/**
+ * The biggest ramp that fits with everything around it, but long enough for
+ * a row of objects that starts at least `back` up the slope; a row too long
+ * to fit makes the figure bigger instead.
+ */
+function fitted(s: InclineSettings, back: number): InclineFigure {
   const room = { w: WIDTH - 2 * MARGIN, h: HEIGHT - 2 * MARGIN }
-  // The biggest ramp that fits with everything around it, but long enough for
-  // a row of objects; a row too long to fit makes the figure bigger instead.
-  const least = s.objects.length > 1 ? (rowLength(s) + 2 * END_ROOM) * Math.cos((s.angle * Math.PI) / 180) : 0
+  const least = s.objects.length > 1 ? (rowLength(s) + back + END_ROOM) * Math.cos((s.angle * Math.PI) / 180) : 0
   let base = Math.max(room.w, least)
-  let f = layout(s, base)
+  let f = layout(s, base, back)
   for (let i = 0; i < 80 && base > least; i++) {
     const b = bounds(f.extent)
     if (b.right - b.left <= room.w && b.bottom - b.top <= room.h) break
     base = Math.max(least, base * 0.96)
-    f = layout(s, base)
+    f = layout(s, base, back)
   }
+  return f
+}
+
+export function buildIncline(s: InclineSettings): InclineFigure {
+  // A row of objects moves up the slope, a little at a time, until it and its
+  // vectors are clear of the angle's label (the ramp growing, if it must).
+  let f = fitted(s, END_ROOM)
+  for (let back = END_ROOM + ROW_STEP; s.objects.length > 1 && !angleLabelClear(f, s) && back < 1000; back += ROW_STEP) f = fitted(s, back)
   const b = bounds(f.extent)
   const width = Math.max(WIDTH, Math.ceil(b.right - b.left + 2 * MARGIN))
   const height = Math.max(HEIGHT, Math.ceil(b.bottom - b.top + 2 * MARGIN))

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { buildIncline } from './incline'
+import { angleLabelBox, angleLabelClear, buildIncline } from './incline'
 import { inclineSettings, type InclineSettings } from './settings'
 
 type Over = Partial<InclineSettings> & { object?: 'block' | 'ball' | 'cart'; objectSize?: number }
@@ -269,6 +269,32 @@ describe('a row of objects', () => {
           }
         }
       }
+    }
+  })
+
+  test('at shallow angles the angle label is clear of the row, wherever the row is put', () => {
+    for (const angle of [5, 10, 15]) {
+      for (const n of [2, 3]) {
+        for (const joined of ['string', 'touching'] as const) {
+          for (const position of [0.2, 0.55, 0.85]) {
+            for (const over of [{}, everything]) {
+              const f = makeRow(n, { ...over, angle, joined, position }, ['cart', 'block', 'ball'], [1, 2, 1])
+              // clear of every object, string, vector and vector label
+              expect(angleLabelClear(f, inclineSettings.defaults)).toBe(true)
+              // and still inside the figure, on the ramp's side of the foot
+              const box = angleLabelBox(f, inclineSettings.defaults)
+              expect(box.left).toBeGreaterThan(f.ramp.foot.x - 1)
+            }
+          }
+        }
+      }
+    }
+  })
+
+  test('a long angle label is cleared too', () => {
+    for (const angle of [5, 10, 15]) {
+      const s = { angle, angleLabel: { mode: 'text' as const, text: '15deg' }, ...everything }
+      expect(angleLabelClear(makeRow(3, s), { ...inclineSettings.defaults, ...s })).toBe(true)
     }
   })
 

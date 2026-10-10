@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { buildPulley } from './pulley'
+import { angleLabelBox, angleLabelClear, buildPulley } from './pulley'
 import { numberedObject, pulleySettings, type PulleySettings } from './settings'
 
 type Over = Partial<PulleySettings> & { aSize?: number; bSize?: number; aKind?: 'block' | 'cart' }
@@ -511,6 +511,27 @@ describe('a row of objects on a ramp', () => {
     for (const angle of [10, 20, 45, 60]) {
       for (const joined of ['string', 'touching'] as const) {
         for (const sizes of [[1, 1, 1], [2, 2, 2]]) expectInside(make3({ ...everything, setup: 'ramp', angle, joined }, sizes, ['cart', 'cart']))
+      }
+    }
+  })
+
+  test('at shallow angles the angle label is clear of the row and its vectors', () => {
+    // The Pulley's ramp goes down to 10°, so an address asking for 5° draws 10°;
+    // and a row is two objects on the ramp (three in all, with the hanging one).
+    expect(pulleySettings.fromParams(new URLSearchParams('setup=ramp&angle=5')).angle).toBe(10)
+    for (const angle of [10, 15]) {
+      for (const joined of ['string', 'touching'] as const) {
+        for (const over of [{}, everything, { friction: 'toward' as const }]) {
+          for (const sizes of [[1, 1, 1], [1, 2, 1], [2, 2, 2]]) {
+            for (const kinds of [['cart', 'block'], ['block', 'cart']] as ('block' | 'cart')[][]) {
+              const objects = three(sizes, kinds)
+              const s = { ...pulleySettings.defaults, ...over, setup: 'ramp' as const, angle, joined, objects }
+              const f = buildPulley(s)
+              expect(angleLabelClear(f, s)).toBe(true)
+              expect(angleLabelBox(f, s).left).toBeGreaterThan(f.ramp!.foot.x - 1)
+            }
+          }
+        }
       }
     }
   })
