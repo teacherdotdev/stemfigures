@@ -16,16 +16,16 @@ function reader(p: ReturnType<typeof make>['panels'][number]) {
 
 describe('the settings', () => {
   test('keep the segments in the page address, and read them back', () => {
-    const s = { ...motionSettings.defaults, segments: [newSegment({ kind: 'faster', size: 'fast', duration: 6, dir: 'back' }), newSegment({ kind: 'rest' })] }
+    const s = { ...motionSettings.defaults, segments: [newSegment({ kind: 'faster', speed: 6, duration: 6, dir: 'back' }), newSegment({ kind: 'rest' })] }
     const query = motionSettings.toQuery(s)
-    expect(query).toBe('segments=faster%2Cfast%2C6%2Cback%3Brest')
+    expect(query).toBe('segments=faster%2C6%2C6%2Cback%3Brest')
     expect(motionSettings.fromParams(new URLSearchParams(query)).segments).toEqual(s.segments)
   })
 
-  test('hold up to six segments, each 1 to 10 s', () => {
-    const s = motionSettings.fromParams(new URLSearchParams(`segments=${Array(8).fill('forward,slow,40').join(';')}`))
+  test('hold up to six segments, each up to 60 s', () => {
+    const s = motionSettings.fromParams(new URLSearchParams(`segments=${Array(8).fill('forward,2,400').join(';')}`))
     expect(s.segments).toHaveLength(6)
-    expect(s.segments[0].duration).toBe(10)
+    expect(s.segments[0].duration).toBe(60)
   })
 })
 
@@ -50,7 +50,7 @@ describe('the graphs', () => {
   })
 
   test('fit the motion: every value is on the grid, from 0 to the end of the motion', () => {
-    const s = { ...motionSettings.defaults, segments: [newSegment({ kind: 'back', size: 'fast', duration: 5 }), newSegment({ kind: 'faster', duration: 4 })], start: 10 }
+    const s = { ...motionSettings.defaults, segments: [newSegment({ kind: 'back', speed: 6, duration: 5 }), newSegment({ kind: 'faster', duration: 4 })], start: 10 }
     const m = motionOf(s.segments, s.start)
     for (const view of ['x', 'v', 'a'] as const) {
       const fit = fitAxes(m, view, 8)
@@ -87,7 +87,7 @@ describe('the graphs', () => {
   })
 
   test('join a jump in velocity with a dotted line, and never one in position', () => {
-    const f = from('graphs=all&segments=forward,medium,3;rest,medium,2;back')
+    const f = from('graphs=all&segments=forward,4,3;rest,0,2;back')
     const [x, v, a] = f.panels
     expect(x.joins).toEqual([])
     expect(v.joins).toHaveLength(2)
@@ -112,7 +112,7 @@ describe('letters', () => {
   })
 
   test('sit on a dot where the line runs on, and beside the join where it jumps', () => {
-    const f = from('graphs=all&letters=1&segments=forward,medium,3;rest,medium,2;back')
+    const f = from('graphs=all&letters=1&segments=forward,4,3;rest,0,2;back')
     expect(f.panels[0].dots).toHaveLength(4)
     // Velocity jumps at B and C, so only A and D have dots.
     expect(f.panels[1].dots).toHaveLength(2)
@@ -135,7 +135,7 @@ describe('letters', () => {
 
 describe('the tangent', () => {
   test('touches the position–time graph with the velocity there as its slope', () => {
-    const f = from('segments=faster,fast,6&tangent=1&tangentAt=4')
+    const f = from('segments=faster,6,6&tangent=1&tangentAt=4')
     const p = f.panels[0]
     const read = reader(p)
     const t = p.tangent!
@@ -214,7 +214,7 @@ describe('ranges the teacher sets', () => {
   })
 
   test('cut a jump in velocity at the grid’s edge', () => {
-    const f = from('graphs=vt&segments=forward,fast,3;rest&ranges=1&tFrom=0&tTo=6&tStep=1&vFrom=0&vTo=4&vStep=1')
+    const f = from('graphs=vt&segments=forward,6,3;rest&ranges=1&tFrom=0&tTo=6&tStep=1&vFrom=0&vTo=4&vStep=1')
     const p = f.panels[0]
     expect(p.joins).toHaveLength(1)
     expect(p.joins[0].y2).toBeCloseTo(p.layout.grid.y + p.layout.grid.h, 1)

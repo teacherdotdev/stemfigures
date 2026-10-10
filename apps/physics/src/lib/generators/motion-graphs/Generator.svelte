@@ -14,7 +14,7 @@
   import { motionOf, numberText, segmentLines, tangentAt, velocityAt } from './motion'
   import MotionGraphs from './MotionGraphs.svelte'
   import RangeFields from './RangeFields.svelte'
-  import { GRAPHS, KIND_NAMES, KINDS, MAX_SEGMENTS, motionSettings, newSegment, viewsOf, type Graphs, type Kind } from './settings'
+  import { GRAPHS, KIND_NAMES, KINDS, MAX_SEGMENTS, motionSettings, newSegment, speedFor, viewsOf, type Graphs, type Kind, type Segment } from './settings'
 
   const gen = createGenerator(motionSettings, 'motion-graphs')
   const s = $derived(gen.snapshot())
@@ -68,6 +68,22 @@
     const [seg] = gen.s.segments.splice(i, 1)
     gen.s.segments.splice(i + by, 0, seg)
   }
+  const SPEED_NAMES: Record<Exclude<Kind, 'rest'>, string> = { forward: 'Speed', back: 'Speed', faster: 'Speeds up to', slower: 'Slows down to' }
+  // Slowing down starts out to a stop, and the others at a speed, so a new
+  // kind of segment draws something rather than a warning.
+  function setKind(seg: Segment, kind: Kind) {
+    if (kind === 'slower' || seg.kind === 'slower') seg.speed = speedFor(kind)
+    seg.kind = kind
+  }
+  function unreachedNote(i: number) {
+    const was = Math.abs(m.pieces[i - 1]?.v1 ?? 0)
+    const to = numberText(s.segments[i].speed)
+    const faster = s.segments[i].kind === 'faster'
+    if (was === 0) return faster ? 'It starts at rest, so speeding up to 0 m/s leaves it at rest.' : 'It starts at rest, so there’s nothing to slow down: it stays at rest.'
+    return faster
+      ? `It’s already going ${numberText(was)} m/s, so it can’t speed up to ${to} m/s: it keeps going ${numberText(was)} m/s.`
+      : `It’s only going ${numberText(was)} m/s, so it can’t slow down to ${to} m/s: it keeps going ${numberText(was)} m/s.`
+  }
   // Which way a segment speeding up goes is only asked when it starts at rest.
   const fromRest = (i: number) => s.segments[i]?.kind === 'faster' && (i === 0 ? true : m.pieces[i - 1]?.v1 === 0)
   const tangentNote = $derived.by(() => {
@@ -99,31 +115,30 @@
           </div>
           <label class="field">
             What it does
-            <select bind:value={seg.kind}>
+            <select value={seg.kind} onchange={(e) => setKind(seg, e.currentTarget.value as Kind)}>
               {#each KINDS as k}<option value={k}>{KIND_NAMES[k]}</option>{/each}
             </select>
           </label>
-          {#if seg.kind !== 'rest'}
-            <div class="field">
-              {seg.kind === 'faster' || seg.kind === 'slower' ? 'How quickly' : 'How fast'}
-              <Choice name="Segment {i + 1} size" options={[['slow', 'Slow'], ['medium', 'Medium'], ['fast', 'Fast']]} bind:value={seg.size} />
-            </div>
-          {/if}
+          <div class="field-row">
+            {#if seg.kind !== 'rest'}
+              <label class="field">
+                {SPEED_NAMES[seg.kind]} (m/s)
+                <input type="number" min="0" max="100" step="any" bind:value={seg.speed} />
+              </label>
+            {/if}
+            <label class="field">
+              Lasts (s)
+              <input type="number" min="0.1" max="60" step="any" bind:value={seg.duration} />
+            </label>
+          </div>
           {#if fromRest(i)}
             <div class="field">
               Which way
               <Choice name="Segment {i + 1} direction" options={[['forward', 'Forward'], ['back', 'Back']]} bind:value={seg.dir} />
             </div>
           {/if}
-          <label class="field">
-            Lasts
-            <span class="slider">
-              <input type="range" min="1" max="10" bind:value={seg.duration} />
-              <output>{s.segments[i]?.duration} s</output>
-            </span>
-          </label>
           {#if lines[i]}<p class="note numbers">{lines[i]}</p>{/if}
-          {#if m.stillSlowing.includes(i)}<p class="note warning" role="status">It starts at rest, so there’s nothing to slow down: it stays at rest.</p>{/if}
+          {#if m.unreached.includes(i)}<p class="note warning" role="status">{unreachedNote(i)}</p>{/if}
         </div>
       {/each}
 
@@ -139,7 +154,7 @@
         Starting position (m)
         <input type="number" min="-50" max="50" step="1" bind:value={gen.s.start} />
       </label>
-      <p class="note">Speeding up and slowing down carry on from the velocity before them; slow, medium and fast are steps of 2, 4 and 6 m/s.</p>
+      <p class="note">Speeding up and slowing down carry on from the velocity before them.</p>
     </Section>
 
     <Section title="Graphs" icon={ChartLine} summary={GRAPHS[s.graphs].name}>

@@ -50,7 +50,7 @@ const force = (angle: number, length: number, label: string, more: Partial<Force
 })
 
 /** A Motion Graph segment. */
-const segment = (kind: Segment['kind'], size: Segment['size'], duration: number, dir: Segment['dir'] = 'forward'): Segment => ({ kind, size, duration, dir })
+const segment = (kind: Segment['kind'], speed: number, duration: number, dir: Segment['dir'] = 'forward'): Segment => ({ kind, speed, duration, dir })
 
 /** A Vector Diagram vector, with its other fields at their defaults. */
 const vector = (magnitude: number, angle: number, label: string, more: Partial<Vector> = {}): Vector => ({
@@ -296,7 +296,7 @@ export const EXAMPLES: Example[] = [
         graphs: 'all',
         letters: true,
         styles: true,
-        segments: [segment('faster', 'medium', 2), segment('forward', 'medium', 3), segment('slower', 'medium', 2), segment('faster', 'medium', 2, 'back'), segment('slower', 'medium', 2)],
+        segments: [segment('faster', 4, 2), segment('forward', 4, 3), segment('slower', 0, 2), segment('faster', 4, 2, 'back'), segment('slower', 0, 2)],
       },
     },
     {
@@ -308,7 +308,7 @@ export const EXAMPLES: Example[] = [
       settings: {
         graphs: 'vt',
         letters: true,
-        segments: [segment('rest', 'medium', 2), segment('faster', 'slow', 3), segment('faster', 'medium', 3), segment('forward', 'fast', 3), segment('slower', 'fast', 3)],
+        segments: [segment('rest', 0, 2), segment('faster', 2, 3), segment('faster', 6, 3), segment('forward', 6, 3), segment('slower', 0, 3)],
       },
     },
     {
@@ -321,7 +321,7 @@ export const EXAMPLES: Example[] = [
         numbers: false,
         gridlines: false,
         letters: true,
-        segments: [segment('faster', 'medium', 3), segment('forward', 'medium', 2), segment('slower', 'medium', 3), segment('rest', 'medium', 2), segment('back', 'medium', 3)],
+        segments: [segment('faster', 4, 3), segment('forward', 4, 2), segment('slower', 0, 3), segment('rest', 0, 2), segment('back', 4, 3)],
       },
     },
     {
@@ -330,7 +330,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A position–time graph curving upward for 6 s, with a dashed tangent line touching the curve at 4 s',
       caption:
         'A position–time graph of a cart speeding up steadily from rest for 6 s, so the line curves upward. A dashed tangent line touches the curve at 4 s; its slope is the cart’s instantaneous velocity at that moment.',
-      settings: { segments: [segment('faster', 'fast', 6)], tangent: true, tangentAt: 4 },
+      settings: { segments: [segment('faster', 6, 6)], tangent: true, tangentAt: 4 },
     },
   ]),
 

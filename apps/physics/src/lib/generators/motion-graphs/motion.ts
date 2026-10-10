@@ -3,20 +3,12 @@
 // acceleration follow from it exactly (position is the area under the line,
 // acceleration its slope), so the three graphs always match.
 //
-// Sizes are steps of SPEED: a constant velocity is 1, 2 or 3 steps
-// (slow, medium, fast), and speeding up or slowing down gains or loses that
-// many steps over the segment. So a cart that speeds up "medium" from rest
-// then moves at a constant "medium" velocity carries straight on, and one
-// that slows down "medium" from there comes to a stop. Speeding up and
-// slowing down start from the velocity the segment before ended at, so
-// velocity only jumps going into a constant velocity or rest, the instant
-// changes textbook graphs draw.
+// Each segment's speed is typed: the one it moves at, or the one it speeds up
+// or slows down to. Speeding up and slowing down start from the velocity the
+// segment before ended at, so velocity only jumps going into a constant
+// velocity or rest, the instant changes textbook graphs draw.
 
-import type { Segment, Size } from './settings'
-
-/** One step of speed, in m/s. Even, so every position comes out a whole number of meters. */
-export const SPEED = 2
-export const STEPS: Record<Size, number> = { slow: 1, medium: 2, fast: 3 }
+import type { Segment } from './settings'
 
 /** A segment's motion: its times, velocities and positions at both ends, and its acceleration. */
 export interface Piece {
@@ -33,27 +25,31 @@ export interface Motion {
   pieces: Piece[]
   /** When the motion ends. */
   end: number
-  /** Segments that start at rest and so have nothing to slow down from, drawn at rest (by index). */
-  stillSlowing: number[]
+  /**
+   * Segments that can't reach their speed, drawn keeping the speed they start
+   * with (by index): speeding up to a speed no faster than that, or slowing
+   * down to one no slower.
+   */
+  unreached: number[]
 }
 
 export function motionOf(segments: Segment[], start = 0): Motion {
   const pieces: Piece[] = []
-  const stillSlowing: number[] = []
+  const unreached: number[] = []
   let t = 0
   let x = start
   let v = 0
   segments.forEach((seg, i) => {
-    const change = STEPS[seg.size] * SPEED
     let v0 = v
     let v1 = v
     if (seg.kind === 'rest') v0 = v1 = 0
-    else if (seg.kind === 'forward') v0 = v1 = change
-    else if (seg.kind === 'back') v0 = v1 = -change
-    else if (seg.kind === 'faster') v1 = v + (v === 0 ? (seg.dir === 'back' ? -1 : 1) : Math.sign(v)) * change
-    else if (v === 0) stillSlowing.push(i)
-    // Slowing down never goes past a stop: that would be turning around.
-    else v1 = v - Math.sign(v) * Math.min(change, Math.abs(v))
+    else if (seg.kind === 'forward') v0 = v1 = seg.speed
+    else if (seg.kind === 'back') v0 = v1 = -seg.speed
+    else if (seg.kind === 'faster' ? seg.speed <= Math.abs(v) : seg.speed >= Math.abs(v)) unreached.push(i)
+    // Speeding up from rest goes the way it is set; otherwise it keeps going
+    // the way it was. Speeds are never negative, so slowing down stops at rest
+    // rather than turning around.
+    else v1 = (v === 0 ? (seg.dir === 'back' ? -1 : 1) : Math.sign(v)) * seg.speed
     const d = seg.duration
     const x1 = x + ((v0 + v1) / 2) * d
     pieces.push({ t0: t, t1: t + d, v0, v1, x0: x, x1, a: (v1 - v0) / d })
@@ -61,7 +57,7 @@ export function motionOf(segments: Segment[], start = 0): Motion {
     x = x1
     v = v1
   })
-  return { pieces, end: t, stillSlowing }
+  return { pieces, end: t, unreached }
 }
 
 /** The piece moving at time t: the later one at a boundary, the last one at the end. */

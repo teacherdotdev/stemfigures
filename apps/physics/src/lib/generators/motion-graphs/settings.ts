@@ -1,7 +1,7 @@
 // Every choice the teacher makes on the Motion Graph Generator, with its
 // default: a cart that speeds up, cruises, slows down and stops, on a position–time graph.
-// The motion is picked by shape, segment by segment; ./motion works out its
-// numbers.
+// The motion is typed segment by segment, as a speed and how long it lasts;
+// ./motion works out the rest.
 
 import { LABEL_SIZES, type LabelSize } from '$shared/labelSize'
 import { bool, choice, defineSettings, int, label, list, number, type SettingsOf } from '$lib/shared/settings'
@@ -17,16 +17,13 @@ export const KIND_NAMES: Record<Kind, string> = {
   slower: 'Slowing down',
 }
 
-/** How fast it moves, or how quickly its speed changes. */
-export const SIZES = ['slow', 'medium', 'fast'] as const
-export type Size = (typeof SIZES)[number]
-
 /** One segment of the motion. New fields go at the end, so old links keep working (see `list`). */
 const segment = {
   kind: choice('forward', KINDS),
-  size: choice('medium', SIZES),
+  /** Its speed in m/s: the one it moves at, or speeds up or slows down to. */
+  speed: number(4, 0, 100),
   /** How long it lasts, in seconds. */
-  duration: int(3, 1, 10),
+  duration: number(3, 0.1, 60),
   /** Which way a segment speeding up from rest goes. Once moving, it keeps going the way it was. */
   dir: choice('forward', ['forward', 'back']),
 }
@@ -35,8 +32,11 @@ export type Segment = SettingsOf<typeof segment>
 
 export const MAX_SEGMENTS = 6
 
+/** The speed a segment of each kind starts with: slowing down is to a stop. */
+export const speedFor = (kind: Kind) => (kind === 'slower' ? 0 : 4)
+
 /** A segment with every setting at its default but these. */
-export const newSegment = (over: Partial<Segment> = {}): Segment => ({ kind: 'forward', size: 'medium', duration: 3, dir: 'forward', ...over })
+export const newSegment = (over: Partial<Segment> = {}): Segment => ({ kind: 'forward', speed: speedFor(over.kind ?? 'forward'), duration: 3, dir: 'forward', ...over })
 
 /** The graphs teachers can pick: one, or all three stacked on the same time axis. */
 export const GRAPHS = {
