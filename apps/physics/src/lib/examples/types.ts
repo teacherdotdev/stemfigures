@@ -2,6 +2,7 @@
 // teacher would search for it by. The settings types are imported as types
 // only, so the gallery on a generator page doesn't pull in every generator.
 
+import type { CircuitSettings } from '$lib/generators/circuit-diagram/settings'
 import type { FbdSettings } from '$lib/generators/free-body-diagram/settings'
 import type { InclineSettings } from '$lib/generators/inclined-plane/settings'
 import type { ProjectileSettings } from '$lib/generators/projectile-motion/settings'
@@ -17,6 +18,7 @@ export interface SettingsById {
   'pulley': PulleySettings
   'projectile-motion': ProjectileSettings
   'spring-scale': SpringScaleSettings
+  'circuit-diagram': CircuitSettings
 }
 
 export type ExampleGeneratorId = keyof SettingsById

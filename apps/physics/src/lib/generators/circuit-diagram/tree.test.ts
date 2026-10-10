@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { circuitSettings } from './settings'
 import {
+  circuitField,
   cleanCircuit,
   decodeCircuit,
   DEFAULT_CIRCUIT,
@@ -24,10 +24,8 @@ const loop = (...items: Item[]): Circuit => ({ items, current: null })
 const names = (c: Circuit) => [...partsOf(c.items)].map((part) => part.name.text)
 /** The circuit's shape in the address's notation, without extras. */
 const shape = (c: Circuit) => encodeCircuit(c).replace(/[nvmij@]'(\\.|[^'])*'/g, '')
-const roundTrip = (c: Circuit) => {
-  const query = circuitSettings.toQuery(circuitSettings.clean({ ...circuitSettings.defaults, circuit: c }))
-  return circuitSettings.fromParams(new URLSearchParams(query)).circuit
-}
+const field = circuitField(DEFAULT_CIRCUIT)
+const roundTrip = (c: Circuit) => field.clean(field.decode(field.encode(field.clean(c))))
 
 describe('the default circuit', () => {
   test('is a battery, R₁, then R₂ in parallel with R₃', () => {
@@ -35,9 +33,6 @@ describe('the default circuit', () => {
     expect(names(DEFAULT_CIRCUIT)).toEqual(['epsilon', 'R_1', 'R_2', 'R_3'])
   })
 
-  test('leaves the address empty', () => {
-    expect(circuitSettings.toQuery(circuitSettings.defaults)).toBe('')
-  })
 })
 
 describe('tidying', () => {
@@ -137,7 +132,7 @@ describe('the address', () => {
   test('a broken value falls back to the default circuit', () => {
     for (const bad of ['', 'x', 'b.', 'b.[r.r', "b.rn'oops", 'b.r)']) {
       expect(decodeCircuit(bad)).toBeUndefined()
-      expect(circuitSettings.fromParams(new URLSearchParams({ circuit: bad })).circuit).toEqual(DEFAULT_CIRCUIT)
+      expect(field.clean(field.decode(bad))).toEqual(DEFAULT_CIRCUIT)
     }
   })
 })

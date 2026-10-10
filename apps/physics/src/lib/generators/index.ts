@@ -3,13 +3,14 @@
 // here each gets the component drawing its directory preview. Page titles,
 // the sitemap and the top bar read GENERATORS.
 //
-// The Coil and Magnet (coil-and-magnet/) and Circuit Diagram (circuit-diagram/)
-// generators are switched off for now: they have no catalog entry, preview
-// here or page. Restore all three to bring one back.
+// The Coil and Magnet generator (coil-and-magnet/) is switched off for now:
+// it has no catalog entry, preview here or page. Restore all three to bring
+// it back.
 
 import type { Component } from 'svelte'
 import { generatorsOn, matches } from '$shared/catalog/index'
 import { SITE_ID } from '$lib/site/config'
+import CircuitDiagramPreview from './circuit-diagram/Preview.svelte'
 import FreeBodyPreview from './free-body-diagram/Preview.svelte'
 import InclinedPlanePreview from './inclined-plane/Preview.svelte'
 import ProjectileMotionPreview from './projectile-motion/Preview.svelte'
@@ -25,6 +26,7 @@ export const PREVIEWS: Record<string, Component> = {
   'pulley': PulleyPreview,
   'projectile-motion': ProjectileMotionPreview,
   'spring-scale': SpringScalePreview,
+  'circuit-diagram': CircuitDiagramPreview,
 }
 
 export const GENERATORS = generatorsOn(SITE_ID, PREVIEWS)

@@ -90,4 +90,18 @@ export const PHYSICS: CatalogEntry[] = [
       'scale', 'zero error', 'zero offset', 'magnifier', 'slotted masses', 'hanging mass', 'mechanics', 'printable',
     ],
   },
+  {
+    id: 'circuit-diagram',
+    site: 'physics',
+    name: 'Circuit Diagram Generator',
+    path: '/circuit-diagram',
+    blurb: 'A battery with resistors or bulbs in series or in parallel.',
+    description:
+      'Make printable circuit diagrams for physics tests. Draw a cell or battery with up to four resistors or bulbs in series or parallel, with meters, labeled or left blank.',
+    keywords: [
+      'circuit', 'circuits', 'circuit diagram', 'schematic', 'electric', 'electricity', 'series', 'parallel', 'resistor',
+      'resistance', 'ohm', "ohm's law", 'battery', 'cell', 'emf', 'bulb', 'lamp', 'switch', 'ammeter', 'voltmeter',
+      'current', 'voltage', 'potential difference', 'equivalent resistance', 'symbols', 'iec', 'gcse', 'printable',
+    ],
+  },
 ]

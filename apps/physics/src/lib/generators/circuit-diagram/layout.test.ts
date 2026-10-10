@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'vitest'
+import { circuitOf } from './circuit'
+import { circuitSettings, MAX_LOADS, newLoad, type CircuitSettings, type VoltmeterPlace } from './settings'
 import { arrowBox, buildCircuit, labelBox, ladderOf, meterBox, partBox, pointBox, type Box, type CircuitFigure, type Pt } from './layout'
 import { cleanCircuit, DEFAULT_CIRCUIT, encodeCircuit, MAX_DEPTH, MAX_PARTS, newGroup, newPart, type Circuit, type Item, type PartKind } from './tree'
 
@@ -316,5 +318,54 @@ describe('the loop layout', () => {
         throw new Error(`circuit ${encodeCircuit(c)}: ${e}`)
       }
     }
+  }, 30_000)
+})
+
+describe("the generator's circuits", () => {
+  const settings = (over: Partial<CircuitSettings>) => circuitSettings.clean({ ...circuitSettings.defaults, ...over })
+  const loads = (n: number) => Array.from({ length: n }, (_, i) => newLoad(i))
+
+  test('every setup, in series and in parallel, with 1 to 4 parts: nothing overlaps, no wires cross', () => {
+    for (const arrangement of ['series', 'parallel'] as const)
+      for (let n = 1; n <= MAX_LOADS; n++)
+        for (const sw of ['none', 'open'] as const)
+          for (const ammeter of [false, true])
+            for (const voltmeter of ['none', 'source', String(n) as VoltmeterPlace] as const) {
+              const s = settings({ arrangement, loads: loads(n), switch: sw, ammeter, voltmeter, voltmeterLabel: shown, ammeterLabel: shown, polarity: true })
+              try {
+                checkFigure(buildCircuit(circuitOf(s), { title: false, polarity: true }))
+              } catch (e) {
+                throw new Error(`${circuitSettings.toQuery(s)}: ${e}`)
+              }
+            }
+  }, 30_000)
+
+  test('series parts go round one loop, the battery on the left', () => {
+    const fig = buildCircuit(circuitOf(settings({ loads: loads(4) })), { title: false, polarity: false })
+    expect(fig.parts.map((q) => q.part.kind)).toEqual(['battery', 'resistor', 'resistor', 'resistor', 'resistor'])
+    expect(fig.parts[0].angle).toBe(270)
+    expect(fig.dots).toHaveLength(0)
+  })
+
+  test('parallel parts are rungs of a ladder, the switch and ammeter beside the battery', () => {
+    const c = circuitOf(settings({ arrangement: 'parallel', loads: loads(3), switch: 'closed', ammeter: true }))
+    expect(ladderOf(c)).not.toBeNull()
+    const fig = buildCircuit(c, { title: false, polarity: false })
+    expect(fig.parts.filter((q) => q.part.kind === 'resistor').map((q) => q.angle)).toEqual([90, 90, 90])
+    for (const q of fig.parts.filter((q) => q.part.kind !== 'resistor')) expect(q.angle).toBe(270)
+    // Every rung but the last meets each rail at a T.
+    expect(fig.dots).toHaveLength(4)
+  })
+
+  test('one part is one loop, whichever arrangement is set', () => {
+    const one = (arrangement: 'series' | 'parallel') => encodeCircuit(circuitOf(settings({ arrangement, loads: loads(1) })))
+    expect(one('parallel')).toBe(one('series'))
+  })
+
+  test('the voltmeter goes across the part it names, and names number themselves', () => {
+    const c = circuitOf(settings({ loads: [newLoad(0), { ...newLoad(1), kind: 'bulb' }, { ...newLoad(2), name: { mode: 'text', text: 'R_x' } }], voltmeter: '2' }))
+    const parts = c.items.filter((i) => i.type === 'part')
+    expect(parts.map((q) => q.name.text)).toEqual(['epsilon', 'R', 'L', 'R_x'])
+    expect(parts.map((q) => !!q.voltmeter)).toEqual([false, false, true, false])
   })
 })
