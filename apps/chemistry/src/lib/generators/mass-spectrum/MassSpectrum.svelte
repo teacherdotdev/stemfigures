@@ -25,10 +25,8 @@
     SOURCES,
     SOURCE_NAMES,
     Y_TITLES,
-    answerLines,
     atomicMassText,
     massSpectrumSettings,
-    nameOf,
     peakTexts,
     peaksOf,
     typedTotal,
@@ -91,10 +89,10 @@
   )
 </script>
 
-{#snippet check(label: string, hint: string, checked: boolean, set: (v: boolean) => void)}
+{#snippet check(label: string, checked: boolean, set: (v: boolean) => void)}
   <label class="check">
     <input type="checkbox" {checked} onchange={(e) => set(e.currentTarget.checked)} />
-    <span><strong>{label}</strong><small>{hint}</small></span>
+    <strong>{label}</strong>
   </label>
 {/snippet}
 
@@ -120,13 +118,9 @@
             {/each}
           </select>
         </label>
-        <p class="help">
-          {peaks.length === 1 ? `${nameOf(clean)} has one natural isotope, so one peak.` : `${peaks.length} natural isotopes.`}
-          Abundances are IUPAC’s representative values; masses are from NIST.
-        </p>
       {:else}
         <label class="field">
-          <span>Name <span class="hint">over the spectrum and in the answer key</span></span>
+          <span>Name</span>
           <input type="text" maxlength="40" placeholder="Element X" bind:value={s.name} />
         </label>
         <div class="isotopes">
@@ -157,7 +151,6 @@
             <button type="button" class="btn-ghost small" onclick={copyElement}>Copy {elementOf(clean.element).name.toLowerCase()}’s isotopes</button>
           {/if}
         </div>
-        <p class="help">Each peak sits at its mass rounded to a whole number; the exact mass goes into the relative atomic mass.</p>
         {#if total !== null}
           <p class="help">These add up to {total}%. The relative atomic mass is worked out as if they added up to 100%.</p>
         {/if}
@@ -182,22 +175,19 @@
           </button>
         {/each}
       </div>
-      <p class="note">
-        {clean.scale === 'percent' ? 'Each peak as tall as its % abundance, so they add up to 100.' : 'The tallest peak is 100; the others are their abundance against it.'}
-      </p>
-      {@render check('Abundances', `Write each peak’s ${clean.scale === 'percent' ? '% abundance' : 'abundance'} over it, like ${texts[0]}.`, s.abundances, (v) => (s.abundances = v))}
+      {@render check('Abundances', s.abundances, (v) => (s.abundances = v))}
     </Section>
 
     <Section title="For the student" icon={PencilLine} summary={studentSummary}>
-      {@render check('Element name', `Write ${nameOf(clean)} over the spectrum. Hide it for “which element is this?”`, s.names, (v) => (s.names = v))}
+      {@render check('Element name', s.names, (v) => (s.names = v))}
       <label class="field setting">
-        <span>Leave a peak out <span class="hint">for students to draw</span></span>
+        <span>Leave a peak out</span>
         <select bind:value={s.leaveOut}>
           <option value={0}>None</option>
           {#each peaks as p, i (i)}<option value={p.mz}>m/z {p.mz} ({texts[i]})</option>{/each}
         </select>
       </label>
-      {@render check('Answer key', `Print “${answerLines(clean).join(' · ')}” under the graph.`, s.answerKey, (v) => (s.answerKey = v))}
+      {@render check('Answer key', s.answerKey, (v) => (s.answerKey = v))}
     </Section>
 
     <TitleSettings
@@ -213,7 +203,7 @@
       bind:every={s.xEvery} bind:labelMode={s.xLabelMode} bind:label={s.xLabel} bind:startCap={s.xStartCap} bind:endCap={s.xEndCap}
       extras={[clean.xFit ? 'fitted' : '']}
     >
-      {@render check('Fit to the peaks', 'A block for each half m/z, numbered every whole one.', s.xFit, (v) => (s.xFit = v))}
+      {@render check('Fit to the peaks', s.xFit, (v) => (s.xFit = v))}
       {#if g.problems.peaks}<p class="help problem">{g.problems.peaks}</p>{/if}
     </AxisSettings>
     <AxisSettings
@@ -233,7 +223,6 @@
   .card-head { margin: 0; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .spectrum { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.75rem; }
   .field { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.88rem; }
-  .field .hint { font-weight: 400; color: var(--muted); }
   .field input { font-weight: 400; }
   .field-label { margin: 0 0 0.45rem; font-weight: 700; font-size: 0.9rem; }
   .isotopes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0.45rem 0.6rem; align-items: center; }
@@ -243,14 +232,11 @@
   .small { padding: 0.5rem 0.85rem; font-size: 0.9rem; }
   .help { margin: 0; font-size: 0.84rem; color: var(--muted); }
   .help.problem { color: var(--red); font-weight: 600; }
-  .note { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.82rem; }
   .readout { margin: 0; padding: 0.55rem 0.75rem; list-style: none; border-radius: 10px; background: var(--blue-soft); font-size: 0.85rem; font-weight: 600; }
   .readout .working { margin-top: 0.2rem; font-weight: 400; font-size: 0.8rem; overflow-wrap: anywhere; }
   .setting { margin-top: 1rem; }
-  .check { display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 1rem; cursor: pointer; }
+  .check { display: flex; align-items: flex-start; gap: 0.6rem; margin: 1rem 0 0.75rem; cursor: pointer; }
   .check:first-child { margin-top: 0.2rem; }
   .check input { width: 1.1rem; height: 1.1rem; margin: 0.15rem 0 0; accent-color: var(--blue); }
-  .check span { display: flex; flex-direction: column; }
   .check strong { font-size: 0.9rem; }
-  .check small { color: var(--muted); font-size: 0.82rem; }
 </style>

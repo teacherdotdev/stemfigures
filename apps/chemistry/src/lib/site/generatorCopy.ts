@@ -576,7 +576,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'Can I make a spectrum for a made-up element?',
-        a: 'Yes. Choose Your own isotopes and type up to six masses with their percent abundances, and give the element a name. If the abundances don’t add up to 100%, the page says so and averages them as if they did.',
+        a: 'Yes. Choose Custom isotopes and type up to six masses with their percent abundances, and give the element a name. If the abundances don’t add up to 100%, the page says so and averages them as if they did.',
       },
       {
         q: 'Can it draw the mass spectrum of a molecule?',

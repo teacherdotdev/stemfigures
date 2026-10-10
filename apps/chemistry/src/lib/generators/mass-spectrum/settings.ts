@@ -10,7 +10,7 @@ import { SYMBOLS, abundanceText, elementOf, elementPeaks, heightsOf, massText, r
 /** Where the peaks come from: an element's natural isotopes, or isotopes the teacher types. */
 export const SOURCES = ['element', 'custom'] as const
 export type Source = (typeof SOURCES)[number]
-export const SOURCE_NAMES: Record<Source, string> = { element: 'Element', custom: 'Your own isotopes' }
+export const SOURCE_NAMES: Record<Source, string> = { element: 'Element', custom: 'Custom isotopes' }
 
 /** How tall a peak is: its % abundance, or its abundance against the tallest peak's 100. */
 export const SCALES = ['percent', 'relative'] as const
@@ -86,7 +86,7 @@ export function peaksOf(s: { source: Source; element: string; isotopes: Typed[] 
   return s.source === 'element' ? elementPeaks(s.element) : typedPeaks(s.isotopes)
 }
 
-/** What the figure calls the element: its name, or the name typed for your own isotopes. */
+/** What the figure calls the element: its name, or the name typed for custom isotopes. */
 export const nameOf = (s: MassSpectrumSettings) => (s.source === 'element' ? elementOf(s.element).name : s.name.trim() || 'Element X')
 
 /** Masses typed that land on the same whole number, so their peaks would overlap. */
