@@ -306,3 +306,226 @@ describe('links and presets from before the objects were a list', () => {
     expect(buildPulley(again)).toEqual(buildPulley(old))
   })
 })
+
+/** Three objects of these sizes (and kinds, for the ones on a table or ramp), labeled m_1 to m_3. */
+const three = (sizes: number[] = [1, 1, 1], kinds: ('block' | 'cart')[] = []) => sizes.map((size, i) => ({ ...numberedObject(i + 1), size, kind: kinds[i] ?? 'block' }))
+const make3 = (over: Partial<PulleySettings> = {}, sizes?: number[], kinds?: ('block' | 'cart')[]) =>
+  buildPulley({ ...pulleySettings.defaults, objects: three(sizes, kinds), ...over })
+const tensions = (f: ReturnType<typeof make>) => f.vectors.filter((v) => v.kind === 'tension').map((v) => v.label.text)
+const count = (texts: string[]) => texts.reduce<Record<string, number>>((n, t) => ({ ...n, [t]: (n[t] ?? 0) + 1 }), {})
+
+/** Every corner of every object is inside the figure. */
+function expectInside(f: ReturnType<typeof make>) {
+  for (const o of f.objects) {
+    const t = (o.tilt * Math.PI) / 180
+    const u = { x: Math.cos(t), y: Math.sin(t) }
+    const n = { x: Math.sin(t), y: -Math.cos(t) }
+    for (const [du, dn] of [[-0.5, 0], [0.5, 0], [-0.5, 1], [0.5, 1]]) {
+      const x = o.at.x + u.x * du * o.width + n.x * dn * o.height
+      const y = o.at.y + u.y * du * o.width + n.y * dn * o.height
+      expect(x).toBeGreaterThanOrEqual(0)
+      expect(x).toBeLessThanOrEqual(f.width)
+      expect(y).toBeGreaterThanOrEqual(0)
+      expect(y).toBeLessThanOrEqual(f.height)
+    }
+  }
+  for (const w of f.wheels) expect(w.cy - w.r).toBeGreaterThan(0)
+  for (const v of f.vectors) {
+    for (const p of [{ x: v.v.x2, y: v.v.y2 }, v.labelAt]) {
+      expect(p.x).toBeGreaterThanOrEqual(0)
+      expect(p.x).toBeLessThanOrEqual(f.width)
+      expect(p.y).toBeGreaterThanOrEqual(0)
+      expect(p.y).toBeLessThanOrEqual(f.height)
+    }
+  }
+}
+
+const everything = { tension: true, gravity: true, normal: true, friction: 'away', contact: true, acceleration: 'forward' } as const
+
+describe('three-mass Atwood machine', () => {
+  test('the third hangs straight below the one chosen, on its own string', () => {
+    for (const below of ['a', 'b'] as const) {
+      const f = make3({ below })
+      expect(f.objects).toHaveLength(3)
+      const [a, b, c] = f.objects
+      const holder = below === 'a' ? a : b
+      expect(c.at.x).toBeCloseTo(holder.at.x)
+      expect(c.at.y - c.height).toBeGreaterThan(holder.at.y)
+      const string = f.strings[2]
+      expect(string[0]).toEqual(holder.at)
+      expect(string.at(-1)!.x).toBeCloseTo(c.at.x)
+      expect(string.at(-1)!.y).toBeCloseTo(c.at.y - c.height)
+    }
+  })
+
+  test('the third moves with the one it hangs from', () => {
+    const f = make3({ below: 'a', acceleration: 'forward' })
+    const [up, down, third] = f.vectors.filter((v) => v.kind === 'acceleration')
+    expect(up.v.y2).toBeLessThan(up.v.y1)
+    expect(down.v.y2).toBeGreaterThan(down.v.y1)
+    expect(third.v.y2).toBeLessThan(third.v.y1)
+  })
+
+  test("a wide third object doesn't run into the other side", () => {
+    const f = make3({}, [2, 0.5, 2])
+    const [a, , c] = f.objects
+    expect(a.at.x + a.width / 2).toBeLessThan(c.at.x - c.width / 2)
+  })
+
+  test('two strings: T_1 over the wheel and T_2 below, at both ends of each', () => {
+    expect(count(tensions(make3({ tension: true })))).toEqual({ T_1: 4, T_2: 2 })
+    // and still just T with two objects
+    expect(count(tensions(make({ tension: true })))).toEqual({ T: 4 })
+  })
+
+  test('the holder’s weight is set off to the outer side, clear of the string below it', () => {
+    const f = make3({ gravity: true, below: 'b' })
+    const [, b] = f.objects
+    const weight = f.vectors.filter((v) => v.kind === 'gravity')[1]
+    expect(weight.v.x1).toBeGreaterThan(b.at.x + 1)
+  })
+
+  test('everything fits, with the third on either side, any size, every vector on', () => {
+    for (const below of ['a', 'b'] as const) {
+      for (const lower of ['neither', 'a', 'b'] as const) {
+        for (const sizes of [[1, 1, 1], [2, 2, 2], [0.5, 0.5, 2]]) expectInside(make3({ ...everything, below, lower }, sizes))
+      }
+    }
+  })
+})
+
+describe('a row of objects on a table', () => {
+  test('tied: a gap between them, with a level string from one to the next', () => {
+    const f = make3({ setup: 'table' })
+    const [back, front] = f.objects
+    expect(back.at.y).toBe(front.at.y)
+    expect(back.at.x + back.width / 2).toBeLessThan(front.at.x - front.width / 2)
+    const tie = f.strings[0]
+    expect(tie[0].x).toBeCloseTo(back.at.x + back.width / 2)
+    expect(tie[1].x).toBeCloseTo(front.at.x - front.width / 2)
+    expect(tie[0].y).toBe(tie[1].y)
+  })
+
+  test('touching: face to face, with no string between them', () => {
+    const f = make3({ setup: 'table', joined: 'touching' })
+    const [back, front] = f.objects
+    expect(back.at.x + back.width / 2).toBeCloseTo(front.at.x - front.width / 2)
+    expect(f.strings).toHaveLength(2)
+  })
+
+  test('the front one is where a lone one goes, still tied over the pulley', () => {
+    const lone = make({ setup: 'table' }).objects[0]
+    const f = make3({ setup: 'table' })
+    expect(f.objects[1].at.x - (f.width - 640)).toBeCloseTo(lone.at.x)
+  })
+
+  test('a long row makes the table, and the figure, longer', () => {
+    const f = make3({ setup: 'table' }, [2, 2, 1], ['cart', 'cart'])
+    expect(f.width).toBeGreaterThan(640)
+    expect(f.table!.slab.x).toBeLessThan(f.objects[0].at.x - f.objects[0].width / 2)
+    expectInside(f)
+  })
+
+  test('two strings, T_1 and T_2; touching, one string, T', () => {
+    expect(count(tensions(make3({ setup: 'table', tension: true })))).toEqual({ T_1: 2, T_2: 4 })
+    expect(count(tensions(make3({ setup: 'table', joined: 'touching', tension: true })))).toEqual({ T: 4 })
+  })
+
+  test('a normal force and friction on each object on the table, numbered', () => {
+    const f = make3({ setup: 'table', normal: true, friction: 'toward' })
+    expect(f.vectors.filter((v) => v.kind === 'normal').map((v) => v.label.text)).toEqual(['F_{N1}', 'F_{N2}'])
+    expect(f.vectors.filter((v) => v.kind === 'friction').map((v) => v.label.text)).toEqual(['F_{f1}', 'F_{f2}'])
+  })
+
+  test('touching, friction runs under each object and is labeled below the table top', () => {
+    const f = make3({ setup: 'table', joined: 'touching', friction: 'away' })
+    for (const v of f.vectors.filter((v) => v.kind === 'friction')) {
+      expect(v.v.y1).toBeGreaterThan(f.table!.top)
+      expect(v.v.x2).toBeLessThan(v.v.x1)
+      expect(v.labelAt.y).toBeGreaterThan(v.v.y1)
+    }
+  })
+
+  test('contact forces only when touching: equal, opposite, from the face, one labeled', () => {
+    expect(make3({ setup: 'table', contact: true }).vectors.some((v) => v.kind === 'contact')).toBe(false)
+    const f = make3({ setup: 'table', joined: 'touching', contact: true })
+    const [onFront, onBack] = f.vectors.filter((v) => v.kind === 'contact')
+    const [back, front] = f.objects
+    const face = front.at.x - front.width / 2
+    for (const c of [onFront, onBack]) expect(c.v.x1).toBeCloseTo(face)
+    expect(onFront.v.x2).toBeGreaterThan(face) // pushing the front one forward
+    expect(onBack.v.x2).toBeLessThan(face) // and the back one back
+    expect(onFront.v.x2 - face).toBeCloseTo(face - onBack.v.x2)
+    expect(onFront.v.y1).toBeLessThan(back.at.y)
+    expect([onFront.label.mode, onBack.label.mode]).toEqual(['text', 'none'])
+  })
+
+  test('touching, they move as one: one acceleration arrow for the row', () => {
+    const tied = make3({ setup: 'table', acceleration: 'forward' }).vectors.filter((v) => v.kind === 'acceleration')
+    expect(tied).toHaveLength(3)
+    const f = make3({ setup: 'table', joined: 'touching', acceleration: 'backward' })
+    const acc = f.vectors.filter((v) => v.kind === 'acceleration')
+    expect(acc).toHaveLength(2)
+    // backward, over the back one
+    expect(acc[0].v.x2).toBeLessThan(acc[0].v.x1)
+    expect(Math.abs(acc[0].v.x1 - f.objects[0].at.x)).toBeLessThan(f.objects[0].width)
+  })
+})
+
+describe('a row of objects on a ramp', () => {
+  const along = (f: ReturnType<typeof make>, p: { x: number; y: number }) => {
+    const { foot, top } = f.ramp!
+    const len = Math.hypot(top.x - foot.x, top.y - foot.y)
+    const ux = (top.x - foot.x) / len
+    const uy = (top.y - foot.y) / len
+    return { d: (p.x - foot.x) * ux + (p.y - foot.y) * uy, off: Math.abs((p.x - foot.x) * uy - (p.y - foot.y) * ux), len }
+  }
+
+  test('every object rests on the slope, tilted with it, all of it on the ramp', () => {
+    for (const angle of [10, 30, 60]) {
+      for (const joined of ['string', 'touching'] as const) {
+        for (const sizes of [[1, 1, 1], [2, 2, 1], [0.5, 0.5, 0.5]]) {
+          const f = make3({ setup: 'ramp', angle, joined }, sizes, ['cart', 'block'])
+          for (const o of f.objects.slice(0, 2)) {
+            const { d, off, len } = along(f, o.at)
+            expect(off).toBeLessThan(0.05)
+            expect(o.tilt).toBe(-angle)
+            expect(d - o.width / 2).toBeGreaterThan(0)
+            expect(d + o.width / 2).toBeLessThan(len)
+          }
+          const [back, front] = f.objects
+          const gap = along(f, front.at).d - front.width / 2 - (along(f, back.at).d + back.width / 2)
+          if (joined === 'touching') expect(gap).toBeCloseTo(0, 1)
+          else expect(gap).toBeGreaterThan(100)
+        }
+      }
+    }
+  })
+
+  test('the string between them runs parallel to the slope', () => {
+    const f = make3({ setup: 'ramp', angle: 40 })
+    expect(angleOf(f.strings[0][0], f.strings[0][1])).toBeCloseTo(40, 1)
+  })
+
+  test('everything fits, steep or shallow, tied or touching, every vector on', () => {
+    for (const angle of [10, 20, 45, 60]) {
+      for (const joined of ['string', 'touching'] as const) {
+        for (const sizes of [[1, 1, 1], [2, 2, 2]]) expectInside(make3({ ...everything, setup: 'ramp', angle, joined }, sizes, ['cart', 'cart']))
+      }
+    }
+  })
+
+  test('a long row on a shallow ramp makes the figure wider, not the row shorter', () => {
+    const f = make3({ setup: 'ramp', angle: 10 }, [2, 2, 1], ['cart', 'cart'])
+    expect(f.width).toBeGreaterThan(640)
+  })
+})
+
+describe('fitting a ramp', () => {
+  test('a shallow ramp on a platform keeps its size; the figure grows taller instead', () => {
+    const f = make({ setup: 'ramp', angle: 10, aKind: 'cart', bSize: 2, gravity: true, normal: true, acceleration: 'forward' })
+    expect(f.platform).not.toBeNull()
+    expect(f.ramp!.corner.x - f.ramp!.foot.x).toBeGreaterThan(200)
+    expectInside(f)
+  })
+})

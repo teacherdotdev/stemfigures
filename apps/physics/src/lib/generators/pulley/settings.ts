@@ -13,7 +13,7 @@ const object = {
 }
 
 export const MIN_OBJECTS = 2
-export const MAX_OBJECTS = 2
+export const MAX_OBJECTS = 3
 
 const text = (t: string) => ({ mode: 'text' as const, text: t })
 
@@ -49,10 +49,18 @@ const old = {
 export const pulleySettings = defineSettings(
   {
     setup: choice('atwood', ['atwood', 'table', 'ramp', 'tackle']),
-    /** The objects: in an Atwood machine, the left and right ones; on a table or ramp, the one on it and the hanging one. */
+    /**
+     * The objects: in an Atwood machine, the left and right ones and maybe a
+     * third hanging below one of them; on a table or ramp, the ones on it from
+     * the back to the front (the one tied over the pulley), then the hanging one.
+     */
     objects: list(object, [first, second], MAX_OBJECTS, MIN_OBJECTS),
     /** Which hanging object hangs lower in an Atwood machine, if either. */
     lower: choice('neither', ['neither', 'a', 'b']),
+    /** Which object, left (a) or right (b), an Atwood machine's third hangs below on a string of its own. */
+    below: choice('b', ['a', 'b']),
+    /** How two objects on a table or ramp are joined: by a string, or touching (pushing on each other). */
+    joined: choice('string', ['string', 'touching']),
     angle: int(30, 10, 60),
     angleLabel: label({ mode: 'text', text: 'theta' }),
     surface: choice('smooth', ['smooth', 'rough']),
@@ -60,16 +68,20 @@ export const pulleySettings = defineSettings(
     strands: int(2, 1, 4),
     loadLabel: label({ mode: 'text', text: 'm' }),
     loadSize: number(1, 0.5, 2),
-    // Vectors.
+    // Vectors. Tension is numbered T_1, T_2… when there's more than one string, and the
+    // normal force, friction and contact force when there's more than one of each.
     tension: bool(false),
     tensionLabel: label({ mode: 'text', text: 'T' }),
     gravity: bool(false),
     loadGravityLabel: label({ mode: 'text', text: 'mg' }),
-    /** The normal force and friction on the object on a table or ramp. Friction points toward or away from the pulley. */
+    /** The normal force and friction on each object on a table or ramp. Friction points toward or away from the pulley. */
     normal: bool(false),
     normalLabel: label({ mode: 'text', text: 'F_N' }),
     friction: choice('none', ['none', 'toward', 'away']),
     frictionLabel: label({ mode: 'text', text: 'F_f' }),
+    /** The pair of forces where two objects on a table or ramp touch, each pushing on the other. */
+    contact: bool(false),
+    contactLabel: label({ mode: 'text', text: 'P' }),
     /** Acceleration of every object. Forward is the way a hanging object falls (in a block and tackle, the load rising). */
     acceleration: choice('none', ['none', 'forward', 'backward']),
     accelerationLabel: label({ mode: 'text', text: 'a' }),

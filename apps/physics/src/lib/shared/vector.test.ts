@@ -1,5 +1,19 @@
 import { describe, expect, test } from 'vitest'
-import { arrow, labelPoint, styleOf } from './vector'
+import { arrow, labelPoint, numbered, styleOf } from './vector'
+
+describe('numbered', () => {
+  const text = (t: string) => ({ mode: 'text' as const, text: t })
+  test('adds the number to the subscript, or makes one', () => {
+    expect(numbered(text('T'), 1).text).toBe('T_1')
+    expect(numbered(text('F_N'), 2).text).toBe('F_{N2}')
+    expect(numbered(text('F_{air}'), 3).text).toBe('F_{air3}')
+    expect(numbered(text(''), 1).text).toBe('')
+  })
+
+  test('keeps a blank line blank', () => {
+    expect(numbered({ mode: 'blank', text: 'T' }, 2)).toEqual({ mode: 'blank', text: 'T_2' })
+  })
+})
 
 describe('arrow', () => {
   test('the shaft ends inside the head, and the head ends at the tip', () => {

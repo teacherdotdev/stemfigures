@@ -6,7 +6,7 @@
 import type { Point } from '$lib/shared/field'
 import { objectHeight, objectWidth, type ObjectKind } from '$lib/shared/objects'
 import type { Label } from '$lib/shared/label'
-import { labelPoint, type LabeledVector, type Segment } from '$lib/shared/vector'
+import { labelPoint, numbered, type LabeledVector, type Segment } from '$lib/shared/vector'
 import type { PulleyObject, PulleySettings } from './settings'
 
 export const WIDTH = 640
@@ -43,8 +43,15 @@ const MIN_DROP = 58
 const GROUND_CLEAR = 12
 const ARC_R = 44
 const ANGLE_LABEL_R = 68
+/** The string from an Atwood machine's object down to a third hanging below it. */
+const LINK = 70
+/** The gap between objects tied in a row on a table or ramp: room for the tension and friction between them. */
+const TIE_GAP = 120
+/** Room on a table or ramp behind a row of objects, for their vectors, and in front of it on a ramp, where the wheel reaches over the slope. */
+const END_ROOM = 90
+const FRONT_ROOM = 150
 
-export type VectorKind = 'tension' | 'gravity' | 'normal' | 'friction' | 'acceleration'
+export type VectorKind = 'tension' | 'gravity' | 'normal' | 'friction' | 'contact' | 'acceleration'
 
 export interface Wheel {
   cx: number
@@ -75,6 +82,8 @@ export interface PulleyFigure {
   strings: Point[][]
   /** Which end of each string is tied to an object, where its tension is drawn first (not in a block and tackle). */
   tied: ('start' | 'end')[]
+  /** Which piece of string (from 0) each string is part of, over any wheels, for numbering its tension. */
+  ropes: number[]
   arcs: { wheel: Wheel; from: number; to: number }[]
   objects: PlacedObject[]
   /** A hatched ceiling the wheel hangs from, and the rods and brackets holding wheels up. */
@@ -149,36 +158,50 @@ function hanging(o: Pick<PulleyObject, 'label' | 'gravityLabel' | 'size'>, x: nu
 
 /** Room to leave below a hanging object for its gravity vector and label. */
 const belowFor = (s: PulleySettings) => (s.gravity ? VECTOR_LENGTH + 34 : 0)
-/** Room to leave above the object on a table or ramp for its normal force or acceleration, and their labels. */
-const aboveFor = (s: PulleySettings) => Math.max(s.normal ? VECTOR_LENGTH + 34 : 0, s.acceleration !== 'none' ? 50 : 0)
+/** Are there objects in a row on a table or ramp, touching? */
+export const touching = (s: PulleySettings) => (s.setup === 'table' || s.setup === 'ramp') && s.objects.length > 2 && s.joined === 'touching'
 
-/** An Atwood machine: two objects hanging over one fixed pulley. */
+/** Room to leave above the objects on a table or ramp for their normal forces, acceleration or contact forces, and their labels. */
+const aboveFor = (s: PulleySettings) =>
+  Math.max(s.normal ? VECTOR_LENGTH + 34 : 0, s.acceleration !== 'none' ? 50 : 0, s.contact && touching(s) ? 34 : 0)
+
+/** An Atwood machine: two objects hanging over one fixed pulley, and maybe a third hanging below one of them. */
 function atwood(s: PulleySettings): PulleyFigure {
-  const [oa, ob] = s.objects
-  const wa = objectWidth('block', oa.size)
-  const wb = objectWidth('block', ob.size)
-  // Big objects need a bigger wheel to hang side by side.
+  const [oa, ob, oc] = s.objects
+  const under = s.below === 'a' ? 0 : 1
+  const wc = oc ? objectWidth('block', oc.size) : 0
+  const wa = Math.max(objectWidth('block', oa.size), under === 0 ? wc : 0)
+  const wb = Math.max(objectWidth('block', ob.size), under === 1 ? wc : 0)
+  // Big objects need a bigger wheel to hang side by side (the third one too).
   const r = Math.max(WHEEL_R, (wa / 2 + wb / 2 + OBJECT_GAP) / 2)
   const wheel: Wheel = { cx: WIDTH / 2, cy: CEILING_Y + 40 + r, r }
-  const tallest = Math.max(objectHeight('block', oa.size), objectHeight('block', ob.size))
+  // The third one's string leaves room for its holder's gravity vector, and the tension's label below that.
+  const link = s.gravity ? belowFor(s) + 40 : LINK
+  const hung = oc ? link + objectHeight('block', oc.size) : 0
+  const tallest = Math.max(objectHeight('block', oa.size) + (under === 0 ? hung : 0), objectHeight('block', ob.size) + (under === 1 ? hung : 0))
   const lowerBy = s.lower === 'neither' ? 0 : LOWER_BY
   // As high as leaves room below, but always a string's length below the wheel;
   // when that runs out of room, the figure grows.
   const top = Math.max(wheel.cy + Math.max(MIN_DROP, r + 24), Math.min(HANG_TOP, HEIGHT - BOTTOM_MARGIN - tallest - lowerBy - belowFor(s)))
   const a = hanging(oa, wheel.cx - r, top + (s.lower === 'a' ? LOWER_BY : 0), 'up')
   const b = hanging(ob, wheel.cx + r, top + (s.lower === 'b' ? LOWER_BY : 0), 'down')
+  const holder = under === 0 ? a : b
+  const c = oc ? hanging(oc, holder.at.x, holder.at.y + link, under === 0 ? 'up' : 'down') : null
+  const objects = c ? [a, b, c] : [a, b]
   return {
     width: WIDTH,
-    height: Math.max(HEIGHT, Math.ceil(Math.max(a.at.y, b.at.y) + belowFor(s) + BOTTOM_MARGIN)),
+    height: Math.max(HEIGHT, Math.ceil(Math.max(...objects.map((o) => o.at.y)) + belowFor(s) + BOTTOM_MARGIN)),
     wheels: [wheel],
     strings: [
       [pt(wheel.cx - r, wheel.cy), pt(a.at.x, a.at.y - a.height)],
       [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)],
+      ...(c ? [[holder.at, pt(c.at.x, c.at.y - c.height)]] : []),
     ],
-    tied: ['end', 'end'],
+    tied: objects.map(() => 'end' as const),
+    ropes: c ? [0, 0, 1] : [0, 0],
     // Over the top of the wheel, from its left side to its right.
     arcs: [{ wheel, from: 180, to: 360 }],
-    objects: [a, b],
+    objects,
     ceiling: { x1: wheel.cx - CEILING_HALF, y1: CEILING_Y, x2: wheel.cx + CEILING_HALF, y2: CEILING_Y },
     rods: [{ x1: wheel.cx, y1: CEILING_Y, x2: wheel.cx, y2: wheel.cy }],
     ...empty,
@@ -192,39 +215,68 @@ function hangBelow(o: PulleyObject, wheel: Wheel, below: number, groundY = GROUN
   return hanging(o, wheel.cx + wheel.r, top, 'down')
 }
 
-/** A block or cart on a table, tied level over a pulley at the table's edge to a hanging object. */
+/** The objects on a table or ramp, from the back to the front: all but the last, which hangs. */
+const rowOf = (s: PulleySettings) => s.objects.slice(0, -1)
+/** The gap between objects in a row: none when they touch, and longer up a steep ramp, where weight points along the slope into it. */
+const gapOf = (s: PulleySettings) => (s.joined === 'touching' ? 0 : s.setup === 'ramp' ? TIE_GAP + 110 * Math.sin((s.angle * Math.PI) / 180) : TIE_GAP)
+/** How long the row of objects on a table or ramp is, end to end. */
+const rowLength = (s: PulleySettings) =>
+  rowOf(s).reduce((sum, o) => sum + objectWidth(o.kind as ObjectKind, o.size), 0) + gapOf(s) * (rowOf(s).length - 1)
+
+/**
+ * Blocks or carts in a row on a table, tied together or touching, the front
+ * one tied level over a pulley at the table's edge to a hanging object. A row
+ * too long for the table makes the table longer, and the figure wider.
+ */
 function table(s: PulleySettings): PulleyFigure {
-  const [oa, ob] = s.objects
-  const kind = oa.kind as ObjectKind
-  const ha = objectHeight(kind, oa.size)
-  const wa = objectWidth(kind, oa.size)
+  const row = rowOf(s)
+  const ob = s.objects.at(-1)!
+  const front = row.at(-1)!
+  const kind = front.kind as ObjectKind
+  const ha = objectHeight(kind, front.size)
+  const wa = objectWidth(kind, front.size)
   // The table stands lower when a tall object and the vectors above it need the room.
-  const tableTop = Math.max(TABLE_TOP, FIT_MARGIN + ha + aboveFor(s))
+  const tableTop = Math.max(TABLE_TOP, FIT_MARGIN + Math.max(...row.map((o) => objectHeight(o.kind as ObjectKind, o.size))) + aboveFor(s))
   const stringY = tableTop - ha / 2
   const r = WHEEL_R
   const wheel: Wheel = { cx: TABLE_EDGE + BRACKET_GAP + r, cy: stringY + r, r }
-  const a = resting(oa, pt(TABLE_EDGE - 90 - wa / 2, tableTop), 0, { x: 0, y: -1 })
+  // The front object where a lone one goes, and any others behind it.
+  const up = { x: 0, y: -1 }
+  const placed = [resting(front, pt(TABLE_EDGE - 90 - wa / 2, tableTop), 0, up)]
+  for (const o of row.slice(0, -1).reverse()) {
+    const next = placed[0]
+    placed.unshift(resting(o, pt(next.at.x - next.width / 2 - gapOf(s) - objectWidth(o.kind as ObjectKind, o.size) / 2, tableTop), 0, up))
+  }
+  const a = placed.at(-1)!
   const b = hangBelow(ob, wheel, belowFor(s))
   // And the floor drops (the figure growing) when the hanging object still needs more room.
   const groundY = Math.max(GROUND_Y, b.at.y + belowFor(s) + GROUND_CLEAR)
+  const tableLeft = Math.min(TABLE_LEFT, placed[0].at.x - placed[0].width / 2 - END_ROOM)
   const hatches: Segment[] = []
   if (s.surface === 'rough') {
-    for (let x = TABLE_LEFT + 6; x < TABLE_EDGE - 4; x += HATCH_SPACING) hatches.push(seg(pt(x, tableTop), pt(x - 6, tableTop + HATCH_LENGTH)))
+    for (let x = tableLeft + 6; x < TABLE_EDGE - 4; x += HATCH_SPACING) hatches.push(seg(pt(x, tableTop), pt(x - 6, tableTop + HATCH_LENGTH)))
   }
   const legTop = tableTop + TABLE_THICK
-  const ground = seg(pt(20, groundY), pt(WIDTH - 20, groundY))
-  return {
+  const ground = seg(pt(tableLeft - 30, groundY), pt(WIDTH - 20, groundY))
+  // Strings between the objects in a row, level at the middle of the shorter of each pair.
+  const ties =
+    s.joined === 'touching'
+      ? []
+      : placed.slice(1).map((o, i) => {
+          const back = placed[i]
+          const y = tableTop - Math.min(back.height, o.height) / 2
+          return [pt(back.at.x + back.width / 2, y), pt(o.at.x - o.width / 2, y)]
+        })
+  const f: PulleyFigure = {
     width: WIDTH,
     height: Math.max(HEIGHT, groundY + 30),
     wheels: [wheel],
-    strings: [
-      [pt(a.at.x + wa / 2, stringY), pt(wheel.cx, wheel.cy - r)],
-      [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)],
-    ],
-    tied: ['start', 'end'],
+    strings: [...ties, [pt(a.at.x + wa / 2, stringY), pt(wheel.cx, wheel.cy - r)], [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)]],
+    tied: [...ties.map(() => 'start' as const), 'start', 'end'],
+    ropes: [...ties.map((_, i) => i), ties.length, ties.length],
     // From the top of the wheel round to its right-hand side.
     arcs: [{ wheel, from: 270, to: 360 }],
-    objects: [a, b],
+    objects: [...placed, b],
     ceiling: null,
     // A bracket from the table's corner to the wheel's axle.
     rods: [seg(pt(TABLE_EDGE, tableTop + TABLE_THICK / 2), pt(wheel.cx, wheel.cy))],
@@ -232,8 +284,8 @@ function table(s: PulleySettings): PulleyFigure {
     groundHatches: groundHatches(ground),
     table: {
       top: tableTop,
-      slab: { x: TABLE_LEFT, y: tableTop, w: TABLE_EDGE - TABLE_LEFT, h: TABLE_THICK },
-      legs: [TABLE_LEFT + 12, TABLE_EDGE - 12 - LEG].map((x) => ({ x, y: legTop, w: LEG, h: groundY - legTop })),
+      slab: { x: tableLeft, y: tableTop, w: TABLE_EDGE - tableLeft, h: TABLE_THICK },
+      legs: [tableLeft + 12, TABLE_EDGE - 12 - LEG].map((x) => ({ x, y: legTop, w: LEG, h: groundY - legTop })),
     },
     ramp: null,
     platform: null,
@@ -241,34 +293,45 @@ function table(s: PulleySettings): PulleyFigure {
     hatches,
     vectors: [],
   }
+  const grow = TABLE_LEFT - tableLeft
+  return grow > 0 ? { ...shift(f, grow, 0), width: WIDTH + grow } : f
 }
 
 /**
- * A block or cart on a ramp, tied over a pulley at the ramp's top to a
- * hanging object. The string runs parallel to the slope from the middle of
- * the object's up-slope face, so the wheel sits one radius below that line,
- * far enough past the ramp's top for the hanging object to clear the ramp.
- * A ramp too low for the hanging object to hang below its pulley stands on a
- * platform. The ramp is as big as fits, and the whole figure is centered.
+ * Blocks or carts on a ramp, the front one tied over a pulley at the ramp's
+ * top to a hanging object. The string runs parallel to the slope from the
+ * middle of the object's up-slope face, so the wheel sits one radius below
+ * that line, far enough past the ramp's top for the hanging object to clear
+ * the ramp. A ramp too low for the hanging object to hang below its pulley
+ * stands on a platform. The ramp is as big as fits, but always long enough
+ * for its row of objects (the figure growing, if need be), and the whole
+ * figure is centered.
  */
 function ramp(s: PulleySettings): PulleyFigure {
   const room = { left: FIT_MARGIN, right: WIDTH - FIT_MARGIN, top: FIT_MARGIN }
-  const fits = (f: ReturnType<typeof rampAt>) => {
+  const narrow = (f: ReturnType<typeof rampAt>) => {
     const b = boundsOf(f.extent)
-    return b.right - b.left <= room.right - room.left && b.top >= room.top
+    return b.right - b.left <= room.right - room.left
   }
+  const fits = (f: ReturnType<typeof rampAt>) => narrow(f) && boundsOf(f.extent).top >= room.top
+  const least = rowOf(s).length > 1 ? (rowLength(s) + END_ROOM + FRONT_ROOM) * Math.cos((s.angle * Math.PI) / 180) : 0
   // The biggest ramp that fits, with the hanging object a good way below its
-  // pulley if there's room, or else as little string as looks right.
-  let base = MAX_RAMP_BASE
+  // pulley if there's room, or else as little string as looks right. A ramp
+  // on a platform already stands as high as its hanging object needs, so a
+  // smaller one would stand no lower: once it's narrow enough, the figure
+  // grows taller instead.
+  let base = Math.max(MAX_RAMP_BASE, least)
   let f = rampAt(s, base, HANG_DROP)
   for (let i = 0; i < 80 && !fits(f); i++) {
     f = rampAt(s, base, MIN_DROP)
-    if (fits(f)) break
-    base *= 0.95
+    if (fits(f) || base <= least || (f.platform && narrow(f))) break
+    base = Math.max(least, base * 0.95)
     f = rampAt(s, base, HANG_DROP)
   }
   const b = boundsOf(f.extent)
-  return shiftX(f, (WIDTH - (b.right - b.left)) / 2 - b.left)
+  const width = Math.max(WIDTH, Math.ceil(b.right - b.left + 2 * FIT_MARGIN))
+  const down = Math.max(0, Math.ceil(room.top - b.top))
+  return { ...shift(f, (width - (b.right - b.left)) / 2 - b.left, down), width, height: HEIGHT + down }
 }
 
 function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure & { extent: Point[] } {
@@ -276,10 +339,12 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
   const u = { x: Math.cos(a), y: -Math.sin(a) }
   const n = { x: -Math.sin(a), y: -Math.cos(a) }
   const along = (p: Point, d: number, q: Point = u) => pt(p.x + q.x * d, p.y + q.y * d)
-  const [oa, ob] = s.objects
-  const kind = oa.kind as ObjectKind
-  const ha = objectHeight(kind, oa.size)
-  const wa = objectWidth(kind, oa.size)
+  const row = rowOf(s)
+  const ob = s.objects.at(-1)!
+  const front = row.at(-1)!
+  const kind = front.kind as ObjectKind
+  const ha = objectHeight(kind, front.size)
+  const wa = objectWidth(kind, front.size)
   const hb = objectHeight('block', ob.size)
   const wb = objectWidth('block', ob.size)
   const r = WHEEL_R
@@ -301,7 +366,21 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
   const c = along(along(top, reach), off - r, n)
   const wheel: Wheel = { cx: c.x, cy: c.y, r }
   const slope = base / Math.cos(a)
-  const obj = resting(oa, along(foot, slope * 0.45), -s.angle, n)
+  // How far along the slope each object's middle is: a lone one 0.45 of the
+  // way up; a row about there, but all on the slope with room at both ends.
+  let middles = [slope * 0.45]
+  if (row.length > 1) {
+    const length = rowLength(s)
+    let d = Math.min(Math.max(slope * 0.45, END_ROOM + length / 2), slope - FRONT_ROOM - length / 2) - length / 2
+    middles = row.map((o) => {
+      const w = objectWidth(o.kind as ObjectKind, o.size)
+      const middle = d + w / 2
+      d += w + gapOf(s)
+      return middle
+    })
+  }
+  const placed = row.map((o, i) => resting(o, along(foot, middles[i]), -s.angle, n))
+  const obj = placed.at(-1)!
   const drop = Math.min(wantDrop, GROUND_Y - GROUND_CLEAR - hb - belowFor(s) - wheel.cy)
   const b = hanging(ob, wheel.cx + r, wheel.cy + drop, 'down')
   const leave = along(c, r, n) // where the string meets the wheel
@@ -315,20 +394,31 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
   }
   const half = a / 2
   const ground = seg(pt(-GROUND_OVERHANG, GROUND_Y), pt(Math.max(wheel.cx + r + wb / 2, x0 + base) + GROUND_OVERHANG, GROUND_Y))
-  // The object's four corners, for fitting.
-  const corners = [along(obj.at, -wa / 2), along(obj.at, wa / 2)].flatMap((p) => [p, along(p, ha, n)])
+  // Each object's four corners, and the room above it, for fitting.
+  const corners = placed.flatMap((o) => [along(o.at, -o.width / 2), along(o.at, o.width / 2)].flatMap((p) => [p, along(p, o.height, n)]))
+  const above = placed.map((o) => along(o.middle, o.height / 2 + aboveFor(s), n))
+  // A row's ramp can be as wide as the figure, so it leaves room for the hanging object's
+  // acceleration beside it too (a lone object's ramp always leaves that room).
+  if (row.length > 1 && s.acceleration !== 'none') above.push(pt(wheel.cx + r + wb / 2 + 50, wheel.cy))
+  // Strings between the objects in a row, parallel to the slope at the middle of the shorter of each pair.
+  const ties =
+    s.joined === 'touching'
+      ? []
+      : placed.slice(1).map((o, i) => {
+          const back = placed[i]
+          const lift = Math.min(back.height, o.height) / 2
+          return [along(along(back.at, back.width / 2), lift, n), along(along(o.at, -o.width / 2), lift, n)]
+        })
   return {
     width: WIDTH,
     height: HEIGHT,
     wheels: [wheel],
-    strings: [
-      [along(obj.middle, wa / 2), leave],
-      [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)],
-    ],
-    tied: ['start', 'end'],
+    strings: [...ties, [along(obj.middle, wa / 2), leave], [pt(wheel.cx + r, wheel.cy), pt(b.at.x, b.at.y - b.height)]],
+    tied: [...ties.map(() => 'start' as const), 'start', 'end'],
+    ropes: [...ties.map((_, i) => i), ties.length, ties.length],
     // From where the string meets the wheel, over the top, round to its right-hand side.
     arcs: [{ wheel, from: (Math.atan2(n.y, n.x) * 180) / Math.PI + 360, to: 360 }],
-    objects: [obj, b],
+    objects: [...placed, b],
     ceiling: null,
     rods: [seg(top, c)],
     ground,
@@ -345,7 +435,7 @@ function rampAt(s: PulleySettings, base: number, wantDrop: number): PulleyFigure
     tackle: null,
     vectors: [],
     hatches,
-    extent: [foot, top, ...corners, along(obj.middle, ha / 2 + aboveFor(s), n), pt(wheel.cx - r, wheel.cy - r), pt(wheel.cx + r, wheel.cy - r), pt(b.at.x + b.width / 2, b.at.y), pt(b.at.x - b.width / 2, b.at.y)],
+    extent: [foot, top, ...corners, ...above, pt(wheel.cx - r, wheel.cy - r), pt(wheel.cx + r, wheel.cy - r), pt(b.at.x + b.width / 2, b.at.y), pt(b.at.x - b.width / 2, b.at.y)],
   }
 }
 
@@ -355,11 +445,12 @@ const boundsOf = (points: Point[]) => ({
   top: Math.min(...points.map((p) => p.y)),
 })
 
-/** The figure moved sideways by dx. */
-function shiftX(f: PulleyFigure & { extent?: Point[] }, dx: number): PulleyFigure {
-  const p = (q: Point) => pt(q.x + dx, q.y)
+/** The figure (before its vectors) moved right by dx and down by dy. */
+function shift(f: PulleyFigure & { extent?: Point[] }, dx: number, dy: number): PulleyFigure {
+  const p = (q: Point) => pt(q.x + dx, q.y + dy)
   const sg = (q: Segment) => seg(p({ x: q.x1, y: q.y1 }), p({ x: q.x2, y: q.y2 }))
-  const wheels = f.wheels.map((w) => ({ ...w, cx: r2(w.cx + dx) }))
+  const box = <B extends { x: number; y: number }>(b: B): B => ({ ...b, x: r2(b.x + dx), y: b.y + dy })
+  const wheels = f.wheels.map((w) => ({ ...w, cx: r2(w.cx + dx), cy: r2(w.cy + dy) }))
   return {
     ...f,
     wheels,
@@ -370,9 +461,9 @@ function shiftX(f: PulleyFigure & { extent?: Point[] }, dx: number): PulleyFigur
     rods: f.rods.map(sg),
     ground: f.ground && sg(f.ground),
     groundHatches: f.groundHatches.map(sg),
-    table: f.table,
+    table: f.table && { top: r2(f.table.top + dy), slab: box(f.table.slab), legs: f.table.legs.map(box) },
     ramp: f.ramp && { ...f.ramp, foot: p(f.ramp.foot), corner: p(f.ramp.corner), top: p(f.ramp.top), angleLabelAt: p(f.ramp.angleLabelAt) },
-    platform: f.platform && { ...f.platform, x: r2(f.platform.x + dx) },
+    platform: f.platform && box(f.platform),
     hatches: f.hatches.map(sg),
     vectors: f.vectors,
   }
@@ -444,6 +535,7 @@ function tackle(s: PulleySettings): PulleyFigure {
     wheels,
     strings,
     tied: [],
+    ropes: [],
     arcs,
     objects: [load],
     ceiling: seg(pt(Math.min(xs[0], loadX - wl / 2) - 40, CEILING_Y), pt(Math.max(xs[n], loadX + wl / 2) + 40, CEILING_Y)),
@@ -456,6 +548,7 @@ function tackle(s: PulleySettings): PulleyFigure {
 const VECTOR_LENGTH = 60
 const TENSION_LENGTH = 56
 const ACCEL_LENGTH = 50
+const CONTACT_LENGTH = 34
 const LABEL_SIZE = 22
 
 /** Along an object's surface (toward its right, before tilting) and out of it. */
@@ -466,27 +559,37 @@ function axes(o: PlacedObject) {
 
 /**
  * The vectors the teacher turned on. Tension runs along each string at both
- * ends: away from the object it's tied to, and away from the pulley; a block
- * and tackle shows it once in every strand holding the load (pointing up) and
- * at the free end. Forces on objects start at their edge, as on the Inclined
- * Plane; acceleration rides beside each object.
+ * ends: away from the object it's tied to, and away from the pulley (or the
+ * other object); a block and tackle shows it once in every strand holding the
+ * load (pointing up) and at the free end. Forces on objects start at their
+ * edge, as on the Inclined Plane; acceleration rides beside each object.
+ * Objects touching in a row have no room between them, so each one's friction
+ * runs under it, just below the surface; the contact forces start where they
+ * touch, each pushing into its own object; and they move as one, so the row
+ * gets one acceleration arrow.
  */
 function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKind>[] {
   const out: LabeledVector<VectorKind>[] = []
   const centerX = f.wheels.length ? f.wheels.reduce((sum, w) => sum + w.cx, 0) / f.wheels.length : WIDTH / 2
   const widthOf = (l: Label) => [...l.text].length * LABEL_SIZE * 0.42
-  /** A vector from `from` in direction `d`, labeled past its tip or beside its middle (on the side away from the figure's middle). */
-  const add = (kind: VectorKind, from: Point, d: Point, length: number, label: Label, at: 'tip' | 'side' = 'tip') => {
+  /**
+   * A vector from `from` in direction `d`, labeled past its tip, beside its
+   * middle on the side away from the figure's middle (or toward it), or
+   * beside its middle on the given side (1 is to the left of the way it points).
+   */
+  const add = (kind: VectorKind, from: Point, d: Point, length: number, label: Label, at: 'tip' | 'side' | 'inside' | 1 | -1 = 'tip') => {
     const v = seg(from, pt(from.x + d.x * length, from.y + d.y * length))
     let labelAt: Point
     if (at === 'tip') {
       labelAt = labelPoint(v, { at: 'tip', gap: 12 + (widthOf(label) / 2) * Math.abs(d.x) + 11 * Math.abs(d.y) })
+    } else if (at === 1 || at === -1) {
+      labelAt = labelPoint(v, { at: 'middle', side: at, gap: 18 })
     } else {
       // Side 1 is to the left of the way it points; pick whichever side faces out (or up, for a level vector).
       const left = { x: d.y, y: -d.x }
       const mid = { x: (v.x1 + v.x2) / 2, y: (v.y1 + v.y2) / 2 }
       const out1 = Math.abs(left.x) > 0.3 ? left.x * (mid.x - centerX) > 0 : left.y < 0
-      labelAt = labelPoint(v, { at: 'middle', side: out1 ? 1 : -1, gap: 12 + widthOf(label) / 2 })
+      labelAt = labelPoint(v, { at: 'middle', side: out1 === (at === 'side') ? 1 : -1, gap: 12 + widthOf(label) / 2 })
     }
     out.push({ kind, v, label, labelAt: pt(labelAt.x, labelAt.y) })
   }
@@ -495,6 +598,8 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
     return { x: (b.x - a.x) / len, y: (b.y - a.y) / len }
   }
   const lengthOf = (st: Point[]) => Math.hypot(st.at(-1)!.x - st[0].x, st.at(-1)!.y - st[0].y)
+  /** The hanging object with another hanging from this point, its bottom middle, if any. */
+  const holder = (p: Point) => f.objects.find((o) => o.moves !== 'along' && Math.hypot(p.x - o.at.x, p.y - o.at.y) < 0.5)
 
   if (s.tension) {
     if (f.tackle) {
@@ -505,11 +610,16 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
       }
       add('tension', f.tackle.effort, { x: 0, y: 1 }, TENSION_LENGTH * 0.8, s.tensionLabel, 'side')
     } else {
+      // With more than one piece of string, each has its own tension: T_1, T_2.
+      const several = new Set(f.ropes).size > 1
       f.strings.forEach((st, i) => {
         const [tied, other] = f.tied[i] === 'end' ? [st.at(-1)!, st[0]] : [st[0], st.at(-1)!]
         const length = Math.min(TENSION_LENGTH, lengthOf(st) * 0.42)
-        add('tension', tied, toward(tied, other), length, s.tensionLabel, 'side')
-        add('tension', other, toward(other, tied), length, s.tensionLabel, 'side')
+        const label = several ? numbered(s.tensionLabel, f.ropes[i] + 1) : s.tensionLabel
+        // A string from one hanging object down to another is labeled on its inner side, clear of the upper one's weight.
+        const at = holder(st[0]) ? 'inside' : 'side'
+        add('tension', tied, toward(tied, other), length, label, at)
+        add('tension', other, toward(other, tied), length, label, at)
       })
     }
   }
@@ -524,32 +634,70 @@ function vectorsFor(f: PulleyFigure, s: PulleySettings): LabeledVector<VectorKin
     const e = toEdge(o, d)
     return pt(o.middle.x + d.x * e, o.middle.y + d.y * e)
   }
-  if (s.gravity) for (const o of f.objects) add('gravity', fromEdge(o, { x: 0, y: 1 }), { x: 0, y: 1 }, VECTOR_LENGTH, o.gravityLabel)
-
-  const onSurface = f.objects.filter((o) => o.moves === 'along')
-  if (s.normal) {
-    for (const o of onSurface) {
-      const { n } = axes(o)
-      add('normal', fromEdge(o, n), n, VECTOR_LENGTH, s.normalLabel)
+  if (s.gravity) {
+    const down = { x: 0, y: 1 }
+    for (const o of f.objects) {
+      // An object with another hanging below it has its weight set off to the outer side, clear of that string.
+      const holds = f.strings.some((st) => holder(st[0]) === o)
+      const from = holds ? pt(o.at.x + Math.sign(o.at.x - centerX) * (o.width / 4), o.at.y) : fromEdge(o, down)
+      add('gravity', from, down, VECTOR_LENGTH, o.gravityLabel)
     }
   }
+
+  // The objects on a table or ramp, from the back to the front; with more than one, their forces are numbered.
+  const onSurface = f.objects.filter((o) => o.moves === 'along')
+  const nth = (label: Label, i: number) => (onSurface.length > 1 ? numbered(label, i + 1) : label)
+  const inTouch = touching(s)
+  if (s.normal) {
+    onSurface.forEach((o, i) => {
+      const { n } = axes(o)
+      add('normal', fromEdge(o, n), n, VECTOR_LENGTH, nth(s.normalLabel, i))
+    })
+  }
   if (s.friction !== 'none') {
-    for (const o of onSurface) {
+    onSurface.forEach((o, i) => {
       const { u, n } = axes(o)
       // Toward the pulley is +u: to the right on a table, up a ramp.
       const d = s.friction === 'toward' ? u : { x: -u.x, y: -u.y }
-      const from = pt(o.at.x + d.x * (o.width / 2) + n.x * 9, o.at.y + d.y * (o.width / 2) + n.y * 9)
-      add('friction', from, d, VECTOR_LENGTH * 0.85, s.frictionLabel)
-    }
+      if (inTouch) {
+        // From under the object's middle, just below the surface, labeled below that.
+        const length = Math.min(VECTOR_LENGTH * 0.85, o.width * 0.8)
+        add('friction', pt(o.at.x - n.x * 9, o.at.y - n.y * 9), d, length, nth(s.frictionLabel, i), d.y * n.x - d.x * n.y > 0 ? -1 : 1)
+      } else {
+        const from = pt(o.at.x + d.x * (o.width / 2) + n.x * 9, o.at.y + d.y * (o.width / 2) + n.y * 9)
+        add('friction', from, d, VECTOR_LENGTH * 0.85, nth(s.frictionLabel, i))
+      }
+    })
+  }
+  if (s.contact && inTouch) {
+    // Equal and opposite, from the face where two objects touch, near the top of the shorter one;
+    // one label for the pair, above that face.
+    const several = onSurface.length > 2
+    onSurface.slice(1).forEach((o, i) => {
+      const back = onSurface[i]
+      const { u, n } = axes(o)
+      const face = pt(o.at.x - (u.x * o.width) / 2, o.at.y - (u.y * o.width) / 2)
+      const lane = Math.min(back.height, o.height) - 7
+      const from = pt(face.x + n.x * lane, face.y + n.y * lane)
+      const length = Math.min(CONTACT_LENGTH, back.width * 0.45, o.width * 0.45)
+      const label = several ? numbered(s.contactLabel, i + 1) : s.contactLabel
+      const over = Math.max(back.height, o.height) + 16
+      const labelAt = pt(face.x + n.x * over, face.y + n.y * over)
+      out.push({ kind: 'contact', v: seg(from, pt(from.x + u.x * length, from.y + u.y * length)), label, labelAt })
+      out.push({ kind: 'contact', v: seg(from, pt(from.x - u.x * length, from.y - u.y * length)), label: { ...label, mode: 'none' }, labelAt })
+    })
   }
 
   if (s.acceleration !== 'none') {
     const sign = s.acceleration === 'forward' ? 1 : -1
+    // A touching row's one arrow goes over its leading object.
+    const lead = sign > 0 ? onSurface.at(-1) : onSurface[0]
     for (const o of f.objects) {
       // Which way this object moves when the hanging one falls.
       let d: Point
       let from: Point
       if (o.moves === 'along') {
+        if (inTouch && o !== lead) continue
         const { u, n } = axes(o)
         d = { x: u.x * sign, y: u.y * sign }
         // Above the object, set off to one side so it doesn't cross the normal force.
