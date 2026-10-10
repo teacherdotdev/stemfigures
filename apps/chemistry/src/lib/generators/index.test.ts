@@ -9,6 +9,11 @@ describe('searching the directory', () => {
       expect(ids(query)).toContain('volume-by-displacement')
   })
 
+  it('finds the volume generators in cm³ as well as mL', () => {
+    for (const query of ['cm3', 'cm³', 'cubic centimeter', 'cubic centimetre'])
+      expect(ids(query), query).toEqual(expect.arrayContaining(['volume-reading', 'volume-by-displacement']))
+  })
+
   it('finds Orbital Diagram the ways teachers ask for it', () => {
     for (const query of ['electron configuration', 'orbital notation', 'box diagram', 'aufbau', 'hund', 'pauli', 'noble gas'])
       expect(ids(query)).toContain('orbital-diagram')
@@ -36,6 +41,11 @@ describe('searching the directory', () => {
   it('finds Titration Curve the ways teachers ask for it', () => {
     for (const query of ['titration curve', 'titration', 'equivalence point', 'half equivalence', 'pKa', 'weak acid', 'buffer'])
       expect(ids(query), query).toContain('titration-curve')
+  })
+
+  it('finds Heating and Cooling Curve the ways teachers ask for it', () => {
+    for (const query of ['heating curve', 'cooling curve', 'phase change', 'melting point', 'boiling point', 'plateau', 'supercooling', 'ethanol'])
+      expect(ids(query), query).toContain('heating-cooling-curve')
   })
 
   it('finds Length Reading the ways teachers ask for it', () => {

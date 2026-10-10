@@ -16,6 +16,11 @@ describe('scale marks', () => {
     expect(m.map((x) => x.kind).join(' ')).toBe('major minor minor minor minor major minor minor minor minor major')
   })
 
+  it('makes the only mark between numbers a medium one', () => {
+    const m = marks({ max: 2, labelEvery: 1, minorEvery: 0.5 })
+    expect(m.map((x) => x.kind).join(' ')).toBe('major medium major medium major')
+  })
+
   it('numbers from where the scale starts', () => {
     const m = marks({ from: 10, max: 250, labelEvery: 20, minorEvery: 2 })
     expect(m[0]).toEqual({ value: 10, kind: 'major', label: '10' })
@@ -27,6 +32,17 @@ describe('scale marks', () => {
   it('numbers below zero on the same steps', () => {
     const labels = marks({ from: -20, max: 20, labelEvery: 10, minorEvery: 1 }).flatMap((x) => x.label ?? [])
     expect(labels).toEqual(['-20', '-10', '0', '10', '20'])
+  })
+
+  it('keeps the other instruments’ scales as they were', () => {
+    const count = (list: ReturnType<typeof marks>) => (['major', 'medium', 'minor'] as const).map((kind) => list.filter((m) => m.kind === kind).length)
+    // thermometer (°C, K, °F), triple beam rider, analog pH meter, gas syringe
+    expect(count(marks({ from: -10, max: 110, labelEvery: 10, minorEvery: 1 }))).toEqual([13, 12, 96])
+    expect(count(marks({ from: 260, max: 390, labelEvery: 10, minorEvery: 1 }))).toEqual([14, 13, 104])
+    expect(count(marks({ from: 10, max: 230, labelEvery: 20, minorEvery: 2 }))).toEqual([12, 11, 88])
+    expect(count(marks({ max: 10, labelEvery: 1, minorEvery: 0.1 }))).toEqual([11, 10, 80])
+    expect(count(marks({ max: 14, labelEvery: 1, minorEvery: 0.2 }))).toEqual([15, 0, 56])
+    expect(count(marks({ max: 100, labelEvery: 10, minorEvery: 1 }))).toEqual([11, 10, 80])
   })
 
   it('labels fractional steps without float noise', () => {

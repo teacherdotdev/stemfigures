@@ -43,11 +43,11 @@ The piece of lab equipment a figure shows, drawn so students can read a measurem
 _Avoid_: Tool, device, apparatus
 
 **Reading**:
-The value an instrument shows, which the teacher types and students read back. On a scale with marks it has one digit beyond the smallest mark (the estimated digit); on a digital balance it is exactly what the display shows.
+The value an instrument shows, which the teacher types and students read back. On a scale with marks it has one digit beyond the smallest mark (the estimated digit), unless the teacher sets the decimal places (on the volume instruments, for significant-figure practice); on a digital balance it is exactly what the display shows.
 _Avoid_: Value, measurement, answer
 
 **Graduated cylinder**:
-A volume instrument in 10, 25, 50, 100, 250 or 1000 mL, labeled every tenth of its capacity except where real ones differ (the 250 mL has 2 mL marks from 10 mL up, numbered 10, 30, 50… 250, and can't read below 10 mL). Volume by displacement uses only the four smaller sizes.
+A volume instrument in 10, 25, 50, 100, 250 or 1000 mL, labeled every tenth of its capacity except where real ones differ (the 25 mL has 0.5 mL marks numbered every 1 mL; the 250 mL has 2 mL marks from 10 mL up, numbered 10, 30, 50… 250, and can't read below 10 mL). Volume by displacement uses only the four smaller sizes.
 _Avoid_: Measuring cylinder
 
 **Buret**:
@@ -59,7 +59,11 @@ A volume instrument in small (50 mL), medium (250 mL) or large (600 mL), coarsel
 _Avoid_: Cup, jar
 
 **Meniscus**:
-The curved top surface of a liquid; a volume reading is taken at its bottom.
+The curved top surface of a liquid; a volume reading is taken at its bottom. A dotted line from its bottom across to the marks can show students where to read.
+
+**Scale**:
+The marks printed on an instrument: the smallest marks, the numbered marks, and a medium mark halfway between numbers where one falls on a mark. Each volume instrument has its usual scale, and the teacher can pick from a few other spacings that suit it (a 25 mL graduated cylinder marked every 0.2, 0.5 or 1 mL and numbered every 1 or 5 mL), or leave the numbers off for students to work out. A volume scale is printed in mL or cm³, which are the same size, so changing the unit never changes the reading.
+_Avoid_: Graduations (fine in help text), ruler
 
 **Gas syringe**:
 A volume instrument for collecting gas: a glass barrel lying on its side, 50 or 100 mL, marked every 1 and numbered every 10 from 0 at its nozzle end, read to 0.1 at the plunger's face. Its scale is printed in cm³ or mL, which are the same size, so changing the unit never changes the reading. Both sizes are drawn the same length; the 50 is thinner.
@@ -136,7 +140,7 @@ _Avoid_: Solution, label
 ### Particle diagrams
 
 **Particle diagram**:
-A figure of atoms, ions and molecules scattered in a box or packed in a lattice, as in AP Chemistry's particulate-level questions. The generator is Particle Diagram.
+A figure of atoms, ions and molecules in a box, as a gas, liquid or solid, or packed in a lattice, as in AP Chemistry's particulate-level questions. The generator is Particle Diagram.
 _Avoid_: Particulate diagram (fine in search keywords), particle model
 
 **Particle**:
@@ -160,25 +164,33 @@ Ions joined together, drawn like a molecule but named honestly, e.g. an Na⁺Cl�
 _Avoid_: Molecule (for joined ions), formula unit
 
 **Layout**:
-How a particle diagram's particles are arranged: scattered at random in the box, or in a lattice.
+How a particle diagram's particles are arranged: in the box, as its state says, in a before box and an after box, or in a lattice.
 _Avoid_: Arrangement, mode
+
+**State**:
+How the particles in a box sit: a gas, spread out at random without touching (every box was this before states, and a solution's particles are drawn this way too); a liquid, dropped in one at a time to settle close together but jumbled at the bottom, never overlapping; or a solid, in rows from the bottom up, all turned the same way, each in a cell as big as the biggest particle. A solid in a box isn't a lattice: it is made of the particle kinds, so the same molecules can be shown in each state.
+_Avoid_: Phase (fine in help text), mode
 
 **Lattice**:
 A square grid of touching or evenly spaced atoms or ions, drawn for a solid, in one of four patterns: one kind (a pure metal), alternating (an ionic solid), substitutional (an alloy with some atoms swapped for another kind) or interstitial (an alloy with small atoms in the gaps).
 _Avoid_: Grid, crystal (fine in search keywords), array
 
 **Box**:
-The container a particle diagram is drawn in, with a single, double or no border. For scattered particles it is always the same square, never sized to the particles, so answer choices made one at a time line up; atom size is what sets how crowded it looks, and particles that don't fit are left out and the settings say so. Around a lattice it just fits the lattice, and has no border unless the teacher adds one. A figure is one box, with an optional chart title but no caption, choice letter or answer key.
+The container a particle diagram is drawn in, with a single, double or no border. For particles, in any state, it is always the same square, never sized to the particles, so answer choices made one at a time line up; atom size is what sets how crowded it looks, and particles that don't fit are left out and the settings say so. Around a lattice it just fits the lattice, and has no border unless the teacher adds one. A figure is one box, or a before box and an after box, with an optional chart title but no caption, choice letter or answer key.
 _Avoid_: Container, vessel, frame
 
+**Before box** / **After box**:
+The two boxes of a before-and-after figure, side by side with an arrow from the first to the second, for a reaction or a change of state. The arrow can carry a short label over it ("heat", "+ energy"), typed like key names. Both hold the same particle kinds, each with a before count and an after count (the same as the before count until the teacher sets one), and share one key; each has its own state and its own arrangement from the seed. Both are the fixed square, so they line up with one-box figures.
+_Avoid_: Reactants box, products box, start/end
+
 **Key**:
-An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.
+An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. For particles in a box its List can be each particle, as above, or each atom: every different atom or ion in the kinds drawn alone once, with its own name, so students write the formulas (an atom's look is what makes it the same atom in two kinds). Names and the note can have subscripts and superscripts, typed H_2O and SO_4^{2-}. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.
 _Avoid_: Legend
 
 ### Lewis structures
 
 **Lewis structure**:
-A figure of one molecule or polyatomic ion: element symbols joined by bonds, with each atom's lone electrons drawn as dots around its symbol. A polyatomic ion is drawn inside square brackets with its charge at the top right. The generator is Lewis Structures. Dot-and-cross diagrams aren't drawn.
+A figure of one molecule or polyatomic ion: element symbols joined by bonds, with each atom's lone electrons drawn as dots around its symbol. A polyatomic ion is drawn inside square brackets with its charge at the top right. It can also be one atom or monatomic ion on its own (N, Cl⁻, Ca²⁺), its Lewis dot diagram: the symbol with its valence electrons, an anion's gained electrons included and a cation's lost ones left off, and an ion in brackets with its charge. With no bonds, it has no bonds-only scaffold and no formal charges. The generator is Lewis Structures. Dot-and-cross diagrams aren't drawn.
 _Avoid_: Lewis dot structure (fine in search keywords), electron dot diagram, dot-and-cross diagram (a different figure)
 
 **Structure**:
@@ -206,7 +218,7 @@ How a structure's bonds are drawn: lines (the default), one line per shared pair
 _Avoid_: Dot diagram, stick diagram, electron dot structure (fine in help text)
 
 **Lone electrons**:
-An atom's electrons that aren't in a bond, counted one at a time and drawn two to a side, with an odd one drawn alone (as in NO or NO₂).
+An atom's electrons that aren't in a bond, counted one at a time and drawn two to a side, with an odd one drawn alone (as in NO or NO₂). An atom on its own has them one to a side first, right, left, top and bottom, then paired, so N has a pair and three alone; H and He pair their two.
 _Avoid_: Lone pairs (as the setting; they may be odd), nonbonding electrons (fine in help text), dots
 
 **Formal charge**:
@@ -218,7 +230,7 @@ Two or more correct structures for the same molecule or ion that differ only in 
 _Avoid_: Resonance forms, contributing structures
 
 **Shape**:
-How a structure's atoms are placed: flat, with outer atoms and lone electrons on the four sides of each symbol as in most textbooks, or shaped, hinting at the molecule's real shape (bent H₂O, NH₃ with its H atoms spread below). Either way it is a flat drawing, never 3D with wedges.
+How a structure's atoms are placed: flat, with outer atoms and lone electrons on the four sides of each symbol as in most textbooks, or shaped, hinting at the molecule's real shape (bent H₂O, NH₃ with its H atoms spread below). Either way it is a flat drawing, never 3D with wedges, and like outer atoms sit side by side (CH₂Cl₂'s Cl atoms are neighbours, not opposite).
 _Avoid_: Geometry, VSEPR shape (that's what shaped hints at, not what it draws), layout (that's a particle diagram's)
 
 **Scaffold**:
@@ -426,3 +438,45 @@ _Avoid_: x-axis (fine in help text), scale (that's how it's spaced)
 **Compared element**:
 A second element drawn dashed and gray behind the first, for "why are magnesium's peaks to the left of sodium's?" questions. The key names both, or calls them Element A and Element B when names are hidden.
 _Avoid_: Overlay, second spectrum
+
+### Heating and cooling curves
+
+**Heating curve** / **Cooling curve**:
+A graph of a substance's temperature in °C (up the side) as it is heated or cooled steadily, against the time or the heat added or removed (along the bottom). Each phase warms or cools in a sloped segment; each phase change is a flat plateau. A cooling curve is the same segments run from the hot end. The generator is Heating and Cooling Curve. The grid, axes and titles are the same as a titration curve's, from `$shared/graph`, except that the axes always run along the grid's left and bottom edges, so temperatures below 0 °C don't move the time axis up into the graph.
+_Avoid_: Phase change graph, temperature graph (both fine in search keywords), phase diagram (a different figure)
+
+**Segment**:
+One piece of a curve: a phase warming or cooling (solid, liquid, gas), or a plateau (melting or boiling heating, freezing or condensing cooling). A curve has only the segments its starting and ending temperatures pass through, and includes a plateau it starts or ends right at, so ice at 0 °C begins by melting.
+_Avoid_: Section, part, step
+
+**Plateau**:
+A flat segment at the melting (freezing) or boiling point, where both phases are present and the temperature doesn't change.
+_Avoid_: Flat part, phase change line
+
+**Substance**:
+What's heated or cooled: one of the substance setups, or Custom, the teacher's own melting and boiling points (and, for a curve to scale, its properties). A **substance setup** is water, ethanol, acetone, mercury, sodium chloride or Substance X (made up, with round numbers: 40 and 120 °C), each with its melting and boiling points and properties, cited in `curve.ts`. Picking one runs the curve from below its melting point to above its boiling point and fits the axes to it; picking Custom copies the setup's values into the fields, so the curve doesn't change until the teacher types.
+_Avoid_: Preset (that's a teacher's saved settings), material, compound
+
+**Schematic**:
+The first way to lay out the segments, and the default: how long each runs along the x-axis, typed, for the simple worksheet curve drawn to no particular scale (2, 3, 5, 8 and 2 to start, the boiling plateau longest as in textbooks). Switching to it from to scale copies that curve's lengths (to 3 significant figures).
+_Avoid_: Manual mode, segment lengths (fine in help text)
+
+**To scale**:
+The second way: each segment takes q = m·c·ΔT or q = n·ΔH from the sample's mass and the substance's specific heats of each phase, enthalpies of fusion and vaporization and molar mass, so the curve is to scale. With time along the x-axis, a steady rate of heat in kJ per minute turns heat into time. A specific heat is the phase's near the temperatures its segment covers where that's known, otherwise at 25 °C, so the curve is close but not exact. Water's values are OpenStax Chemistry 2e's: 2.09, 4.18 and 1.86 J/(g·°C), 6.01 and 40.67 kJ/mol, 18.02 g/mol. The heat each segment takes is listed under the fields, for an answer key.
+_Avoid_: Properties mode, calculated, physical
+
+**Supercooling**:
+On a cooling curve that freezes, the liquid cooling past its freezing point by the degrees the teacher types before it starts to freeze, then warming back up to the freezing point. The dip takes the start of the freezing plateau, so the rest of the curve doesn't move.
+_Avoid_: Undercooling
+
+**Corner letter**:
+A, B, C… at the start of the curve and the end of each segment, for questions like "What is happening between B and C?". It goes outside the turn the curve makes there, or the nearest clear spot.
+_Avoid_: Point label, marker
+
+**Segment label**:
+A segment's state written beside it (Solid, Liquid, Gas; a plateau as the change, Melting, Boiling, Freezing or Condensing, unless the teacher picks both states, Solid + liquid or Liquid + gas), or a blank line for students. Each goes in the first spot near its segment that's clear of the curve, the dashed lines and the other labels.
+_Avoid_: Annotation, caption
+
+**Point label**:
+What's written by the temperature axis just above (or below) a plateau's dashed line: its temperature (78.3 °C), m.p. or b.p. (f.p. and b.p. on a cooling curve), or a blank line for students to write the melting or boiling point on. It goes along the line, inside the grid, as far from the axis as the curve makes it. The temperature by default.
+_Avoid_: Axis label (that's the letter at an axis's end), tick label

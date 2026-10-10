@@ -27,12 +27,14 @@ export const COPY: Record<string, GeneratorCopy> = {
   'volume-reading': {
     heading: 'Graduated cylinder, buret and beaker figures',
     intro: [
-      'Volume Reading draws a graduated cylinder, a 50 mL buret or a beaker holding the volume you type, with the meniscus drawn so students read the volume at its bottom. On the cylinder and the buret, readings go one digit past the smallest mark (the estimated digit), so the same figure works for reading glassware and for significant figures. A beaker, with its coarse marks, is read to the whole mL.',
+      'Volume Reading draws a graduated cylinder, a 50 mL buret or a beaker holding the volume you type, with the meniscus drawn so students read the volume at its bottom. On the cylinder and the buret, readings go one digit past the smallest mark (the estimated digit), so the same figure works for reading glassware and for significant figures. A beaker, with its coarse marks, is read to the whole mL. Each instrument starts with its usual scale; you can pick finer or coarser marks, number them more or less often or not at all, and print it in mL or cm³.',
       'Teachers use it for measurement questions on tests, worksheets and lab practicals. Add a magnified view of the scale around the meniscus so the marks stay readable in print, and turn on the answer key to print the reading under the figure for your key.',
     ],
     settings: [
       'Instrument: a 10, 25, 50, 100, 250 or 1000 mL graduated cylinder, a 50 mL buret, or a 50, 250 or 600 mL beaker',
-      'The reading, typed or picked at random',
+      'The scale: how far apart the smallest marks are and how often they are numbered, from a few spacings that suit each instrument, or no numbers',
+      'Unit: mL or cm³',
+      'The reading, typed or picked at random, with an optional dotted line from the bottom of the meniscus to the marks',
       'Liquid color: gray, which photocopies well, or blue, red or green',
       'A magnifier beside the instrument or in place of it, spanning 1 to 6 numbered marks',
       'A chart title, and an answer key line with the reading',
@@ -48,7 +50,15 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'Can a beaker be read as precisely as a graduated cylinder?',
-        a: 'No. A beaker is marked only every 10, 25 or 50 mL, depending on its size, so it is read to the whole mL. Putting a beaker and a graduated cylinder side by side makes a good question on precision.',
+        a: 'No. A beaker’s usual marks are only every 10, 25 or 50 mL, depending on its size, so it is read to the whole mL. Putting a beaker and a graduated cylinder side by side makes a good question on precision.',
+      },
+      {
+        q: 'Can I change how the scale is marked?',
+        a: 'Yes. Under Scale, pick how far apart the smallest marks are and how often they are numbered, from spacings that suit the instrument: a 25 mL cylinder can be marked every 0.2, 0.5 or 1 mL and numbered every 1 or 5 mL. Choose No numbers to leave the numbered marks blank for students to work out. Readings follow the marks, one digit past the smallest.',
+      },
+      {
+        q: 'Can it show cm³ instead of mL?',
+        a: 'Yes. Under Scale, choose cm³. A cubic centimeter is the same size as a milliliter, so the reading stays the same; only the unit on the glass and in the answer key changes.',
       },
       {
         q: 'Can I show just the magnified view?',
@@ -67,7 +77,8 @@ export const COPY: Record<string, GeneratorCopy> = {
     ],
     settings: [
       'Graduated cylinder: 10, 25, 50 or 100 mL',
-      'The before and after readings, typed or picked at random (the after reading is always higher)',
+      'The scale: how far apart the smallest marks are and how often they are numbered, or no numbers; and mL or cm³',
+      'The before and after readings, typed or picked at random (the after reading is always higher), with an optional dotted line from the bottom of each meniscus to the marks',
       'The object: 1 to 5 marbles, a rock, a cube or a metal cylinder',
       'Liquid color: gray, blue, red or green',
       'A magnifier beside each cylinder, spanning 1 to 6 numbered marks',
@@ -85,6 +96,10 @@ export const COPY: Record<string, GeneratorCopy> = {
       {
         q: 'Can I make a density question with this?',
         a: 'Yes. Make the displacement figure, then open Mass Reading and put the same object on a balance; it is drawn alike in both. Students find the volume from one figure and the mass from the other, then divide mass by volume.',
+      },
+      {
+        q: 'Can I change the cylinders’ marks or units?',
+        a: 'Yes. Under Scale, pick finer or coarser marks, number them more or less often or not at all, and choose mL or cm³. Both cylinders and the answer key follow.',
       },
       {
         q: 'Why are there no 250 mL or 1000 mL cylinders?',
@@ -311,18 +326,58 @@ export const COPY: Record<string, GeneratorCopy> = {
     educationalLevel: ['High school', 'AP Chemistry'],
   },
 
+  'heating-cooling-curve': {
+    heading: 'Heating and cooling curves',
+    intro: [
+      'Heating and Cooling Curve graphs a substance’s temperature as it is heated or cooled steadily, through its melting and boiling points. Each phase warms or cools in a sloped segment and each phase change is a flat plateau, and the curve has only the segments its starting and ending temperatures pass through. Pick water, ethanol, acetone, mercury, sodium chloride or a made-up Substance X, or type your own melting and boiling points. Segments are schematic, in tidy textbook proportions you can change, or worked out to scale from the substance’s specific heats and enthalpies of fusion and vaporization for the mass and heating rate you choose, with the heat each segment takes listed for your answer key.',
+      'Teachers use it for questions on phase changes, heat and temperature: what is happening between B and C, why the temperature doesn’t change while ice melts, which plateau is longer and why. Letter the corners A to F, label each segment with its state or phase change or leave a blank line for students. The dashed lines from the plateaus to the temperature axis have the melting and boiling points written by them, so they can be read on any axis; write m.p. and b.p. instead, or leave blank lines for students.',
+    ],
+    settings: [
+      'Heating or cooling, and the starting and ending temperatures',
+      'The substance: water, ethanol, acetone, mercury, sodium chloride, a made-up Substance X, or your own melting and boiling points',
+      'Segment lengths schematic (typed) or to scale, from the mass and the substance’s specific heats and enthalpies of fusion and vaporization (typed for your own substance)',
+      'Time or the heat added or removed along the x-axis, at a heating rate you choose',
+      'Letters at the corners, segment labels (states, the phase change, or blank lines), dashed lines at the plateaus with the temperatures (the default), m.p. and b.p., blank lines or nothing by the axis, and supercooling on a cooling curve',
+      'The curve’s color, the chart and axis titles (or blank lines), the axis ranges and numbering, gridlines, and label size',
+    ],
+    faqs: [
+      {
+        q: 'Why is the temperature flat during a phase change?',
+        a: 'While a substance melts or boils, the heat added goes into pulling its particles apart (raising their potential energy) instead of making them move faster, so the temperature stays at the melting or boiling point until the change is complete. On a cooling curve the same heat comes back out while it freezes or condenses.',
+      },
+      {
+        q: 'Why is the boiling plateau longer than the melting plateau?',
+        a: 'Boiling separates the particles completely, which takes much more energy than loosening them into a liquid. For water the enthalpy of vaporization, 40.67 kJ/mol, is about 6.8 times the enthalpy of fusion, 6.01 kJ/mol, so drawn to scale its boiling plateau is about 6.8 times as long.',
+      },
+      {
+        q: 'Can I make a curve for a substance other than water?',
+        a: 'Yes. Pick ethanol, acetone, mercury, sodium chloride or a made-up Substance X, or choose Custom and type its melting and boiling points. For your own substance drawn to scale, type its specific heats, enthalpies of fusion and vaporization and molar mass too.',
+      },
+      {
+        q: 'Is the curve drawn to scale?',
+        a: 'Only if you want it to be. Schematic, the default, draws the segments in tidy textbook proportions, which you can change. To scale works out how long each takes from q = m·c·ΔT and q = n·ΔH, for the mass and heating rate you choose. The specific heats are each phase’s near the temperatures its segment covers where that’s known, otherwise at 25 °C, so a curve to scale is close but not exact.',
+      },
+      {
+        q: 'Can I show supercooling?',
+        a: 'Yes, on a cooling curve that freezes: tick Supercooled and type how far below the freezing point the liquid cools before it starts to freeze. The curve dips below the freezing point and climbs back to it, and the rest of the curve stays where it was.',
+      },
+    ],
+    imageAlt: 'A printable heating curve of water from ice to steam, its corners lettered A to F and each segment labeled with its state or phase change, made with Heating and Cooling Curve',
+    educationalLevel: ['Middle school', 'High school', 'AP Chemistry'],
+  },
+
   'particle-diagram': {
     heading: 'Particle diagrams of atoms, ions and molecules',
     intro: [
-      'Particle Diagram draws the particulate-level pictures used in AP Chemistry: atoms, ions and molecules scattered at random in a box, for a gas, liquid or solution, or packed in a lattice, for a solid. Choose up to four kinds of particle and how many of each. Each atom has a size and a gray shade, an ion carries its charge written in its middle, and a molecule is a center atom with outer atoms touching it, in shapes like Cl₂, H₂O or CCl₄.',
-      'Scattered particles always go in the same size box, so four answer choices made one at a time line up on the page. A key beside the box shows each kind with the name you type, and it can go with the box, be left off, or be shown alone, so several answer choices can share one key.',
+      'Particle Diagram draws the particulate-level pictures used in AP Chemistry: atoms, ions and molecules in a box, spread out as a gas or solution, close together as a liquid or in rows as a solid, or packed in a lattice for an ionic solid or alloy. Choose up to four kinds of particle and how many of each, or draw a before box and an after box with an arrow between them for a reaction or a change of state. Each atom has a size and a gray shade, an ion carries its charge written in its middle, and a molecule is a center atom with outer atoms touching it, in shapes like Cl₂, H₂O or CCl₄.',
+      'The box of particles is always the same size, so four answer choices made one at a time line up on the page. A key beside the box shows each kind with the name you type, and it can go with the box, be left off, or be shown alone, so several answer choices can share one key.',
     ],
     settings: [
-      'Layout: scattered in a box, or a lattice of up to 12 rows and 12 columns',
+      'Layout: particles in a box as a gas, liquid or solid, before and after boxes, or a lattice of up to 12 rows and 12 columns',
       'Up to four kinds of particle, 0 to 60 of each, each alone or joined as a pair, bent, in a line, three around or four around',
       'Each atom’s size (XS to XL), shade (white to black) and charge (+, −, 2+, 2−, 3+ or 3−)',
       'Lattice patterns: one kind (a pure metal), alternating (an ionic solid), substitutional or interstitial (alloys), touching or spaced',
-      'A key with your names and a note line, the box’s border (single, double or none), and a chart title',
+      'A key with your names and a note line, listing each kind whole or each atom once, the box’s border (single, double or none), and a chart title',
     ],
     faqs: [
       {
@@ -331,7 +386,15 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'How do I make four answer choices that line up?',
-        a: 'Make each choice one at a time and copy it into your document. Scattered particles always go in the same square box, so the choices come out the same size. Set the key to Key only to make one shared key for all of them.',
+        a: 'Make each choice one at a time and copy it into your document. Particles always go in the same square box, whatever their state, so the choices come out the same size. Set the key to Key only to make one shared key for all of them.',
+      },
+      {
+        q: 'Can I show a reaction, before and after?',
+        a: 'Yes. Set Boxes to Before and after and give each kind a count for each box: 4 H₂ and 3 O₂ before, say, and 4 H₂O and 1 O₂ after. The two boxes are the same size with an arrow between them, which can have a short label such as “heat”, and share one key, so they work for conservation of mass and limiting reactant questions. Each box has its own state, so the same particles can also show a change of state, like a solid melting.',
+      },
+      {
+        q: 'Can it show solids, liquids and gases?',
+        a: 'Yes. Pick the box’s state: Gas spreads the particles out at random, Liquid settles them close together but jumbled at the bottom, and Solid packs them in rows at the bottom, all turned the same way. Keep the same particles and change only the state to compare the three.',
       },
       {
         q: 'Can I show an ionic solid or an alloy?',
@@ -340,6 +403,14 @@ export const COPY: Record<string, GeneratorCopy> = {
       {
         q: 'Can I put element symbols on the atoms?',
         a: 'No. Atoms are drawn as plain shaded discs, and ions show only their charge. Put names like “Na⁺ ion” or “CCl₄ molecule” in the key instead.',
+      },
+      {
+        q: 'How do I type subscripts and superscripts in the key?',
+        a: 'Type _ before a subscript and ^ before a superscript, with braces around more than one character: H_2O for H₂O, SO_4^{2-} for SO₄²⁻, Na^+ for Na⁺. They work in the key’s names and its note line, and in a link to the figure.',
+      },
+      {
+        q: 'Can the key show each atom on its own, for writing formulas?',
+        a: 'Yes. Set the key’s List to Each atom instead of Each particle and it shows every different atom once, drawn alone with its own name, rather than each molecule whole. An atom in two kinds of molecule, like the O in H₂O and CO₂, is listed once. Students can then work out each molecule’s formula from the box.',
       },
       {
         q: 'Can a kind of particle appear in the key but not in the box?',
@@ -391,13 +462,13 @@ export const COPY: Record<string, GeneratorCopy> = {
   },
 
   'lewis-structures': {
-    heading: 'Lewis dot structures for molecules and polyatomic ions',
+    heading: 'Lewis dot structures for molecules, ions and single atoms',
     intro: [
-      'Lewis Structures draws the Lewis structure of a molecule or polyatomic ion from its formula. Type H2O, CH4, NO3- or SO4 2- and it builds the correct structure around the central atom, with lone electrons as dots, formal charges if you want them, and its resonance structures. Molecules with more than one central atom, like ethanol, acetic acid, HNO₃ or N₂H₄, come from a list you can pick from or type by name or formula.',
+      'Lewis Structures draws the Lewis structure of a molecule or polyatomic ion from its formula. Type H2O, CH4, NO3- or SO4 2- and it builds the correct structure around the central atom, with lone electrons as dots, formal charges if you want them, and its resonance structures. Molecules with more than one central atom, like ethanol, acetic acid, HNO₃ or N₂H₄, come from a list you can pick from or type by name or formula. Type one atom or ion, like N, Cl- or Ca 2+, for its Lewis dot diagram.',
       'Teachers use it for three kinds of question: draw the structure, complete it from the skeleton or from the bonds, or find the mistakes in a wrong one. Change a bond, an atom’s lone electrons or its formal charge by clicking the figure, and the generator checks the result and lists its mistakes as sentences, like “O has 10 electrons around it”, for the answer key.',
     ],
     settings: [
-      'The formula or name: main-group elements through period 5 with one central atom, or a molecule from the list',
+      'The formula or name: main-group elements through period 5 with one central atom, a single atom or monatomic ion, or a molecule from the list',
       'A flat, textbook-style drawing, or shaped to hint at the real shape (like bent H₂O)',
       'Bonds as lines or as pairs of dots, and formal charges shown or not',
       'The octet rule or fewest formal charges, for ions like SO₄²⁻ where textbooks disagree',
@@ -407,7 +478,11 @@ export const COPY: Record<string, GeneratorCopy> = {
     faqs: [
       {
         q: 'How do I type a formula with a charge?',
-        a: 'Put a space or ^ before a charge of 2 or more, like SO4 2- or PO4^3-. A charge of 1 can go straight after the formula, like NO3- or NH4+.',
+        a: 'Put a space or ^ before a charge of 2 or more, like SO4 2- or PO4^3-, or N 3- for the nitride ion: N3- is three N atoms, the azide ion. A charge of 1 can go straight after the formula, like NO3- or NH4+.',
+      },
+      {
+        q: 'Can it draw a single atom or ion?',
+        a: 'Yes. Type N or P for the atom’s Lewis dot diagram, with its valence electrons placed one to a side and then paired. For an ion like N 3-, Cl- or Ca 2+, it adds the electrons an anion gains or leaves off the ones a cation loses, and puts the ion in square brackets with its charge. Changes work on these too, for a wrong number of dots or missing brackets.',
       },
       {
         q: 'Which structure does it draw for SO₄²⁻?',
@@ -423,7 +498,7 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
       {
         q: 'What can’t it draw?',
-        a: 'Transition metals, and ionic compounds like NaCl, which aren’t one Lewis structure. A molecule with more than one central atom has to be on the list; if yours isn’t, the Request it button asks us to add it.',
+        a: 'Transition metals, and ionic compounds like NaCl, which aren’t one Lewis structure, though each ion (Na+, Cl-) can be drawn on its own. A molecule with more than one central atom has to be on the list; if yours isn’t, the Request it button asks us to add it.',
       },
     ],
     imageAlt: 'A printable Lewis dot structure of a molecule, with bonds and lone electrons, made with Lewis Structures',
@@ -545,6 +620,45 @@ export const COPY: Record<string, GeneratorCopy> = {
       },
     ],
     imageAlt: 'A printable photoelectron spectrum with a peak for each sublevel and binding energy falling from left to right, made with Photoelectron Spectrum',
+    educationalLevel: ['High school', 'AP Chemistry'],
+  },
+  'mass-spectrum': {
+    heading: 'Mass spectra of elements and their isotopes',
+    intro: [
+      'Mass Spectrum draws the mass spectrum of an element: one peak for each of its naturally occurring isotopes, at its mass number on the mass-to-charge (m/z) axis, as tall as its percent abundance or its abundance against the tallest peak. Pick any element from hydrogen to xenon, or platinum, gold, mercury, lead or uranium, or type up to six isotopes of your own for a made-up element.',
+      'Teachers use it for isotope and average atomic mass questions. Write each peak’s abundance over it or leave it off, hide the element’s name so students identify it from the peaks, or leave one peak out for students to draw in. The answer key prints the element and its relative atomic mass, worked out from the isotopes’ exact masses.',
+    ],
+    settings: [
+      'An element’s natural isotopes, or 1 to 6 isotopes you type, each with its mass and % abundance, and a name such as Element X',
+      'Peak heights as percent abundance, adding up to 100, or relative to the tallest peak as 100',
+      'Each peak’s abundance written over it, or not',
+      'The element’s name shown or hidden, and one peak left out for students to draw',
+      'Chart and axis titles, the x-axis fitted to the peaks or typed, the y-axis range, gridlines and the label size',
+      'An answer key line with the element, its relative atomic mass and the peak left out',
+    ],
+    faqs: [
+      {
+        q: 'How do you find the relative atomic mass from a mass spectrum?',
+        a: 'Multiply each isotope’s mass by its percent abundance, add them up and divide by 100. For magnesium, (24 × 78.99 + 25 × 10.00 + 26 × 11.01) ÷ 100 is about 24.32; with the isotopes’ exact masses it is 24.31, the value on the periodic table. The answer key uses the exact masses.',
+      },
+      {
+        q: 'Why are the peaks at whole numbers?',
+        a: 'The x-axis is the mass-to-charge ratio, and each peak is drawn at its isotope’s mass number, as most school mass spectra show it. The exact isotope masses, such as 34.969 for chlorine-35, are used only to work out the relative atomic mass.',
+      },
+      {
+        q: 'Where does the isotope data come from?',
+        a: 'Abundances are the IUPAC Commission on Isotopic Abundances and Atomic Weights’ representative isotopic compositions (2024). Where IUPAC now gives only a range, as for hydrogen, boron, carbon, chlorine and bromine, the generator uses its 2009 single values, which lie within the range. Isotope masses are from NIST. Every element’s values average to its standard atomic weight.',
+      },
+      {
+        q: 'Can I make a spectrum for a made-up element?',
+        a: 'Yes. Choose Custom isotopes and type up to six masses with their percent abundances, and give the element a name. If the abundances don’t add up to 100%, the page says so and averages them as if they did.',
+      },
+      {
+        q: 'Can it draw the mass spectrum of a molecule?',
+        a: 'Not yet. It draws the isotopes of single elements, so molecules such as Cl₂ and their fragments aren’t drawn.',
+      },
+    ],
+    imageAlt: 'A printable mass spectrum of magnesium with a peak for each isotope and its percent abundance, made with Mass Spectrum',
     educationalLevel: ['High school', 'AP Chemistry'],
   },
 }

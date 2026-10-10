@@ -86,6 +86,8 @@ const MIN_SIDE = 150
 /** How long the loop's top (then its right side) can get before parts move on round the loop. */
 const MAX_TOP = 430
 const MAX_RIGHT = 300
+/** A top this long is kept whole; past it, the top takes about 60% of the loop and the rest goes down the right, so a long loop isn't one flat line. */
+const EVEN_TOP = 280
 const MARGIN = 16
 const TITLE_SIZE = 24
 
@@ -366,9 +368,11 @@ function sides(items: Item[]): { left: Item[]; top: Item[]; right: Item[]; botto
   const bottom: Item[] = []
   let topLen = 0
   let rightLen = 0
+  const total = rest.reduce((sum, item) => sum + itemBlock(item, false).len, 0)
+  const maxTop = Math.min(MAX_TOP, Math.max(EVEN_TOP, total * 0.6))
   for (const item of rest) {
     const len = itemBlock(item, false).len
-    if (!right.length && !bottom.length && (!top.length || topLen + len <= MAX_TOP)) top.push(item), (topLen += len)
+    if (!right.length && !bottom.length && (!top.length || topLen + len <= maxTop)) top.push(item), (topLen += len)
     else if (!bottom.length && (!right.length || rightLen + itemBlock(item, true).len <= MAX_RIGHT)) right.push(item), (rightLen += itemBlock(item, true).len)
     else bottom.push(item)
   }

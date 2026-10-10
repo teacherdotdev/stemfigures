@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chargeText, formulaText, parseFormula, type Formula } from './formula'
+import { chargeText, formulaText, ionMeant, parseFormula, type Formula } from './formula'
 
 const parsed = (text: string) => {
   const result = parseFormula(text)
@@ -73,7 +73,13 @@ describe('formulas it can’t read', () => {
 
   it('explains that transition metals and ionic compounds aren’t drawn', () => {
     expect(message('Fe2O3')).toMatch(/transition metal/)
-    expect(message('NaCl')).toMatch(/ionic/)
+    expect(message('NaCl')).toBe('Na forms ionic compounds, which Lewis Structures doesn’t draw. Type Na+ for its ion on its own.')
+    expect(message('CaCl2')).toMatch(/Type Ca 2\+ for its ion/)
+  })
+
+  it('says how to type an ion of a metal that only forms ionic compounds, since Ca2+ is two Ca atoms', () => {
+    expect(message('Ca2+')).toBe('Ca2+ is 2 Ca atoms. For the Ca²⁺ ion, type Ca 2+.')
+    expect(message('Ca 2+')).toBe('')
   })
 
   it('rejects anything else it can’t read', () => {
@@ -81,9 +87,24 @@ describe('formulas it can’t read', () => {
     expect(message('H2O!')).not.toBe('')
   })
 
-  it('needs at least two atoms', () => {
-    expect(message('Ne')).toMatch(/two atoms/)
-    expect(message('Cl-')).toMatch(/two atoms/)
+})
+
+describe('one atom or ion', () => {
+  it('reads a single atom or monatomic ion, metals that only form ionic compounds included', () => {
+    expect(parsed('N').atoms).toEqual(['N'])
+    expect(parsed('Cl-')).toMatchObject({ atoms: ['Cl'], charge: -1 })
+    expect(parsed('N 3-')).toMatchObject({ atoms: ['N'], charge: -3 })
+    expect(parsed('O²⁻')).toMatchObject({ atoms: ['O'], charge: -2 })
+    expect(parsed('Ca^2+')).toMatchObject({ atoms: ['Ca'], charge: 2 })
+    expect(formulaText(parsed('N 3-'))).toBe('N³⁻')
+  })
+
+  it('reads N3- as three N atoms, and knows the ion it may have meant', () => {
+    const f = parsed('N3-')
+    expect(f.atoms).toEqual(['N', 'N', 'N'])
+    expect(ionMeant(f.tokens, f.charge)).toEqual({ name: 'N³⁻', typed: 'N 3-' })
+    expect(ionMeant(parsed('N 3-').tokens, -3)).toBeUndefined()
+    expect(ionMeant(parsed('NO3-').tokens, -1)).toBeUndefined()
   })
 })
 

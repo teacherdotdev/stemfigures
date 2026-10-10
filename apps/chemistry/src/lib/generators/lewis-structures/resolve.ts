@@ -1,8 +1,9 @@
 // From what the teacher typed to the correct structures: a structure from
 // the list when the formula or name is listed, otherwise one built around a
-// central atom (ADR 0003), placed for the chosen shape.
+// central atom (ADR 0003), placed for the chosen shape, or an atom on its own.
 
 import { correctStructures, findCentral, starSkeleton, type Rule, type Skeleton } from './build'
+import { ELEMENTS, octetOf } from './elements'
 import { formulaText, parseFormula, type Formula } from './formula'
 import { placeStar, type Shape } from './layout'
 import { LISTED, type Listed } from './listed'
@@ -59,6 +60,17 @@ function placeBuilt(all: Structure[], central: number, shape: Shape) {
   return all.map((s) => ({ ...s, atoms: s.atoms.map((a, i) => ({ ...a, x: first.atoms[i].x, y: first.atoms[i].y })) }))
 }
 
+/** Why an atom on its own can't take its charge: it would lose more
+ *  electrons than it has, or have more than it has room for. */
+function tooCharged(f: Formula, name: string) {
+  const [element] = f.atoms
+  const { valence } = ELEMENTS[element]
+  const electrons = valence - f.charge
+  return electrons < 0
+    ? `${name} would lose more than ${element}’s ${valence} valence electron${valence === 1 ? '' : 's'}.`
+    : `${name} would have ${electrons} valence electrons, but ${element} only has room for ${octetOf(element)}.`
+}
+
 const differs = (a: Structure[], b: Structure[]) => a.map(electronKey).join(' ') !== b.map(electronKey).join(' ')
 
 export function resolve({ formula: typed, which, rule, shape }: ResolveInput): Resolved {
@@ -99,6 +111,7 @@ export function resolve({ formula: typed, which, rule, shape }: ResolveInput): R
     }
   const skeleton = starSkeleton(f, central.central)
   const built = correctStructures(skeleton, rule)
+  if (!built.length && f.atoms.length === 1) return { ok: false, message: tooCharged(f, name), request: false }
   if (!built.length) return { ok: false, message: `${name} can’t be drawn as a correct Lewis structure with one central atom.`, request: true }
   return {
     ok: true,

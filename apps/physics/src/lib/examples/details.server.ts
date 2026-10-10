@@ -7,13 +7,18 @@
 // It also checks each example: a setting the generator doesn't take as
 // written (a force past the scale, a misspelled choice) fails the build.
 
+import { circuitAnswer } from '$lib/generators/circuit-diagram/circuit'
+import { circuitSettings } from '$lib/generators/circuit-diagram/settings'
 import { fbdSettings } from '$lib/generators/free-body-diagram/settings'
 import { inclineSettings } from '$lib/generators/inclined-plane/settings'
+import { motionOf, numberText, segmentLines, tangentAt } from '$lib/generators/motion-graphs/motion'
+import { motionSettings, viewsOf } from '$lib/generators/motion-graphs/settings'
 import { projectileSettings } from '$lib/generators/projectile-motion/settings'
 import { pulleySettings } from '$lib/generators/pulley/settings'
 import { answerLines as springScaleAnswer, springScaleSettings } from '$lib/generators/spring-scale/settings'
 import { resultantOf } from '$lib/generators/vector-diagram/vd'
 import { vectorSettings } from '$lib/generators/vector-diagram/settings'
+import { answerLines as waveAnswer, waveSettings } from '$lib/generators/waves/settings'
 import type { Label } from '$lib/shared/label'
 import type { SettingsDef } from '$lib/shared/settings'
 import type { Example, ExampleGeneratorId, SettingsById } from './types'
@@ -77,13 +82,33 @@ function vectorAnswer(s: SettingsById['vector-diagram']): ExampleDetails['answer
   return { heading: 'Answer key (angles counterclockwise from the right)', lines: out }
 }
 
+/** What each segment does, in numbers, and the tangent's slope where one is drawn. */
+function motionAnswer(s: SettingsById['motion-graphs']): ExampleDetails['answer'] {
+  const m = motionOf(s.segments, s.start)
+  const lines = segmentLines(m)
+  if (s.tangent && viewsOf(s).includes('x') && m.pieces.length) {
+    const t = tangentAt(m, s.tangentAt)
+    lines.push(`Tangent at ${numberText(t.t)} s: it touches at ${numberText(t.x)} m, and its slope, the instantaneous velocity, is ${numberText(t.slope)} m/s`)
+  }
+  return { heading: 'Answer key', lines }
+}
+
 const GENERATORS: { [G in ExampleGeneratorId]: { definition: Definition<SettingsById[G]>; answer: Answer<SettingsById[G]> } } = {
   'free-body-diagram': { definition: physics(fbdSettings), answer: none },
   'vector-diagram': { definition: physics(vectorSettings), answer: vectorAnswer },
   'inclined-plane': { definition: physics(inclineSettings), answer: none },
   'pulley': { definition: physics(pulleySettings), answer: none },
   'projectile-motion': { definition: physics(projectileSettings), answer: none },
+  'motion-graphs': { definition: physics(motionSettings), answer: motionAnswer },
   'spring-scale': { definition: springScaleSettings, answer: (s) => ({ heading: 'Answer key', lines: springScaleAnswer(s).split('\n') }) },
+  'waves': { definition: waveSettings, answer: (s) => ({ heading: 'Answer key', lines: waveAnswer(s) }) },
+  'circuit-diagram': {
+    definition: physics(circuitSettings),
+    answer: (s) => {
+      const lines = circuitAnswer(s)
+      return lines && { heading: 'Answer key', lines }
+    },
+  },
 }
 
 function detailsOf<G extends ExampleGeneratorId>(generator: G, example: Example): ExampleDetails {

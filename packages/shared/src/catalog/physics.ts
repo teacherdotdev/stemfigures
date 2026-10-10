@@ -76,6 +76,22 @@ export const PHYSICS: CatalogEntry[] = [
     ],
   },
   {
+    id: 'motion-graphs',
+    site: 'physics',
+    name: 'Motion Graph Generator',
+    path: '/motion-graphs',
+    blurb: 'Position, velocity and acceleration against time, built segment by segment.',
+    description:
+      'Make printable motion graphs for physics tests. Build a motion from segments and draw its position–time, velocity–time and acceleration–time graphs.',
+    keywords: [
+      'motion graph', 'motion graphs', 'position time graph', 'position vs time', 'displacement time graph', 'distance time graph',
+      'x-t graph', 'velocity time graph', 'velocity vs time', 'speed time graph', 'v-t graph', 'acceleration time graph',
+      'acceleration vs time', 'a-t graph', 'kinematics', 'kinematics graphs', 'constant velocity', 'at rest', 'speeding up',
+      'slowing down', 'acceleration', 'slope', 'area under the graph', 'tangent', 'instantaneous velocity', 'concave up',
+      'concave down', 'segments', 'cart', 'mechanics', 'printable',
+    ],
+  },
+  {
     id: 'spring-scale',
     site: 'physics',
     alsoOn: ['chemistry'],
@@ -88,6 +104,35 @@ export const PHYSICS: CatalogEntry[] = [
       'spring scale', 'spring balance', 'newton meter', 'newtonmeter', 'force meter', 'forcemeter', 'force', 'weight',
       'newton', 'newtons', 'grams', 'mass', 'hooke', "hooke's law", 'spring', 'reading', 'measuring', 'measurement',
       'scale', 'zero error', 'zero offset', 'magnifier', 'slotted masses', 'hanging mass', 'mechanics', 'printable',
+    ],
+  },
+  {
+    id: 'waves',
+    site: 'physics',
+    name: 'Wave Generator',
+    path: '/waves',
+    blurb: 'Transverse and longitudinal waves on numbered axes, to measure.',
+    description:
+      'Make printable wave diagrams for physics tests. Set the amplitude, wavelength or period, and mark them on axes students measure.',
+    keywords: [
+      'wave', 'waves', 'transverse', 'transverse wave', 'longitudinal', 'longitudinal wave', 'wavelength', 'lambda',
+      'amplitude', 'period', 'frequency', 'crest', 'trough', 'compression', 'rarefaction', 'sound', 'sound wave',
+      'displacement', 'displacement distance graph', 'displacement time graph', 'sine wave', 'measuring', 'oscillation',
+      'printable',
+    ],
+  },
+  {
+    id: 'circuit-diagram',
+    site: 'physics',
+    name: 'Circuit Diagram Generator',
+    path: '/circuit-diagram',
+    blurb: 'A battery with resistors or bulbs in series or in parallel.',
+    description:
+      'Make printable circuit diagrams for physics tests. Draw a cell or battery with up to four resistors or bulbs in series or parallel, with meters, labeled or left blank.',
+    keywords: [
+      'circuit', 'circuits', 'circuit diagram', 'schematic', 'electric', 'electricity', 'series', 'parallel', 'resistor',
+      'resistance', 'ohm', "ohm's law", 'battery', 'cell', 'emf', 'bulb', 'lamp', 'switch', 'ammeter', 'voltmeter',
+      'current', 'voltage', 'potential difference', 'equivalent resistance', 'symbols', 'iec', 'gcse', 'printable',
     ],
   },
 ]

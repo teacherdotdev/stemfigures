@@ -11,7 +11,7 @@ export const CHEMISTRY: CatalogEntry[] = [
     blurb: 'A graduated cylinder, buret, or beaker showing the volume you type.',
     description:
       'Make printable graduated cylinder, buret and beaker figures for chemistry tests. Type a volume and students read it from the meniscus, with a magnified view for the estimated digit.',
-    keywords: ['graduated', 'cylinder', 'buret', 'burette', 'beaker', 'meniscus', 'volume', 'mL', 'milliliters', 'measurement', 'lab', 'glassware'],
+    keywords: ['graduated', 'cylinder', 'buret', 'burette', 'beaker', 'meniscus', 'volume', 'mL', 'milliliters', 'cm3', 'cm³', 'cubic', 'centimeters', 'centimetres', 'measurement', 'lab', 'glassware'],
   },
   {
     id: 'volume-by-displacement',
@@ -21,7 +21,7 @@ export const CHEMISTRY: CatalogEntry[] = [
     blurb: 'A graduated cylinder before and after an object is dropped in.',
     description:
       'Make printable water displacement figures for chemistry tests. Type the before and after readings and get two graduated cylinders, with an object in the second, for students to find its volume.',
-    keywords: ['water', 'displacement', 'displaced', 'graduated', 'cylinder', 'object', 'marble', 'rock', 'cube', 'metal', 'irregular', 'solid', 'volume', 'density', 'mL', 'measurement', 'lab'],
+    keywords: ['water', 'displacement', 'displaced', 'graduated', 'cylinder', 'object', 'marble', 'rock', 'cube', 'metal', 'irregular', 'solid', 'volume', 'density', 'mL', 'cm3', 'cm³', 'cubic', 'centimeters', 'centimetres', 'measurement', 'lab'],
   },
   {
     id: 'gas-syringe',
@@ -87,6 +87,16 @@ export const CHEMISTRY: CatalogEntry[] = [
     keywords: ['titration', 'titrate', 'curve', 'graph', 'pH', 'equivalence', 'half-equivalence', 'endpoint', 'end', 'point', 'pKa', 'pKb', 'Ka', 'buffer', 'acid', 'base', 'strong', 'weak', 'neutralization', 'NaOH', 'HCl', 'acetic', 'ammonia', 'molarity', 'buret', 'AP'],
   },
   {
+    id: 'heating-cooling-curve',
+    site: 'chemistry',
+    name: 'Heating and Cooling Curve',
+    path: '/heating-cooling-curve',
+    blurb: 'A heating or cooling curve for water, ethanol and other substances, or your own melting and boiling points, schematic or to scale.',
+    description:
+      'Make printable heating and cooling curves for chemistry tests. Pick water, ethanol, acetone, mercury, sodium chloride or your own melting and boiling points, draw it schematic or to scale for a mass and heating rate, and get the curve with lettered corners, labeled states and phase changes, and the melting and boiling points marked.',
+    keywords: ['heating', 'cooling', 'curve', 'graph', 'phase', 'change', 'changes', 'state', 'states', 'matter', 'melting', 'freezing', 'boiling', 'condensation', 'condensing', 'vaporization', 'fusion', 'plateau', 'point', 'temperature', 'time', 'heat', 'energy', 'specific', 'enthalpy', 'supercooling', 'solid', 'liquid', 'gas', 'ice', 'water', 'steam', 'ethanol', 'acetone', 'mercury', 'salt', 'kinetic', 'potential', 'thermochemistry', 'AP'],
+  },
+  {
     id: 'particle-diagram',
     site: 'chemistry',
     name: 'Particle Diagram',
@@ -145,6 +155,16 @@ export const CHEMISTRY: CatalogEntry[] = [
     description:
       'Make printable photoelectron spectra (PES) for AP Chemistry tests. Pick an element from H to Xe and get a peak for each sublevel, as tall as its electrons, at its binding energy in MJ/mol or eV, on a logarithmic or broken axis, with a second element to compare and labels left blank or the element hidden for students.',
     keywords: ['PES', 'photoelectron', 'spectrum', 'spectra', 'spectroscopy', 'binding', 'energy', 'ionization', 'MJ/mol', 'eV', 'subshell', 'sublevel', 'electron', 'configuration', 'peak', 'peaks', 'core', 'valence', 'shielding', 'Coulomb', 'nuclear', 'charge', 'AP'],
+  },
+  {
+    id: 'mass-spectrum',
+    site: 'chemistry',
+    name: 'Mass Spectrum',
+    path: '/mass-spectrum',
+    blurb: 'An element’s mass spectrum: a peak for each isotope, as tall as its abundance.',
+    description:
+      'Make printable mass spectra of elements for chemistry tests. Pick an element, or type your own isotopes, and get a peak at each mass number as tall as its percent or relative abundance, with the element hidden or a peak left out for students and the relative atomic mass in the answer key.',
+    keywords: ['mass', 'spectrum', 'spectra', 'spectrometry', 'spectrometer', 'spec', 'isotope', 'isotopes', 'abundance', 'relative', 'percent', 'average', 'atomic', 'weighted', 'm/z', 'peak', 'peaks', 'amu', 'element', 'AP'],
   },
   {
     id: 'structure-editor',

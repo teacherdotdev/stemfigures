@@ -109,3 +109,23 @@ describe('the mistakes in a changed structure', () => {
     expect(mistakes({ ...s, chargeLabel: 0 })).toEqual(['The ion’s charge, 2−, is missing.'])
   })
 })
+
+describe('an atom or ion on its own', () => {
+  it('has no mistakes when correct', () => {
+    for (const text of ['N', 'P', 'N 3-', 'Ca 2+', 'Cl-', 'O 2-']) expect(setup(text).mistakes(setup(text).s, true), text).toEqual([])
+  })
+
+  it('finds a wrong number of dots once, as the valence electrons', () => {
+    expect(setup('N').mistakes(withLone(setup('N').s, 0, 6))).toEqual(['It shows 6 valence electrons, but N has 5.'])
+    expect(setup('N 3-').mistakes(withLone(setup('N 3-').s, 0, 5))).toEqual(['It shows 5 valence electrons, but N³⁻ has 8.'])
+    expect(setup('Ca 2+').mistakes(withLone(setup('Ca 2+').s, 0, 2))).toEqual(['It shows 2 valence electrons, but Ca²⁺ has 0.'])
+  })
+
+  it('checks the brackets and charge', () => {
+    const { s, mistakes } = setup('Cl-')
+    expect(mistakes({ ...s, brackets: false, chargeLabel: 0 })).toEqual(['An ion’s structure goes in square brackets.', 'The ion’s charge, −, is missing.'])
+    const n = setup('N')
+    expect(n.mistakes({ ...n.s, brackets: true })).toEqual(['An atom with no charge doesn’t go in brackets.'])
+  })
+})
+

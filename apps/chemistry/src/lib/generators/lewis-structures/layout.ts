@@ -4,17 +4,21 @@
 //
 // A built structure's outer atoms go around its central atom: on its four
 // sides when flat, as most textbooks draw them, or hinting at the molecule's
-// real shape when shaped (see CONTEXT.md "Shape"). Lone electrons then go
+// real shape when shaped (see CONTEXT.md "Shape"), with like atoms side by
+// side (CH₂Cl₂'s Cl atoms next to each other, not opposite). Lone electrons then go
 // on the free sides of each symbol, or into the widest gaps around it,
 // whatever the structure, so a changed or impossible one still draws cleanly.
+// An atom on its own has its electrons one to a side, then paired.
 
+import { octetOf } from './elements'
 import type { Structure } from './structure'
 
 export const SHAPES = ['flat', 'shaped'] as const
 export type Shape = (typeof SHAPES)[number]
 
 /** Directions of the outer atoms around a flat central atom, in the order
- *  they're written. Past four they go evenly around, starting at the top. */
+ *  they're written, before like atoms are put side by side. Past four they
+ *  go evenly around, starting at the top. */
 function flatDirections(outers: number): number[] {
   if (outers === 2) return [180, 0]
   if (outers === 3) return [180, 0, 90]
@@ -45,6 +49,46 @@ export const groupsOf = (lone: number) => Math.ceil(lone / 2)
 
 const rad = (deg: number) => (deg * Math.PI) / 180
 
+function* permutations(left: number[], picked: number[] = []): Generator<number[]> {
+  if (!left.length) {
+    yield picked
+    return
+  }
+  for (const n of left) yield* permutations(left.filter((m) => m !== n), [...picked, n])
+}
+
+/** Past this many outer atoms they go evenly around, and like atoms are
+ *  simply put in a row rather than every order being tried. */
+const MAX_TRIED = 6
+
+/** The directions given to outer atoms of these elements, so that like
+ *  atoms sit as close together as they can, and otherwise as near the order
+ *  they're written in as can be, the first atoms kept in place first. */
+function sideBySide(elements: string[], directions: number[]): number[] {
+  const n = elements.length
+  if (n > MAX_TRIED) {
+    const first = (k: number) => elements.indexOf(elements[k])
+    const row = elements.map((_, k) => k).sort((a, b) => first(a) - first(b) || a - b)
+    const given = [...directions]
+    row.forEach((k, j) => (given[k] = directions[j]))
+    return given
+  }
+  let best = directions
+  let bestScore = [Infinity, Infinity, Infinity]
+  for (const order of permutations(directions.map((_, k) => k))) {
+    let spread = 0
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (elements[a] === elements[b]) spread += apart(directions[order[a]], directions[order[b]])
+    const moved = order.filter((d, k) => d !== k)
+    const earliest = order.reduce((w, d, k) => w + (d !== k ? 2 ** (n - k) : 0), 0)
+    const score = [Math.round(spread * 1000), moved.length, earliest]
+    if (score[0] < bestScore[0] || (score[0] === bestScore[0] && (score[1] < bestScore[1] || (score[1] === bestScore[1] && score[2] < bestScore[2])))) {
+      best = order.map((d) => directions[d])
+      bestScore = score
+    }
+  }
+  return best
+}
+
 /** The structure with its outer atoms placed around the central one, one
  *  bond length away. A diatomic keeps the order it's written in. */
 export function placeStar(s: Structure, central: number, shape: Shape): Structure {
@@ -55,6 +99,7 @@ export function placeStar(s: Structure, central: number, shape: Shape): Structur
     const domains = outers.length + groupsOf(s.atoms[central].lone)
     directions = (shape === 'shaped' && SHAPED[`${outers.length},${domains}`]) || flatDirections(outers.length)
   }
+  directions = sideBySide(outers.map((i) => s.atoms[i].element), directions)
   const atoms = s.atoms.map((a) => ({ ...a, x: 0, y: 0 }))
   outers.forEach((i, k) => {
     atoms[i].x = round(Math.cos(rad(directions[k])))
@@ -141,6 +186,27 @@ export function loneDirections(s: Structure, i: number): number[] {
     }
   }
   return best
+}
+
+/** An atom's electrons by side, `electrons` being 1 or 2. */
+export type Group = { direction: number; electrons: number }
+
+/** The sides an atom on its own fills, one electron each before any pairs. */
+const FILL_ORDER = [0, 180, 270, 90]
+
+/** An atom's electron groups: its lone pairs, with an odd electron alone
+ *  last; or for an atom bonded to nothing, its electrons one to a side
+ *  (right, left, top, bottom) and then paired, as textbooks draw N with a
+ *  pair and three lone electrons. H and He pair their two. */
+export function electronGroups(s: Structure, i: number): Group[] {
+  const { element, lone } = s.atoms[i]
+  if (s.bonds.some((b) => b.a === i || b.b === i)) {
+    const directions = loneDirections(s, i)
+    return directions.map((direction, g) => ({ direction, electrons: lone % 2 === 1 && g === directions.length - 1 ? 1 : 2 }))
+  }
+  const sides = FILL_ORDER.map((direction) => ({ direction, electrons: 0 }))
+  for (let e = 0; e < Math.min(lone, 2 * sides.length); e++) sides[octetOf(element) === 2 && e < 2 ? 0 : e % sides.length].electrons++
+  return sides.filter((g) => g.electrons)
 }
 
 /** Where an atom's formal charge goes: a corner of the symbol clear of its

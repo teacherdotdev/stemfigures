@@ -67,14 +67,15 @@ export type SettingsOf<S extends Spec> = { -readonly [K in keyof S]: S[K]['defau
 // ",", in the order the row declares them, with trailing fields left off when
 // they're the row's defaults. So new fields go at the end of a row, and old
 // links keep working. Inside a field, "\" escapes a comma, semicolon or "\".
-const escapePart = (s: string) => s.replace(/[\\,;]/g, (c) => `\\${c}`)
+// Any other "\" is itself, so a label's \vec{F} reads as written.
+const escapePart = (s: string) => s.replace(/[,;]|\\(?=[\\,;]|$)/g, (c) => `\\${c}`)
 
 function splitRows(raw: string): string[][] {
   const rows: string[][] = [[]]
   let part = ''
   for (let i = 0; i < raw.length; i++) {
     const c = raw[i]
-    if (c === '\\' && i + 1 < raw.length) part += raw[++i]
+    if (c === '\\' && /[\\,;]/.test(raw[i + 1] ?? '')) part += raw[++i]
     else if (c === ',') (rows.at(-1)!.push(part), (part = ''))
     else if (c === ';') (rows.at(-1)!.push(part), rows.push([]), (part = ''))
     else part += c
@@ -86,9 +87,10 @@ function splitRows(raw: string): string[][] {
 /**
  * A list of up to `max` rows, each with the fields in `row`, like a Free Body
  * Diagram's forces. An empty list is written as an empty value, so a link can
- * say "none" when the default list has rows.
+ * say "none" when the default list has rows. A list with fewer than `min`
+ * rows is filled up from the default's.
  */
-export function list<const S extends Spec>(row: S, def: SettingsOf<S>[], max: number): Field<SettingsOf<S>[]> {
+export function list<const S extends Spec>(row: S, def: SettingsOf<S>[], max: number, min = 0): Field<SettingsOf<S>[]> {
   const fields = Object.entries(row)
   const cleanRow = (v: unknown) => {
     const r = v as Record<string, unknown>
@@ -97,13 +99,14 @@ export function list<const S extends Spec>(row: S, def: SettingsOf<S>[], max: nu
   const rowDefaults = fields.map(([, f]) => f.encode(f.default))
   return {
     default: def,
-    clean: (v) =>
-      Array.isArray(v)
-        ? v
-            .filter((r) => r && typeof r === 'object')
-            .slice(0, max)
-            .map(cleanRow)
-        : structuredClone(def),
+    clean: (v) => {
+      if (!Array.isArray(v)) return structuredClone(def)
+      const rows = v
+        .filter((r) => r && typeof r === 'object')
+        .slice(0, max)
+        .map(cleanRow)
+      return [...rows, ...structuredClone(def.slice(rows.length, min))]
+    },
     encode: (rows) =>
       rows
         .map((r) => {
@@ -121,14 +124,25 @@ export function list<const S extends Spec>(row: S, def: SettingsOf<S>[], max: nu
   }
 }
 
-export function defineSettings<const S extends Spec>(spec: S) {
+/**
+ * Settings a generator no longer has, still read from old links and presets:
+ * `fields` reads them from a page address, and `upgrade` turns raw settings
+ * that have them into today's (leaving any others as they are).
+ */
+export interface Legacy {
+  fields: Spec
+  upgrade(raw: Record<string, unknown>): Record<string, unknown>
+}
+
+export function defineSettings<const S extends Spec>(spec: S, legacy?: Legacy) {
   type Settings = SettingsOf<S>
   const entries = Object.entries(spec) as [keyof Settings & string, Field<any>][]
   const defaults = Object.fromEntries(entries.map(([key, f]) => [key, structuredClone(f.default)])) as Settings
+  const upgrade = (raw: Record<string, unknown>) => (legacy ? legacy.upgrade(raw) : raw)
 
   /** Tidy raw values (from a form, a link or storage) into usable settings. */
   function clean(raw: unknown): Settings {
-    const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+    const r = upgrade((raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>)
     return Object.fromEntries(entries.map(([key, f]) => [key, f.clean(r[key])])) as Settings
   }
 
@@ -143,8 +157,8 @@ export function defineSettings<const S extends Spec>(spec: S) {
 
   function fromParams(params: URLSearchParams): Settings {
     const raw: Record<string, unknown> = {}
-    for (const [key, f] of entries) if (params.has(key)) raw[key] = f.decode(params.get(key)!)
-    return clean({ ...defaults, ...raw })
+    for (const [key, f] of [...entries, ...Object.entries(legacy?.fields ?? {})]) if (params.has(key)) raw[key] = f.decode(params.get(key)!)
+    return clean({ ...defaults, ...upgrade(raw) })
   }
 
   /** Do two settings draw the same figure? */

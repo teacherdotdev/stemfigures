@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { KEY_GAP, KEY_PAD, NAME_GAP, discBounds, figureLayout, keyLabel, keyLayout, textWidth } from './key'
-import { DEFAULT_OUTER, RADIUS, particleDiscs, type ParticleKind } from './particles'
+import { KEY_GAP, KEY_PAD, NAME_GAP, SCRIPT, figureLayout, keyLabel, keyLayout, spansWidth, textSpans, textWidth } from './key'
+import { DEFAULT_OUTER, RADIUS, discBounds, particleDiscs, type ParticleKind } from './particles'
 import { BOX_SIDE } from './settings'
 
 const alone = { shape: 'single', outer: DEFAULT_OUTER } as const
@@ -16,6 +16,32 @@ describe('estimating text width', () => {
 
   it('counts a subscript or superscript as one character', () => {
     expect(textWidth('H₂O', 10)).toBeCloseTo(textWidth('abc', 10))
+  })
+})
+
+describe('key text with subscripts and superscripts', () => {
+  it('draws plain text as one piece, as wide as it always was', () => {
+    expect(textSpans('Any negative ion', 16)).toEqual([{ text: 'Any negative ion', size: 16, dy: 0 }])
+    expect(spansWidth(textSpans('Na⁺ ion', 16))).toBe(textWidth('Na⁺ ion', 16))
+  })
+
+  it('sets subscripts and superscripts smaller, lowered and raised, and comes back to the line', () => {
+    const spans = textSpans('SO_4^{2-} ion', 10)
+    expect(spans.map((s) => [s.text, s.size])).toEqual([
+      ['SO', 10],
+      ['4', 10 * SCRIPT],
+      ['2−', 10 * SCRIPT],
+      [' ion', 10],
+    ])
+    expect(spans[1].dy).toBeGreaterThan(0)
+    expect(spans[2].dy).toBeLessThan(0)
+    expect(spans.reduce((y, s) => y + s.dy, 0)).toBeCloseTo(0)
+  })
+
+  it('measures each piece at its own size', () => {
+    const spans = textSpans('H_2O', 16)
+    expect(spansWidth(spans)).toBeCloseTo(textWidth('HO', 16) + textWidth('2', 16 * SCRIPT))
+    expect(spansWidth(spans)).toBeLessThan(textWidth('H_2O', 16))
   })
 })
 
@@ -103,6 +129,15 @@ describe('the key', () => {
     expect(withNote.width).toBeGreaterThanOrEqual(KEY_PAD + textWidth(withNote.note!.text, withNote.noteSize) + KEY_PAD)
   })
 
+  it('is sized from the names and note as drawn, not as typed', () => {
+    const typed: ParticleKind = { ...anion, name: 'SO_4^{2-} ion and C_{12}H_{22}O_{11}' }
+    const key = keyLayout([typed], 'NH_4^+ is not shown')
+    expect(key.lines[0].spans.map((s) => s.text).join('')).toBe('SO42− ion and C12H22O11')
+    expect(key.width).toBe(Math.ceil(key.lines[0].nameX + spansWidth(key.lines[0].spans) + KEY_PAD))
+    expect(key.width).toBeLessThan(key.lines[0].nameX + textWidth(typed.name!, key.fontSize) + KEY_PAD)
+    expect(key.note!.spans.map((s) => s.text)).toEqual(['NH', '4', '+', ' is not shown'])
+  })
+
   it('ignores a note of only spaces', () => {
     expect(keyLayout([anion], '   ').note).toBeUndefined()
   })
@@ -152,6 +187,10 @@ describe('the key for screen readers', () => {
   it('describes a molecule whole, not just its center', () => {
     const water: ParticleKind = { count: 3, shape: 'bent', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H₂O' }
     expect(keyLabel([water], '')).toBe('Key: bent molecule (medium gray with 2 small white), “H₂O”')
+  })
+
+  it('writes subscripts and superscripts as characters', () => {
+    expect(keyLabel([{ ...anion, name: 'SO_4^{2-} ion' }], 'H_2O is not shown')).toBe('Key: large light gray − ion, “SO₄²⁻ ion”. H₂O is not shown')
   })
 
   it('can start with other words, for a figure of only the key', () => {

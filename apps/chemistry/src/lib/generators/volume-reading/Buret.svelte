@@ -1,27 +1,30 @@
 <script lang="ts">
   // A buret filled from its stopcock up to the reading, drawn at `zoom` (see
   // GraduatedCylinder). Its numbers grow downward from 0 near the top.
-  import { legibleMarks, marks } from '$lib/shared/marks'
+  import { legibleMarks } from '$lib/shared/marks'
   import { sizeAt } from '$lib/shared/magnify'
+  import ReadingGuide from './ReadingGuide.svelte'
   import ScaleTicks from './ScaleTicks.svelte'
   import { buretLayout } from './buret'
   import { LIQUID_COLORS, meniscusCurve, type LiquidTint } from './liquid'
-  import type { Scale } from './scale'
+  import { scaleMarks, type VolumeScale } from './scale'
 
   interface Props {
-    scale: Scale
+    scale: VolumeScale
     reading: number
     tint: LiquidTint
+    unit: string
+    guide?: boolean
     zoom?: number
   }
-  let { scale, reading, tint, zoom = 1 }: Props = $props()
+  let { scale, reading, tint, unit, guide = false, zoom = 1 }: Props = $props()
   const clipId = $props.id()
 
   const at = buretLayout()
   const k = $derived(sizeAt(zoom))
   const font = $derived(10 * k)
   const liquid = $derived(LIQUID_COLORS[tint])
-  const shown = $derived(legibleMarks(marks({ ...scale, max: scale.capacity }), scale.minorEvery * at.perMl * zoom, 15))
+  const shown = $derived(legibleMarks(scaleMarks(scale), scale.minorEvery * at.perMl * zoom, 15))
 
   const neckTop = at.taperTop + 22
   const cavity =
@@ -35,9 +38,10 @@
   <path d="{surface} V {at.tipBottom} H {at.left} Z" fill={liquid.fill} clip-path="url(#{clipId})" />
 
   <ScaleTicks {shown} left={at.left} tubeW={at.tubeW} yOf={at.yOf} {k} {font} />
-  <text x={at.cx} y={at.yOf(0) - 24} text-anchor="middle" font-size={font} fill="#111">mL</text>
+  <text x={at.cx} y={at.yOf(0) - 24} text-anchor="middle" font-size={font} fill="#111">{unit}</text>
 
   <path d={surface} fill="none" stroke={liquid.surface} stroke-width={1.6 * k} />
+  {#if guide}<ReadingGuide x1={at.cx} x2={at.left} y={at.yOf(reading)} {k} />{/if}
   <path d={cavity} fill="none" stroke="#111" stroke-width={2 * k} />
   <!-- the open top's lip -->
   <path d="M {at.left - 3} {at.tubeTop} H {at.left} M {at.right} {at.tubeTop} H {at.right + 3}" stroke="#111" stroke-width={2 * k} />

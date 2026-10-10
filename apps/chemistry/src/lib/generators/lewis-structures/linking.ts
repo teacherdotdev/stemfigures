@@ -13,9 +13,10 @@ const shared = LISTED.filter((l) => LISTED.some((o) => o !== l && atomsOf(o) ===
 export const lewisLinking = describeLinking(lewisSettings, {
   id: 'lewis-structures',
   summary:
-    'The Lewis structure of one molecule or polyatomic ion, from formula. It always starts correct; scaffold turns it into a “complete this” question, and central or changes turn it into a “find the mistake” question.',
+    'The Lewis structure of one molecule or polyatomic ion, or the Lewis dot diagram of one atom or monatomic ion, from formula. It always starts correct; scaffold turns it into a “complete this” question, and central or changes turn it into a “find the mistake” question.',
   notes: [
     'formula is a formula such as H2O, CH4, NH4+, SO4 2- or SO4^2- (a charge of 2 or more needs a space, ^ or parentheses before it: SO42- would be 42 oxygens), or pasted with real subscripts (SO₄²⁻). URL-encode it: a space is + or %20 and a plus sign is %2B, so NH4+ is formula=NH4%2B and SO4 2- is formula=SO4+2-.',
+    'formula can be one atom or monatomic ion, such as N, P, Cl-, N 3- or Ca 2+ (N3- would be three N atoms, azide; Ca2+ two Ca atoms). Its valence electrons are drawn one to a side, then paired; an ion takes the electrons it gains or loses its own and goes in brackets with its charge. It has no bonds, so scaffold=bonds draws as skeleton, and formalCharges is ignored.',
     `Molecules with more than one central atom come from a list and can also be given by name: ${LISTED.map((l) => `${l.names[0]} (${l.formula})`).join(', ')}.`,
     `When a formula matches more than one listed structure by its atoms, which picks one by id${shared.length ? `: ${shared.map((l) => l.id).join(', ')}` : ''}.`,
     'rule decides which correct structure is built where textbooks disagree (SO₄²⁻, PO₄³⁻, ClO₄⁻, SO₂, SO₃): octet gives every atom an octet with formal charges; fewest lets period 3 and lower atoms exceed eight electrons for the fewest formal charges.',

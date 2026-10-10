@@ -1,10 +1,12 @@
 // The key beside the box: a bordered list headed "Key", one line per particle
 // kind drawn exactly as in the box and followed by the name the teacher
-// typed, with an optional note line at the bottom. Also where the box and key
+// typed, with an optional note line at the bottom. Names and the note can
+// have subscripts and superscripts (./keyText.ts). Also where the box and key
 // sit in the figure for each Show setting. See CONTEXT.md "Key".
 
-import { describeParticle, particleDiscs, type Disc, type ParticleKind } from './particles'
-import { BOX_SIDE, type Show } from './settings'
+import { plainText, textRuns } from './keyText'
+import { describeParticle, discBounds, particleDiscs, type Disc, type ParticleKind } from './particles'
+import { BOX_SIDE, type BoxContents, type Show } from './settings'
 
 /** Space inside the key's border. */
 export const KEY_PAD = 12
@@ -24,18 +26,37 @@ const LINE_GAP = 10
  *  the key is sized from this: roughly 0.55 of the font size per character. */
 export const textWidth = (text: string, fontSize: number) => 0.55 * fontSize * [...text].length
 
-/** How far a drawing's discs reach in each direction. */
-export function discBounds(discs: Disc[]) {
-  return {
-    left: Math.min(...discs.map((d) => d.x - d.r)),
-    right: Math.max(...discs.map((d) => d.x + d.r)),
-    top: Math.min(...discs.map((d) => d.y - d.r)),
-    bottom: Math.max(...discs.map((d) => d.y + d.r)),
-  }
+/** A subscript's or superscript's size as a share of its text's. */
+export const SCRIPT = 0.7
+/** How far a subscript drops and a superscript rises, as a share of the
+ *  text's size. */
+const SHIFT = { sub: 0.3, super: -0.4 }
+
+/** A piece of key text as drawn: its size, and how far it moves up or down
+ *  from the piece before (back to the line after a subscript, say). */
+export interface Span {
+  text: string
+  size: number
+  dy: number
 }
+
+/** Key text as pieces to draw at `size`. Plain text is one piece. */
+export function textSpans(text: string, size: number): Span[] {
+  let offset = 0
+  return textRuns(text).map((run) => {
+    const target = run.shift ? SHIFT[run.shift] * size : 0
+    const dy = target - offset
+    offset = target
+    return { text: run.text, size: run.shift ? size * SCRIPT : size, dy }
+  })
+}
+
+/** About how wide pieces of text are, each at its own size. */
+export const spansWidth = (spans: Span[]) => spans.reduce((w, s) => w + textWidth(s.text, s.size), 0)
 
 export interface KeyLine {
   name: string
+  spans: Span[]
   /** the kind's discs, placed in the key */
   discs: Disc[]
   nameX: number
@@ -50,7 +71,7 @@ export interface KeyLayout {
   headingSize: number
   noteSize: number
   lines: KeyLine[]
-  note?: { text: string; x: number; y: number }
+  note?: { text: string; spans: Span[]; x: number; y: number }
 }
 
 /** The key laid out from (0, 0). Each drawing is centered in a column as
@@ -72,20 +93,21 @@ export function keyLayout(kinds: ParticleKind[], note: string): KeyLayout {
     const dx = KEY_PAD + drawW / 2 - (b.left + b.right) / 2
     const dy = middle - (b.top + b.bottom) / 2
     y += lineH + LINE_GAP
-    return { name: kind.name ?? '', discs: discs.map((d) => ({ ...d, x: d.x + dx, y: d.y + dy })), nameX, nameY: middle }
+    const name = kind.name ?? ''
+    return { name, spans: textSpans(name, FONT_SIZE), discs: discs.map((d) => ({ ...d, x: d.x + dx, y: d.y + dy })), nameX, nameY: middle }
   })
 
   const noteText = note.trim()
   let noteLine: KeyLayout['note']
   if (noteText) {
-    noteLine = { text: noteText, x: KEY_PAD, y: y + TEXT_H / 2 }
+    noteLine = { text: noteText, spans: textSpans(noteText, NOTE_SIZE), x: KEY_PAD, y: y + TEXT_H / 2 }
     y += TEXT_H + LINE_GAP
   }
 
   const content = Math.max(
     textWidth('Key', HEADING_SIZE),
-    drawW + NAME_GAP + Math.max(...lines.map((l) => textWidth(l.name, FONT_SIZE))),
-    noteText ? textWidth(noteText, NOTE_SIZE) : 0,
+    drawW + NAME_GAP + Math.max(...lines.map((l) => spansWidth(l.spans))),
+    noteLine ? spansWidth(noteLine.spans) : 0,
   )
   return {
     width: Math.ceil(2 * KEY_PAD + content),
@@ -98,6 +120,31 @@ export function keyLayout(kinds: ParticleKind[], note: string): KeyLayout {
     note: noteLine,
   }
 }
+
+/** The least space between a before box and its after box, for the arrow. */
+export const ARROW_GAP = 72
+/** Space between the arrow's ends, or its label's, and the boxes. */
+export const ARROW_PAD = 14
+const ARROW_LABEL_SIZE = 15
+
+export interface ArrowLayout {
+  /** the space between the boxes */
+  gap: number
+  /** the label over the arrow, with subscripts and superscripts like key names */
+  spans: Span[]
+  labelSize: number
+}
+
+/** The arrow between a before box and its after box: the usual gap, or one
+ *  wide enough for its label. */
+export function arrowLayout(label: string): ArrowLayout {
+  const spans = textSpans(label.trim(), ARROW_LABEL_SIZE)
+  return { gap: Math.max(ARROW_GAP, Math.ceil(spansWidth(spans)) + 2 * ARROW_PAD), spans, labelSize: ARROW_LABEL_SIZE }
+}
+
+/** The size of what the figure shows for its box: the box, or both boxes
+ *  with `gap` between them for the arrow. */
+export const boxesSize = (box: BoxContents, gap = ARROW_GAP) => ({ width: box.after ? 2 * box.width + gap : box.width, height: box.height })
 
 type Place = { x: number; y: number }
 
@@ -132,6 +179,6 @@ export function figureLayout(show: Show, key: Size, box: Size = { width: BOX_SID
  *  “Any negative ion”; small white + ion. H₂O molecules are not shown",
  *  starting with `lead`. */
 export function keyLabel(kinds: ParticleKind[], note: string, lead = 'Key') {
-  const lines = kinds.map((k) => `${describeParticle(k)}${k.name ? `, “${k.name}”` : ''}`)
-  return `${lead}: ${lines.join('; ')}${note.trim() ? `. ${note.trim()}` : ''}`
+  const lines = kinds.map((k) => `${describeParticle(k)}${k.name ? `, “${plainText(k.name)}”` : ''}`)
+  return `${lead}: ${lines.join('; ')}${note.trim() ? `. ${plainText(note.trim())}` : ''}`
 }

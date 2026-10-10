@@ -46,7 +46,7 @@ export type LewisSettings = typeof lewisSettings.defaults
 export interface Figure {
   /** the settings as drawn: a changed structure is one structure in full,
    *  since a figure is either a "complete this" question or a "find the
-   *  mistake" one */
+   *  mistake" one, and an atom on its own has no bonds or formal charges */
   settings: LewisSettings
   resolved: Resolved
   /** the structure changes start from, when there is one */
@@ -79,11 +79,15 @@ function resolveOnce(input: ResolveInput) {
   return r
 }
 
-export function figureOf(settings: LewisSettings): Figure {
-  const resolved = resolveOnce(settings)
-  if (!resolved.ok) return { settings, resolved, shown: [], changes: [], changed: false, centralChanged: false, mistakes: [], key: { kind: 'none' } }
+export function figureOf(asked: LewisSettings): Figure {
+  const resolved = resolveOnce(asked)
+  if (!resolved.ok) return { settings: asked, resolved, shown: [], changes: [], changed: false, centralChanged: false, mistakes: [], key: { kind: 'none' } }
 
   const forms = resolved.correct
+  // An atom on its own has no bonds to give without its electrons, and its
+  // only charge is the one written after it.
+  const settings: LewisSettings =
+    forms[0].atoms.length === 1 ? { ...asked, formalCharges: false, scaffold: asked.scaffold === 'bonds' ? 'skeleton' : asked.scaffold } : asked
   const form = forms[Math.min(settings.form, forms.length) - 1]
   const around = settings.central ? aroundCentral(resolved, settings.central, settings.rule, settings.shape) : undefined
   const changes = settings.formalCharges ? settings.changes : settings.changes.filter((c) => c.kind !== 'label')

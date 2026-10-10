@@ -2,8 +2,10 @@
 // docs/adr/0003-caret-for-labels.md). A label's text is kept the way it is
 // written in a page address, for people to read: "m_1", "F_N", "30deg",
 // "theta", "mu_k". A subscript is _x or _{0x}, a superscript ^2 or ^{-1}.
+// A vector is written the LaTeX way: \vec{F}_g has an arrow over the F, and
+// \mathbf{F}_g a bold F.
 
-import { charTokenType, createDocToken, defineSchema, getStrandById, templateFromTokens, traverseStrands } from '@caret-js/core'
+import { charTokenType, createDocToken, defineSchema, defineTokenType, getStrandById, templateFromTokens, traverseStrands } from '@caret-js/core'
 import type { Doc, DocStrand, EditorCommand } from '@caret-js/core'
 import { subSupTokenType } from '@caret-js/math'
 
@@ -57,8 +59,18 @@ export function typeLabel(text: string): string {
   return out
 }
 
-// A label read into parts: plain characters, and subscripts or superscripts.
-type Part = { char: string } | { sub: Part[] | null; sup: Part[] | null }
+/** How a vector is set: an arrow over it, or bold. */
+export type VectorStyle = 'arrow' | 'bold'
+
+/** The LaTeX command for each, written before its braces: \vec{F}. */
+const COMMANDS: Record<VectorStyle, string> = { arrow: '\\vec', bold: '\\mathbf' }
+const OPENINGS = (Object.entries(COMMANDS) as [VectorStyle, string][]).map(([style, command]) => ({ style, chars: [...`${command}{`] }))
+
+/** The vector whose command and opening brace start at chars[i], if one does. */
+const vectorAt = (chars: string[], i: number) => OPENINGS.find((o) => o.chars.every((c, k) => chars[i + k] === c))
+
+// A label read into parts: plain characters, subscripts or superscripts, and vectors.
+type Part = { char: string } | { sub: Part[] | null; sup: Part[] | null } | { vector: VectorStyle; body: Part[] }
 
 function parse(text: string): Part[] {
   const chars = [...text]
@@ -67,6 +79,13 @@ function parse(text: string): Part[] {
     const parts: Part[] = []
     let typed = '' // this strand's plain characters so far, for the typing rules
     while (i < chars.length) {
+      const vector = vectorAt(chars, i)
+      if (vector) {
+        i += vector.chars.length
+        parts.push({ vector: vector.style, body: readStrand('}') })
+        typed = ''
+        continue
+      }
       const char = chars[i++]
       if (char === close) break
       if (char === '_' || char === '^') {
@@ -97,7 +116,10 @@ function parse(text: string): Part[] {
   return readStrand(null)
 }
 
-export const schema = defineSchema({ tokenTypes: new Set([charTokenType, subSupTokenType]) })
+/** A vector in the math field: a box whose letters have an arrow over them or are set in bold. */
+export const vectorTokenType = defineTokenType('label/vector', { childKeys: ['body'] })
+
+export const schema = defineSchema({ tokenTypes: new Set([charTokenType, subSupTokenType, vectorTokenType]) })
 type LabelDoc = Doc<typeof schema>
 
 /** A label's text as a Caret doc, for the math field. */
@@ -107,6 +129,11 @@ export function labelFromText(text: string): LabelDoc {
   const toTokens = (parts: Part[]): any[] =>
     parts.map((part) => {
       if ('char' in part) return createDocToken(nextId(), charTokenType, { char: part.char === ' ' ? FIELD_SPACE : part.char })
+      if ('vector' in part) {
+        const token = createDocToken(nextId(), vectorTokenType, { style: part.vector })
+        token.children.set('body', { id: [token.id, 'body'], tokens: toTokens(part.body) })
+        return token
+      }
       const token = createDocToken(nextId(), subSupTokenType, { hasSubscript: part.sub !== null, hasSuperscript: part.sup !== null })
       if (part.sub) token.children.set('subscript', { id: [token.id, 'subscript'], tokens: toTokens(part.sub) })
       if (part.sup) token.children.set('superscript', { id: [token.id, 'superscript'], tokens: toTokens(part.sup) })
@@ -128,6 +155,8 @@ function strandText(strand: DocStrand<any> | undefined): string {
       }
       if (token.props.hasSubscript) text += `_${box('subscript')}`
       if (token.props.hasSuperscript) text += `^${box('superscript')}`
+    } else if (token.type === vectorTokenType.type) {
+      text += `${COMMANDS[token.props.style as VectorStyle]}{${strandText(token.children.get('body'))}}`
     }
   }
   return text
@@ -139,27 +168,95 @@ export const labelToText = (doc: Doc<any>): string => strandText(doc.root)
 export interface Run {
   text: string
   shift: 'sub' | 'super' | null
+  /** Part of a vector: under an arrow, or bold. */
+  vector?: VectorStyle
+  /** Which vector, counting from 0, so two side by side get an arrow each. */
+  group?: number
 }
 
 /** A label as runs of text to draw, each on the baseline, lowered or raised. */
 export function labelRuns(text: string): Run[] {
   const runs: Run[] = []
-  const add = (t: string, shift: Run['shift']) => {
+  let vectors = 0
+  type InVector = { vector: VectorStyle; group: number } | undefined
+  const add = (t: string, shift: Run['shift'], inVector: InVector) => {
     const last = runs.at(-1)
-    if (last && last.shift === shift) last.text += t
-    else if (t) runs.push({ text: t, shift })
+    if (last && last.shift === shift && last.group === inVector?.group) last.text += t
+    else if (t) runs.push({ text: t, shift, ...inVector })
   }
-  const walk = (parts: Part[], shift: Run['shift']) => {
+  const walk = (parts: Part[], shift: Run['shift'], inVector: InVector) => {
     for (const part of parts) {
-      if ('char' in part) add(part.char, shift)
+      if ('char' in part) add(part.char, shift, inVector)
+      else if ('vector' in part) walk(part.body, shift, inVector ?? { vector: part.vector, group: vectors++ })
       else {
-        if (part.sub) walk(part.sub, shift ?? 'sub')
-        if (part.sup) walk(part.sup, shift ?? 'super')
+        if (part.sub) walk(part.sub, shift ?? 'sub', inVector)
+        if (part.sup) walk(part.sup, shift ?? 'super', inVector)
       }
     }
   }
-  walk(parse(text), null)
+  walk(parse(text), null, undefined)
   return runs
+}
+
+/**
+ * A label's text without its vector commands, so it's as long as what's drawn:
+ * \vec{F}_g → F_g. Braces pair up the way the label is read, where a brace
+ * opens only after _, ^ or a command.
+ */
+export function withoutVectors(text: string): string {
+  const chars = [...text]
+  const open: boolean[] = [] // the braces open here, true for a vector's
+  let out = ''
+  for (let i = 0; i < chars.length; ) {
+    const vector = vectorAt(chars, i)
+    if (vector) {
+      open.push(true)
+      i += vector.chars.length
+    } else if ((chars[i] === '_' || chars[i] === '^') && chars[i + 1] === '{') {
+      open.push(false)
+      out += chars[i++] + chars[i++]
+    } else if (chars[i] === '}' && open.length) {
+      if (!open.pop()) out += '}'
+      i++
+    } else out += chars[i++]
+  }
+  return out
+}
+
+/**
+ * A label written as a vector, for a figure that sets every vector one way:
+ * F_g → \vec{F}_g, T → \vec{T}. The letters it starts with are the vector. A
+ * label already written with a vector, or that doesn't start with a letter
+ * (5 N), stays as it is.
+ */
+export function asVector(label: Label, style: VectorStyle | 'none'): Label {
+  if (style === 'none' || label.mode !== 'text' || OPENINGS.some((o) => label.text.includes(o.chars.join('')))) return label
+  const letters = /^\p{L}+/u.exec(label.text)?.[0]
+  return letters ? { ...label, text: `${COMMANDS[style]}{${letters}}${label.text.slice(letters.length)}` } : label
+}
+
+const TALL = /[A-Z0-9bdfhiklt\u0391-\u03A9βδζθλξ]/
+const DESCENDS = /[gjpqyβγζημξρφχψ]/
+
+/**
+ * How far below the middle of a label's ink, at font size `size`, its
+ * baseline goes, to center the label on a point (inside an object). A capital
+ * reaches up from the baseline, but a lowercase m doesn't, and a subscript
+ * hangs below it, so "m_1" sits higher than "F" would. A blank or missing
+ * label takes the offset a capital would.
+ */
+export function baselineBelowMiddle(label: Label, size: number): number {
+  if (label.mode !== 'text' || !label.text.trim()) return size * 0.35
+  // Above and below the baseline, as FigureLabel sets subscripts (0.7 the size, 0.3 down) and superscripts (0.45 up).
+  let top = 0
+  let bottom = 0
+  for (const run of labelRuns(label.text)) {
+    const em = run.shift ? size * 0.7 : size
+    const down = run.shift === 'sub' ? size * 0.3 : run.shift === 'super' ? -size * 0.45 : 0
+    top = Math.max(top, (TALL.test(run.text) ? 0.68 : 0.46) * em - down)
+    bottom = Math.max(bottom, (DESCENDS.test(run.text) ? 0.22 : 0) * em + down)
+  }
+  return (top - bottom) / 2
 }
 
 /** Unit words set upright even though they're short. */
@@ -280,9 +377,39 @@ const spaceCommand: EditorCommand<any> = (editor) => {
   return false
 }
 
+/**
+ * Braces typed or pasted the way they're written in the text: the "{" of
+ * \vec{ or \mathbf{ turns the command before it into a vector with the cursor
+ * in it, and a "{" starting an empty subscript or superscript is already the
+ * box it opens. Elsewhere "{" is typed as it is.
+ */
+const openBraceCommand: EditorCommand<any> = (editor) => {
+  const head = editor.head
+  if (!head || editor.hasRange) return false
+  const before = head.strand.tokens.slice(0, head.index).map((t: any) => t.props?.char ?? '')
+  const vector = OPENINGS.find((o) => o.chars.slice(0, -1).every((c, k, cs) => before[before.length - cs.length + k] === c))
+  if (!vector) return head.strand.tokens.length === 0 && Array.isArray(head.strand.id) && head.strand.id[1] !== 'body'
+  const start = head.index - (vector.chars.length - 1)
+  editor.select({ strandId: head.strand.id, anchorIndex: start, headIndex: head.index })
+  editor.insert([{ type: vectorTokenType.type, props: { style: vector.style }, children: new Map([['body', []]]) }])
+  const strand = getStrandById(editor.doc, head.strand.id)
+  if (strand) editor.select({ strandId: [strand.tokens[start].id, 'body'], tokenIndex: 0 })
+  return true
+}
+
+/** "}" steps out of the vector, subscript or superscript the cursor is in, so \vec{F}_{g} types as it reads. */
+const closeBraceCommand: EditorCommand<any> = (editor) => {
+  const o = editor.hasRange ? null : owner(editor)
+  if (!o) return false
+  editor.select({ strandId: o.strand.id, tokenIndex: o.index + 1 })
+  return true
+}
+
 export const commands: Record<string, EditorCommand<any>> = {
   '^': (editor) => makeBox(editor, 'superscript'),
   _: (editor) => makeBox(editor, 'subscript'),
+  '{': openBraceCommand,
+  '}': closeBraceCommand,
   o: degreeCommand,
   [SHORTCUTS.superscript]: toggleBox('superscript'),
   [SHORTCUTS.subscript]: toggleBox('subscript'),

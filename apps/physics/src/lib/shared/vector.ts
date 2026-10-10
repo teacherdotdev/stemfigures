@@ -16,6 +16,14 @@ export interface Point {
   y: number
 }
 
+/** The label of one of several like vectors, numbered from 1: T → T_1, F_N → F_{N1}, F_{air} → F_{air2}. */
+export function numbered(label: Label, n: number): Label {
+  const braced = /^(.*)_\{(.*)\}$/.exec(label.text)
+  const single = /^(.*)_(.)$/u.exec(label.text)
+  const text = braced ? `${braced[1]}_{${braced[2]}${n}}` : single ? `${single[1]}_{${single[2]}${n}}` : label.text ? `${label.text}_${n}` : ''
+  return { ...label, text }
+}
+
 /** A vector placed on a figure, with its label and where the label's middle goes. */
 export interface LabeledVector<K extends string = string> {
   kind: K

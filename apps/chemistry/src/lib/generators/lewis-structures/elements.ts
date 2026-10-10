@@ -1,7 +1,8 @@
 // The elements Lewis Structures can draw: the main-group elements through
 // period 5. Transition metals aren't drawn, and the metals of groups 1 and 2
 // (other than Be) only form ionic compounds, which a Lewis structure of one
-// molecule or ion doesn't show.
+// molecule or ion doesn't show, so they're drawn only as atoms and ions on
+// their own.
 
 export interface Element {
   symbol: string

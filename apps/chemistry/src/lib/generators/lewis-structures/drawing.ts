@@ -4,7 +4,7 @@
 // assuming the structure is correct.
 
 import { chargeText, signed } from './formula'
-import { labelDirection, loneDirections } from './layout'
+import { electronGroups, labelDirection } from './layout'
 import { hasBrackets, shownCharge, shownFormalCharge, type Structure } from './structure'
 
 export const BOND = 64
@@ -132,10 +132,10 @@ export function drawStructure(s: Structure, { bonds = true, bondStyle = 'lines',
   })
 
   s.atoms.forEach((a, i) => {
-    const directions = electrons ? loneDirections(s, i) : []
-    directions.forEach((d, g) => {
+    const groups = electrons ? electronGroups(s, i) : []
+    groups.forEach(({ direction: d, electrons: n }) => {
       const u = unit(d)
-      const alone = a.lone % 2 === 1 && g === directions.length - 1
+      const alone = n === 1
       const group = (out: number) => {
         const c = { x: at[i].x + u.x * out, y: at[i].y + u.y * out }
         return alone ? [c] : [{ x: c.x - u.y * PAIR, y: c.y + u.x * PAIR }, { x: c.x + u.y * PAIR, y: c.y - u.x * PAIR }]
@@ -150,9 +150,9 @@ export function drawStructure(s: Structure, { bonds = true, bondStyle = 'lines',
     })
     const charge = formalCharges ? shownFormalCharge(s, i) : 0
     if (charge) {
-      const d = labelDirection(s, i, directions)
+      const d = labelDirection(s, i, groups.map((g) => g.direction))
       const u = unit(d)
-      const out = reach(a.element, d) + (directions.length ? 14 : 9)
+      const out = reach(a.element, d) + (groups.length ? 14 : 9)
       labels.push({ x: at[i].x + u.x * out, y: at[i].y + u.y * out, text: signed(charge) })
     }
   })

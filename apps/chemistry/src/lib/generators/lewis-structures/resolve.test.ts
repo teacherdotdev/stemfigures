@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Rule } from './build'
 import { findMistakes } from './check'
 import { LISTED } from './listed'
-import { resolve } from './resolve'
+import { centralChoices, resolve } from './resolve'
 import { electronsShown, valenceElectrons } from './structure'
 
 const found = (formula: string, which = '', rule: Rule = 'octet') => {
@@ -108,3 +108,32 @@ describe('every listed structure', () => {
     for (const l of LISTED) if (l.shaped) expect(l.shaped, l.id).toHaveLength(l.atoms.length)
   })
 })
+
+describe('one atom or ion', () => {
+  const lone = (formula: string) => found(formula).correct.map((s) => s.atoms.map((a) => [a.element, a.lone]))
+
+  it('keeps an atom’s valence electrons', () => {
+    expect(lone('N')).toEqual([[['N', 5]]])
+    expect(lone('P')).toEqual([[['P', 5]]])
+    expect(lone('Ne')).toEqual([[['Ne', 8]]])
+  })
+
+  it('gives an anion the electrons it gains and takes a cation’s away', () => {
+    expect(lone('N 3-')).toEqual([[['N', 8]]])
+    expect(lone('Cl-')).toEqual([[['Cl', 8]]])
+    expect(lone('O 2-')).toEqual([[['O', 8]]])
+    expect(lone('Ca 2+')).toEqual([[['Ca', 0]]])
+    expect(lone('Na+')).toEqual([[['Na', 0]]])
+    expect(found('Ca 2+')).toMatchObject({ name: 'Ca²⁺', central: 0, ruleMatters: false })
+  })
+
+  it('has no central atom to change', () => {
+    expect(centralChoices(found('N 3-'))).toEqual([])
+  })
+
+  it('says why an ion can’t have its charge', () => {
+    expect(refused('Na 2+')).toEqual({ ok: false, message: 'Na²⁺ would lose more than Na’s 1 valence electron.', request: false })
+    expect(refused('Cl 2-').message).toBe('Cl²⁻ would have 9 valence electrons, but Cl only has room for 8.')
+  })
+})
+

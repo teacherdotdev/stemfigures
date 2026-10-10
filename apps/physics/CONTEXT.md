@@ -71,18 +71,26 @@ _Avoid_: Current direction, flow arrow
 ### Inclined Plane
 
 **Inclined Plane**:
-A figure of a ramp at an angle with one object on it: a block, a ball or a cart. Its generator is the Inclined Plane Generator. A ramp with a string on it belongs to the Pulley.
+A figure of a ramp at an angle with an object on it, a block, a ball or a cart, or a row of up to three. Its generator is the Inclined Plane Generator. A ramp with a pulley on it belongs to the Pulley.
 _Avoid_: Ramp (fine as a search word), slope, wedge
+
+**Row**:
+Two or three objects side by side on a slope, table or ramp, tied by strings or touching. Each one has its own gravity, normal force and friction, numbered from the back (or the foot) on. Objects touching push on each other with a pair of contact forces, move as one, and get one velocity or acceleration arrow.
+_Avoid_: Train, chain, system (fine as a search word)
 
 ### Pulley
 
 **Pulley**:
-A figure of objects connected by string over one or more pulleys, in one of its setups. Its generator is the Pulley Generator. Every figure with a string is a Pulley figure.
+A figure of objects connected by string over one or more pulleys, in one of its setups. Its generator is the Pulley Generator. Every figure with a pulley is a Pulley figure; objects tied in a row on a slope with no pulley are an Inclined Plane.
 _Avoid_: Pulley system, rope diagram
 
 **Setup**:
-One arrangement a Pulley figure can take: Atwood machine (two hanging objects over one fixed pulley), table and hanging mass, ramp and hanging mass, or block and tackle (one load held by 1 to 4 strands).
+One arrangement a Pulley figure can take: Atwood machine (two hanging objects over one fixed pulley, and maybe a third hanging below one of them), table and hanging mass, ramp and hanging mass (each with one object, or a row of two, on the table or ramp), or block and tackle (one load held by 1 to 4 strands).
 _Avoid_: Mode, type, scenario
+
+**String**:
+One piece of string between two objects, over any pulleys between them. When a figure has more than one, each has its own tension, numbered T₁, T₂.
+_Avoid_: Rope (fine in a block and tackle), cord, segment
 
 ### Free Body Diagram
 
@@ -152,14 +160,57 @@ _Avoid_: Coordinate system
 
 On a Vector Diagram, an **angle mark** is drawn at the arrow's tail and a **component** pair runs head to tail from it (along the horizontal, then the vertical to the tip), for any vector or the resultant. Both are off by default.
 
+### Wave
+
+**Wave**:
+A figure of a transverse wave, a longitudinal wave, or a longitudinal wave above the transverse wave it matches, for measuring wavelength, period and amplitude. Its generator is the Wave Generator. The transverse wave is the exact sine curve, starting on its rest line at 0 and rising.
+_Avoid_: Wave diagram (fine as a search word), sine wave (fine as a search word), oscillation
+
+**Rest line**:
+The line a transverse wave swings about: the x-axis on numbered axes, or a dashed line without them. The amplitude is measured from it.
+_Avoid_: Equilibrium line (fine in captions), center line, midline
+
+**Longitudinal wave**:
+A row of vertical lines, bunched at each **compression** and spread out at each **rarefaction**. Drawn with a transverse wave, its compressions sit over the crests.
+_Avoid_: Slinky, density diagram
+
+**Mark**:
+On a Wave figure, an arrow with a head at each end measuring the wavelength (or the period, against time) or the amplitude, with its own label.
+_Avoid_: Dimension, measurement, bracket
+### Motion Graph
+
+**Motion Graph**:
+A figure of one motion along a line: its position–time, velocity–time or acceleration–time graph, or all three stacked on the same time axis. Its generator is the Motion Graph Generator. Every graph is worked out from the velocity–time graph, so they always match.
+_Avoid_: Kinematics graph, x–t graph, distance–time graph (all fine as search words)
+
+**Segment**:
+One stretch of the motion, up to six in a row: at rest, constant velocity forward or back, speeding up or slowing down, with its speed (the one it moves at, or speeds up or slows down to) and how long it lasts typed in. It is a straight line on the velocity–time graph. Speeding up and slowing down carry on from the velocity before them, and slowing down stops at rest rather than turning around.
+_Avoid_: Section, phase, interval
+
+**Segment end**:
+Where a segment starts or ends, lettered A, B, C… from the start, for questions like "what is the cart doing between B and C?". The letters are the same on every graph.
+_Avoid_: Point (that's a circuit's), node
+
+**Tangent**:
+A dashed line touching the position–time graph at a chosen time. Its slope is the instantaneous velocity there.
+_Avoid_: Slope line
+
+**Ranges**:
+Each axis's From, To and Count by. They are fitted to the motion unless the teacher sets them, to make several graphs on a worksheet match. Stacked graphs share the time axis's range; each has its own up its side.
+_Avoid_: Scale, window, zoom
+
 ### Circuit Diagram
 
 **Circuit Diagram**:
-A schematic of one closed loop of parts, some of them in parallel groups, for current, resistance and Kirchhoff problems. Its generator is the Circuit Diagram Generator. It is drawn from a series/parallel tree, not placed by hand (ADR 0004).
+A schematic of a cell or battery with 1 to 4 resistors or bulbs, all in series or all in parallel, for current and resistance problems. Its generator is the Circuit Diagram Generator. It is drawn from a series/parallel tree built from its settings, not placed by hand (ADRs 0004 and 0005). Any other circuit is left to a Circuit Editor, planned but not built yet.
 _Avoid_: Circuit (alone, for the figure), schematic (fine as a search word), wiring diagram
 
+**Arrangement**:
+How a Circuit Diagram's resistors and bulbs are joined: all in series round one loop, or all in parallel as the rungs of a ladder. A switch and an ammeter are always in the main line.
+_Avoid_: Layout, topology, mode
+
 **Part**:
-One symbol on a circuit diagram: a battery, resistor, bulb, switch or ammeter. Each has a name label (R₁) and a value label (4 Ω). Names are numbered automatically until the teacher types one. A voltmeter is not a part: it goes across a part or group.
+One symbol on a circuit diagram: a battery, resistor, bulb, switch or ammeter. Each has a name label (R₁) and a value label (4 Ω). Names are numbered automatically until the teacher types one. On the Circuit Diagram a voltmeter is not a part: it goes across the battery or one part.
 _Avoid_: Component, element, device
 
 **Group**:
@@ -171,9 +222,9 @@ A run of wire that carries one current: the main loop, or one branch of a parall
 _Avoid_: Path, leg, rung (except for the drawing of a ladder)
 
 **Point**:
-A lettered dot on a wire (A, B…), for questions like "the potential difference between A and B". Points sit in the gaps between parts.
+A lettered dot on a wire (A, B…), for questions like "the potential difference between A and B". Points sit in the gaps between parts. The tree holds them, but the generator doesn't offer them for now.
 _Avoid_: Node, junction (a junction is where wires meet, drawn as a dot with no letter), terminal
 
 **Symbol style**:
-US symbols (a zigzag resistor, a bulb with a looped filament) or IEC symbols (a box resistor, a bulb with a cross).
+US symbols (a zigzag resistor, a bulb with a looped filament) or IEC symbols, as UK GCSE uses (a box resistor, a bulb with a cross).
 _Avoid_: Standard, notation

@@ -2,10 +2,24 @@
 
 import { choice, defineSettings, json, number, text } from '$lib/shared/settings'
 import { LATTICE_PATTERNS, LATTICE_SPACINGS, lattice, latticeRoom } from './lattice'
-import { scatter } from './layout'
-import { DEFAULT_OUTER, MAX_NAME, isObject, tidyKinds, tidyLook, type Disc, type Look, type ParticleKind } from './particles'
+import { STATES, arrange, type State } from './layout'
+import {
+  DEFAULT_OUTER,
+  MAX_NAME,
+  afterCount,
+  atomKinds,
+  isObject,
+  tidyAtomNames,
+  tidyKinds,
+  tidyLook,
+  type AtomName,
+  type Disc,
+  type Look,
+  type ParticleKind,
+} from './particles'
 
-/** Particles scattered at random in the box, or packed in a lattice. */
+/** Particles in the box, as a gas, liquid or solid (see `state`), or packed
+ *  in a lattice. Called scattered from before boxes had states. */
 export const LAYOUTS = ['scattered', 'lattice'] as const
 export type Layout = (typeof LAYOUTS)[number]
 
@@ -15,6 +29,12 @@ export type Border = (typeof BORDERS)[number]
 /** The box is always this square around scattered particles, whatever is in
  *  it, so answer choices made one at a time line up (see CONTEXT.md "Box"). */
 export const BOX_SIDE = 300
+
+/** One box of particles, or two with an arrow between: the same kinds before
+ *  and after a reaction or a change of state, each kind with a count for
+ *  each box. */
+export const BOXES = ['one', 'two'] as const
+export type Boxes = (typeof BOXES)[number]
 
 /** How far a double border's inner line sits inside the outer one. */
 export const DOUBLE_INSET = 6
@@ -31,6 +51,12 @@ export const SHOWS = ['box', 'both', 'key'] as const
 export type Show = (typeof SHOWS)[number]
 
 export const MAX_NOTE = 80
+export const MAX_ARROW_LABEL = 24
+
+/** What the key of scattered particles lists: each kind whole, or each
+ *  different atom in them, for students to write formulas from. */
+export const KEY_LISTS = ['particles', 'atoms'] as const
+export type KeyList = (typeof KEY_LISTS)[number]
 
 const DEFAULT_KINDS: ParticleKind[] = [
   { count: 4, shape: 'single', look: { size: 'l', shade: 'light', charge: '-' }, outer: { ...DEFAULT_OUTER } },
@@ -42,6 +68,12 @@ const look = (fallback: Look) => json(fallback, (v) => (isObject(v) ? tidyLook(v
 export const particleSettings = defineSettings(
   {
     layout: choice(LAYOUTS, 'scattered'),
+    // boxes from before states were a gas: scattered at random
+    state: choice(STATES, 'gas'),
+    boxes: choice(BOXES, 'one'),
+    afterState: choice(STATES, 'gas'),
+    // nothing over the arrow unless the teacher types something
+    arrowLabel: text('', MAX_ARROW_LABEL),
     particles: json(DEFAULT_KINDS, tidyKinds),
     seed: number({ min: 1, max: MAX_SEED, fallback: 2 }),
     border: choice(BORDERS, 'single'),
@@ -58,6 +90,8 @@ export const particleSettings = defineSettings(
     latticeBorder: choice(BORDERS, 'none'),
     show: choice(SHOWS, 'box'),
     keyNote: text('', MAX_NOTE),
+    keyList: choice(KEY_LISTS, 'particles'),
+    atomNames: json<AtomName[]>([], tidyAtomNames),
     titleMode: choice(['none', 'text'] as const, 'none'),
     title: text(''),
   },
@@ -75,13 +109,23 @@ export type ParticleSettings = typeof particleSettings.defaults
 /** A seed for a new random layout. */
 export const newSeed = () => 1 + Math.floor(Math.random() * MAX_SEED)
 
-/** The particles scattered in the box for these settings, inside the inner
- *  line of a double border, and how many didn't fit. */
-export function boxParticles(s: ParticleSettings) {
-  const inset = s.border === 'double' ? DOUBLE_INSET : 0
-  const { discs, missing } = scatter(s.particles, BOX_SIDE - 2 * inset, BOX_SIDE - 2 * inset, s.seed)
+/** Particles arranged in a box for its state, inside the inner line of a
+ *  double border, and how many didn't fit. */
+function particlesIn(kinds: ParticleKind[], state: State, border: Border, seed: number) {
+  const inset = border === 'double' ? DOUBLE_INSET : 0
+  const { discs, missing } = arrange(state, kinds, BOX_SIDE - 2 * inset, BOX_SIDE - 2 * inset, seed)
   return { discs: discs.map((d) => ({ ...d, x: d.x + inset, y: d.y + inset })), missing }
 }
+
+/** The particles in the box, or the before box, for these settings. */
+export const boxParticles = (s: ParticleSettings) => particlesIn(s.particles, s.state, s.border, s.seed)
+
+/** The after box's kinds, each with its after count. */
+export const afterKinds = (s: ParticleSettings) => s.particles.map((k) => ({ ...k, count: afterCount(k) }))
+
+/** The particles in the after box. Its arrangement is its own, from a seed
+ *  past any the before box can have. */
+export const afterParticles = (s: ParticleSettings) => particlesIn(afterKinds(s), s.afterState, s.border, s.seed + MAX_SEED)
 
 /** A lattice's atoms or ions as particle kinds, for its key: the main one,
  *  and the second one when any of it is drawn. */
@@ -107,12 +151,18 @@ export interface BoxContents {
   missing: number
   /** what the key lists */
   kinds: ParticleKind[]
+  /** the after box of a before-and-after figure, the same size as this one
+   *  and to its right, with its kinds at their after counts */
+  after?: { discs: Disc[]; missing: number; kinds: ParticleKind[] }
 }
 
-/** Everything in the box for these settings: the fixed square of scattered
- *  particles, or a lattice with a box just fitting it. */
+/** Everything in the box for these settings: the fixed square of particles,
+ *  or a lattice with a box just fitting it. */
 export function boxContents(s: ParticleSettings): BoxContents {
-  if (s.layout === 'scattered') return { width: BOX_SIDE, height: BOX_SIDE, border: s.border, ...boxParticles(s), kinds: s.particles }
+  if (s.layout === 'scattered') {
+    const box: BoxContents = { width: BOX_SIDE, height: BOX_SIDE, border: s.border, ...boxParticles(s), kinds: s.particles }
+    return s.boxes === 'two' ? { ...box, after: { ...afterParticles(s), kinds: afterKinds(s) } } : box
+  }
   const grid = lattice(s)
   const border = s.latticeBorder
   const pad = border === 'none' ? 0 : LATTICE_MARGIN + (border === 'double' ? DOUBLE_INSET : 0)
@@ -125,3 +175,8 @@ export function boxContents(s: ParticleSettings): BoxContents {
     kinds: latticeKinds(s, grid.discs),
   }
 }
+
+/** What the key lists: the box's kinds, or each different atom in them when
+ *  the teacher lists each atom (a lattice's kinds are atoms already). */
+export const keyKinds = (s: ParticleSettings, box: BoxContents) =>
+  s.layout === 'scattered' && s.keyList === 'atoms' ? atomKinds(box.kinds, s.atomNames) : box.kinds

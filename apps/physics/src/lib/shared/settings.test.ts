@@ -90,6 +90,16 @@ describe('list', () => {
       ],
     }
     expect(rows.fromParams(new URLSearchParams(rows.toQuery(s)))).toEqual(s)
+    for (const text of ['\\', 'x\\', '\\\\v', 'a\\,b', '\\vec{F}']) {
+      const one = { forces: [row({ label: { mode: 'text', text } })] }
+      expect(rows.fromParams(new URLSearchParams(rows.toQuery(one)))).toEqual(one)
+    }
+  })
+
+  test('a backslash before anything but a comma, semicolon or backslash is written as it is', () => {
+    const s = { forces: [row({ label: { mode: 'text', text: '\\vec{F}_N' } })] }
+    expect(decodeURIComponent(rows.toQuery(s))).toBe('forces=270,1,\\vec{F}_N')
+    expect(rows.fromParams(new URLSearchParams('forces=270,1,\\vec{F}_N')).forces[0].label.text).toBe('\\vec{F}_N')
   })
 
   test('an empty list is not the default list', () => {
@@ -105,5 +115,36 @@ describe('list', () => {
       { angle: 0, length: 1, label: F, marked: false },
       { angle: 45, length: 1, label: F, marked: false },
     ])
+  })
+
+  test('a list with a minimum is filled up from the default', () => {
+    const pair = defineSettings({ sizes: list({ size: number(1, 0.5, 2) }, [{ size: 1 }, { size: 2 }], 3, 2) })
+    expect(pair.clean({ sizes: [{ size: 0.5 }] }).sizes).toEqual([{ size: 0.5 }, { size: 2 }])
+    expect(pair.fromParams(new URLSearchParams('sizes=')).sizes).toEqual([{ size: 1 }, { size: 2 }])
+    expect(pair.clean({ sizes: [{ size: 0.5 }, { size: 0.5 }, { size: 0.5 }] }).sizes).toHaveLength(3)
+  })
+})
+
+describe('legacy settings', () => {
+  // Once there was one `weight`; now there are `weights`.
+  const def = defineSettings(
+    { weights: list({ kg: number(1, 0, 10) }, [{ kg: 1 }], 3), mirror: bool(false) },
+    {
+      fields: { weight: number(1, 0, 10) },
+      upgrade: (raw) => ('weights' in raw || !('weight' in raw) ? raw : { ...raw, weights: [{ kg: raw.weight }] }),
+    },
+  )
+
+  test('an old link still loads', () => {
+    expect(def.fromParams(new URLSearchParams('weight=4&mirror=1'))).toEqual({ weights: [{ kg: 4 }], mirror: true })
+  })
+
+  test('an old preset still loads', () => {
+    expect(def.clean({ weight: 6, mirror: false })).toEqual({ weights: [{ kg: 6 }], mirror: false })
+  })
+
+  test('today’s settings win, and are written today’s way', () => {
+    expect(def.fromParams(new URLSearchParams('weight=4&weights=2'))).toEqual({ weights: [{ kg: 2 }], mirror: false })
+    expect(def.toQuery(def.fromParams(new URLSearchParams('weight=4')))).toBe('weights=4')
   })
 })

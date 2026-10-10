@@ -42,7 +42,12 @@ const minorLines = (blocks: number, parts: number) =>
 /** A grid laid out for Grid.svelte to draw. */
 export type GridLayout = Omit<ReturnType<typeof layoutGrid>, 'px' | 'box'>
 
-export function layoutGrid(s: GridSettings, { x, y }: Axes) {
+/**
+ * `edges` puts the axes along the grid's left and bottom edges even when 0 is
+ * on the grid, for a graph whose negative values aren't a second quadrant
+ * (temperatures below 0 °C).
+ */
+export function layoutGrid(s: GridSettings, { x, y }: Axes, { edges = false }: { edges?: boolean } = {}) {
   const FS = BASE_FS * LABEL_SCALE[s.labelSize]
   const CHAR = FS * 0.6 // rough width of one digit
   const x0 = x.start
@@ -53,8 +58,8 @@ export function layoutGrid(s: GridSettings, { x, y }: Axes) {
   const gridH = y.blocks * CELL
 
   // Axes cross at 0 when 0 is on the grid, otherwise they run along the left and bottom edges.
-  const yAxisInside = x0 < 0 && x1 > 0
-  const xAxisInside = y0 < 0 && y1 > 0
+  const yAxisInside = !edges && x0 < 0 && x1 > 0
+  const xAxisInside = !edges && y0 < 0 && y1 > 0
 
   const xTicks = ticks(x.blocks, x.step, x0, s.xEvery, x.numbering)
   const yTicks = ticks(y.blocks, y.step, y0, s.yEvery, y.numbering)

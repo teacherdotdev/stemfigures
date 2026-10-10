@@ -36,6 +36,19 @@ teachers ask: vector subtraction, tail-to-tail (parallelogram) addition,
 setting a vector by its components, tick marks or a scale, and more than
 three vectors.
 
+## Wave (built)
+
+A transverse wave against distance or time, a longitudinal wave as vertical
+lines bunched at its compressions, or the longitudinal one above its matching
+transverse one, on numbered axes fitted to the wave (gridlines or tick
+marks), or with no axes about a dashed rest line. The amplitude, wavelength
+or period, and cycles are set; λ (or T) and A are marked with arrows, and a
+crest, trough, compression and rarefaction can be labeled. Next, in the same
+generator: standing waves (harmonic n, nodes and antinodes) and
+superposition (two waves and their sum). Left for later: sound waves (loud
+and quiet, high and low pitch), the Doppler effect, the EM spectrum,
+diffraction and interference.
+
 ## Torque Balance
 
 A beam balanced on a pivot with objects hanging from it at different
@@ -57,8 +70,11 @@ lines.
 
 ## Circuits
 
-Being built as the Circuit Diagram Generator: a series/parallel tree edited as
-an outline (ADR 0004). Left for later:
+The Circuit Diagram Generator draws a cell or battery with 1 to 4 resistors
+or bulbs, all in series or all in parallel, with a switch, an ammeter and a
+voltmeter (ADR 0005). Anything else is left to a Circuit Editor, planned but
+not built yet, where a teacher would draw a circuit by hand; until then the
+generator page says it's coming soon. Left for later:
 
 - A pictorial style (drawn bulbs, D-cells, real-looking wires) for middle
   school, drawn from the same tree

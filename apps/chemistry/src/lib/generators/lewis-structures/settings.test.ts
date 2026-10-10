@@ -98,6 +98,20 @@ describe('what the figure shows', () => {
     expect(figureOf(settings({ formula: 'CO2', central: 'Xe' })).changed).toBe(false)
   })
 
+  it('draws an atom on its own without bonds or formal charges to give', () => {
+    const f = figureOf(settings({ formula: 'N 3-', scaffold: 'bonds', formalCharges: true, answerKey: true }))
+    expect(f.settings).toMatchObject({ scaffold: 'skeleton', formalCharges: false })
+    expect(f.key).toEqual({ kind: 'structures', structures: f.shown })
+  })
+
+  it('changes an atom on its own into a wrong one', () => {
+    const f = figureOf(settings({ formula: 'P', changes: [{ kind: 'lone', atom: 0, lone: 3 }], answerKey: true }))
+    expect(f.changed).toBe(true)
+    expect(f.key).toEqual({ kind: 'mistakes', mistakes: ['It shows 3 valence electrons, but P has 5.'] })
+    const ion = figureOf(settings({ formula: 'Ca 2+', changes: [{ kind: 'brackets', on: false }] }))
+    expect(ion.mistakes).toEqual(['An ion’s structure goes in square brackets.'])
+  })
+
   it('draws nothing for a formula it has no structure for', () => {
     const f = figureOf(settings({ formula: 'C3H8' }))
     expect(f.resolved.ok).toBe(false)

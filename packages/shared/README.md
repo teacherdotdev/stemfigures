@@ -10,10 +10,10 @@ Components and helpers used by more than one STEM Figures site, imported as
 | `Modal`                                                                                     | math, chemistry, physics, biology, engineering |
 | `LabelField`                                                                                | math, chemistry, biology, engineering     |
 | `GeneratorPage`, `generatorState`, and through them `FigureCanvas`, `Presets`, `presetStore`, `history`, `exporting` | math, chemistry, physics, biology |
-| `labelSize`                                                                                 | math, chemistry (Titration Curve), biology (Cell Diagram, Population Growth, Punnett Square, Mitosis & Meiosis, Predator–Prey Cycles) |
-| `graph/`: `Grid`, `grid`, `axes`, `AxisSettings`, `TitleSettings`, `GridlineSettings`       | math (Coordinate Grid), chemistry (Titration Curve), biology (Population Growth, Predator–Prey Cycles) |
-| `graph/`: `numbering`, `caps`, `CapPicker`, `colors`                                        | math, chemistry (Titration Curve), biology (Population Growth, Predator–Prey Cycles) |
-| `Section`                                                                                   | math, physics (Spring Scale), chemistry (Titration Curve), biology (every generator) |
+| `labelSize`                                                                                 | math, chemistry (Titration Curve, Heating and Cooling Curve), biology (Cell Diagram, Population Growth, Punnett Square, Mitosis & Meiosis, Predator–Prey Cycles), physics (Wave) |
+| `graph/`: `Grid`, `grid`, `axes`, `AxisSettings`, `TitleSettings`, `GridlineSettings`       | math (Coordinate Grid), chemistry (Titration Curve, Heating and Cooling Curve), biology (Population Growth, Predator–Prey Cycles), physics (Wave, all but `Grid`) |
+| `graph/`: `numbering`, `caps`, `CapPicker`, `colors`                                        | math, chemistry (Titration Curve, Heating and Cooling Curve), biology (Population Growth, Predator–Prey Cycles), physics (Wave) |
+| `Section`                                                                                   | math, physics (Spring Scale), chemistry (Titration Curve, Heating and Cooling Curve), biology (every generator) |
 | `HelpTip`                                                                                   | math, biology (Population Growth, Predator–Prey Cycles) |
 | `FigureFrame`, `figureAlign`, `settings`, `figureText`, `FigureTextSettings`                | physics (Spring Scale), math (Length Reading), biology (`settings` in every generator, `FigureFrame` in all but the two graphs, `FigureTextSettings` in Micropipette Reading) |
 | `Magnifier`, `MagnifierSettings`, `magnify`                                                 | physics (Spring Scale), math (Length Reading), biology (Micropipette Reading: `Magnifier`, `magnify`) |
@@ -64,12 +64,13 @@ presets as a third argument, for a site whose teachers already have them
 saved under other names (Math and Physics do).
 
 `graph/` is a graph on a square grid, the one Math's Coordinate Grid and
-Chemistry's Titration Curve both draw on. `axes` holds its settings: each
+Chemistry's Titration Curve and Heating and Cooling Curve draw on. `axes` holds its settings: each
 axis's range as typed (read by `readAxes` with the site's number reader, since
 Math's are typed in Caret and can be 3π/2), numbering, labels, end caps,
 titles and minor gridlines, plus `gridFields` for a generator using
 `defineSettings`. `layoutGrid` lays the grid out and gives `px`, which places
-a point of the graph on the drawing; `Grid.svelte` draws it with the
+a point of the graph on the drawing (its axes cross at 0 when 0 is on the
+grid, unless it's given `{ edges: true }`, as for temperatures below 0 °C); `Grid.svelte` draws it with the
 generator's own marks as its children. `AxisSettings`, `TitleSettings` and
 `GridlineSettings` are its settings groups; `AxisSettings` takes a `field` for
 the range boxes (a plain text box unless given) and children for fields of the

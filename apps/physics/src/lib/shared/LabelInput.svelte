@@ -1,14 +1,15 @@
 <script lang="ts">
   // A label typed in Caret's math field (docs/adr/0003-caret-for-labels.md):
   // "theta" → θ, "deg" or "^o" → °, "_" for a subscript and "^" for a
-  // superscript, or Google Docs' Ctrl+, and Ctrl+. (⌘ on a Mac).
+  // superscript, or Google Docs' Ctrl+, and Ctrl+. (⌘ on a Mac). A vector is
+  // typed the LaTeX way, \vec{F} or \mathbf{F}, and shown with its arrow or in bold.
   // `value` is the label's text as it is written in the page address ("m_1").
   //
   // Caret's field drops typed spaces, so before it reads the keyboard or a
   // paste, spaces are swapped for FIELD_SPACE, a blank character it keeps.
   import { MathField } from '@caret-js/svelte'
-  import type { Doc } from '@caret-js/core'
-  import { FIELD_SPACE, SHORTCUTS, commands, labelFromText, labelToText, schema, typingRules } from './label'
+  import { createCaretVDOMComponent, h, type Doc } from '@caret-js/core'
+  import { FIELD_SPACE, SHORTCUTS, commands, labelFromText, labelToText, schema, typingRules, vectorTokenType } from './label'
 
   interface Props {
     value: string
@@ -51,10 +52,16 @@
 
   const classify = (doc: Doc<any>) =>
     new Map((doc.root.tokens as any[]).filter((t) => t.props?.char === FIELD_SPACE).map((t) => [t.id, 'label-space']))
+
+  const components = {
+    [vectorTokenType.type]: createCaretVDOMComponent<any>(({ token, children }) =>
+      h('span', { class: `label-vector ${(token.props as { style: string }).style}` }, h('span', { class: 'label-vector-body' }, children.get('body'))),
+    ),
+  }
 </script>
 
 <div class="label-input" {oninputcapture} {onpastecapture} {onkeydowncapture}>
-  <MathField {schema} bind:value fromText={labelFromText} toText={labelToText} {typingRules} {commands} {classify} {...rest} />
+  <MathField {schema} bind:value fromText={labelFromText} toText={labelToText} {typingRules} {commands} {classify} {components} {...rest} />
 </div>
 
 <style>
@@ -74,4 +81,19 @@
   .label-input :global(.caret-field .subsup) { display: inline-flex; flex-direction: column; line-height: 1.25; vertical-align: 0.75em; }
   .label-input :global(.caret-field .subsup > .subscript) { float: none; }
   .label-input :global(.caret-field .subsup:not(:has(> .superscript))) { vertical-align: -0.5em; }
+  /* A vector: bold and upright, or with an arrow over it (a line and a small
+     head drawn with borders), and a grey slot while it's empty. */
+  .label-input :global(.label-vector) { --arrow-y: 0.3em; display: inline-block; position: relative; }
+  .label-input :global(.label-vector.bold) { font-weight: 700; }
+  .label-input :global(.label-vector.bold .caret-var) { font-style: normal; }
+  .label-input :global(.label-vector.arrow::before) {
+    content: ''; position: absolute; left: 0.12em; right: 0.02em; top: var(--arrow-y); border-top: 0.06em solid currentColor;
+  }
+  .label-input :global(.label-vector.arrow::after) {
+    content: ''; position: absolute; right: -0.02em; top: calc(var(--arrow-y) - 0.09em);
+    border-style: solid; border-color: transparent; border-width: 0.12em 0 0.12em 0.22em; border-left-color: currentColor;
+  }
+  .label-input :global(.label-vector-body:not(:has(:not(.cursor.placeholder)))::after) {
+    display: inline-block; content: ''; width: 0.6em; height: 0.7em; background: var(--caret-slot, #e5e7eb); vertical-align: -0.1em;
+  }
 </style>

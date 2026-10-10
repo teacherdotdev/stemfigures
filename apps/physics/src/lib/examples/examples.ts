@@ -11,7 +11,11 @@
 // generators' own logic (./details.server.ts), never typed here.
 
 import { CATALOG } from '$shared/catalog/index'
+import type { Load } from '$lib/generators/circuit-diagram/settings'
 import type { Force } from '$lib/generators/free-body-diagram/settings'
+import type { InclineObject } from '$lib/generators/inclined-plane/settings'
+import type { Segment } from '$lib/generators/motion-graphs/settings'
+import type { PulleyObject } from '$lib/generators/pulley/settings'
 import type { Vector } from '$lib/generators/vector-diagram/settings'
 import type { Label } from '$lib/shared/label'
 import { SITE_ID } from '$lib/site/config'
@@ -48,6 +52,9 @@ const force = (angle: number, length: number, label: string, more: Partial<Force
   ...more,
 })
 
+/** A Motion Graph segment. */
+const segment = (kind: Segment['kind'], speed: number, duration: number, dir: Segment['dir'] = 'forward'): Segment => ({ kind, speed, duration, dir })
+
 /** A Vector Diagram vector, with its other fields at their defaults. */
 const vector = (magnitude: number, angle: number, label: string, more: Partial<Vector> = {}): Vector => ({
   magnitude,
@@ -62,6 +69,22 @@ const vector = (magnitude: number, angle: number, label: string, more: Partial<V
   yLabel: text('A_y'),
   ...more,
 })
+
+/** A Pulley object labeled m_n, with its weight m_n g and its other fields at their defaults. */
+const mass = (n: number, more: Partial<PulleyObject> = {}): PulleyObject => ({
+  label: text(`m_${n}`),
+  gravityLabel: text(`m_${n} g`),
+  kind: 'block',
+  size: 1,
+  ...more,
+})
+
+/** An Inclined Plane object, a block of the usual size unless `more` says otherwise. */
+const onRamp = (label: string, more: Partial<InclineObject> = {}): InclineObject => ({ label: text(label), kind: 'block', size: 1, ...more })
+
+/** A Circuit Diagram resistor (or bulb), its name numbered automatically unless given. */
+const load = (value: Label, more: Partial<Load> = {}): Load => ({ kind: 'resistor', name: text(''), value, ...more })
+const none = (t: string): Label => ({ mode: 'none', text: t })
 
 export const EXAMPLES: Example[] = [
   ...examplesOf('free-body-diagram', [
@@ -131,6 +154,18 @@ export const EXAMPLES: Example[] = [
         ],
       },
     },
+    {
+      slug: 'free-body-diagram-normal-force-and-tension-both-up-vector-notation',
+      title: 'Free body diagram with the normal force and tension both pointing up, in vector notation',
+      alt: 'A free body diagram of a block with F_g straight down and two shorter arrows side by side pointing up, F_N and T, every label with an arrow over its letter',
+      caption:
+        'A block resting on a floor while a rope pulls up on it, too weakly to lift it. Gravity F_g points straight down; the normal force F_N and the tension T both point straight up, drawn side by side and each shorter than F_g. Every label has an arrow over its letter, the way vectors are written.',
+      settings: {
+        body: 'block',
+        forces: [force(270, 1, 'F_g'), force(90, 0.6, 'F_N'), force(90, 0.4, 'T')],
+        notation: 'arrow',
+      },
+    },
   ]),
 
   ...examplesOf('inclined-plane', [
@@ -148,7 +183,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A cart labeled m on a smooth ramp at 20°, with dashed velocity v and acceleration a arrows pointing down the slope',
       caption:
         'A cart labeled m on a smooth ramp rising to the right, its angle labeled 20° at the foot. Dashed arrows above the cart show its velocity v and acceleration a, both pointing down the slope. No forces are drawn, so students can add them.',
-      settings: { object: 'cart', angle: 20, angleLabel: text('20deg'), velocity: 'down', acceleration: 'down' },
+      settings: { objects: [onRamp('m', { kind: 'cart' })], angle: 20, angleLabel: text('20deg'), velocity: 'down', acceleration: 'down' },
     },
     {
       slug: 'ball-on-ramp-length-height-angle-labeled',
@@ -156,7 +191,7 @@ export const EXAMPLES: Example[] = [
       alt: 'A ball labeled m on a ramp, with the slope’s length marked L, the ramp’s height marked h and its angle marked θ',
       caption:
         'A ball labeled m on a smooth ramp rising to the right at 25°. The length of the slope is marked L along it, the ramp’s height is marked h beside its tall side, and the angle at the foot is marked θ. Use it for energy questions, such as the ball’s speed at the bottom.',
-      settings: { object: 'ball', angle: 25, lengthMark: true, heightMark: true },
+      settings: { objects: [onRamp('m', { kind: 'ball' })], angle: 25, lengthMark: true, heightMark: true },
     },
     {
       slug: 'label-the-forces-block-on-a-35-degree-incline',
@@ -165,7 +200,7 @@ export const EXAMPLES: Example[] = [
       caption:
         'A block labeled 5 kg on a rough, hatched ramp at 35°. Three force arrows are drawn from the block, straight down, out of the slope and up the slope, each with a blank line where its name goes, for students to label gravity, the normal force and friction.',
       settings: {
-        objectLabel: text('5 kg'),
+        objects: [onRamp('5 kg')],
         angle: 35,
         angleLabel: text('35deg'),
         surface: 'rough',
@@ -184,6 +219,14 @@ export const EXAMPLES: Example[] = [
       caption:
         'A block labeled m pushed up a rough ramp at 30°, its angle marked θ. The applied force F_A points up the slope and friction F_f points down it, opposing the motion; gravity F_g points straight down and the normal force F_N out of the slope. A dashed velocity arrow v points up the slope.',
       settings: { surface: 'rough', gravity: true, normal: true, friction: 'down', applied: 'up', velocity: 'up' },
+    },
+    {
+      slug: 'two-blocks-tied-by-a-string-pulled-up-an-incline',
+      title: 'Two blocks tied by a string, pulled up an incline',
+      alt: 'Blocks m_1 and m_2 on a ramp at θ, tied by a string, with F_A pulling m_2 up the slope, tension T at both ends of the string, F_g1 and F_g2 down and F_N1 and F_N2 out of the slope',
+      caption:
+        'Two blocks on a smooth ramp at 30°, its angle marked θ: m_1 lower down and m_2 above it, tied together by a string parallel to the slope. An applied force F_A pulls m_2 up the slope, and tension T is drawn at both ends of the string, pulling each block toward the other. Each block has its own weight, F_g1 and F_g2, straight down, and its own normal force, F_N1 and F_N2, out of the slope.',
+      settings: { objects: [onRamp('m_1'), onRamp('m_2')], tension: true, gravity: true, normal: true, applied: 'up' },
     },
   ]),
 
@@ -226,7 +269,15 @@ export const EXAMPLES: Example[] = [
       alt: 'A cart on a smooth table tied over a pulley to a hanging block, with blank lines on the cart and the block for their masses',
       caption:
         'A cart on a smooth table, tied by a string over a pulley at the table’s edge to a block hanging below. Both have a blank line in place of a label, so you can write in the masses for your problem. No forces are drawn.',
-      settings: { setup: 'table', aKind: 'cart', aLabel: blank('m_1'), bLabel: blank('m_2') },
+      settings: { setup: 'table', objects: [mass(1, { kind: 'cart', label: blank('m_1') }), mass(2, { label: blank('m_2') })] },
+    },
+    {
+      slug: 'atwood-machine-with-three-masses',
+      title: 'Atwood machine with three masses',
+      alt: 'An Atwood machine with m_1 on the left, m_2 on the right and m_3 hanging below m_2 on a second string, with tensions T_1 and T_2, weights m_1 g, m_2 g and m_3 g, and dashed acceleration arrows a',
+      caption:
+        'Blocks m_1 and m_2 hang from one string over a fixed pulley, and a third block, m_3, hangs below m_2 on a second string. Tension T_1 is drawn at both ends of the first string and T_2 at both ends of the second, and the weights m_1 g, m_2 g and m_3 g point straight down. Dashed acceleration arrows a point up beside m_1 and down beside m_2 and m_3.',
+      settings: { objects: [mass(1), mass(2), mass(3)], tension: true, gravity: true, acceleration: 'forward' },
     },
   ]),
 
@@ -270,6 +321,63 @@ export const EXAMPLES: Example[] = [
       caption:
         'A ball on the top corner of a cliff, launched at 30° above the horizontal with velocity v_0, the angle marked θ, and the cliff’s height marked h. The path is left off, so students sketch it themselves.',
       settings: { start: 'cliff', angle: 30, path: false, cliffMark: true },
+    },
+  ]),
+
+  ...examplesOf('motion-graphs', [
+    {
+      slug: 'position-time-graph-speeding-up-constant-velocity-slowing-down-lettered',
+      title: 'Position–time graph: speeding up, constant velocity, slowing down, lettered',
+      alt: 'A position–time graph with its segment ends lettered A to E: curving upward from A to B, a straight line from B to C, curving over and leveling off from C to D, and flat from D to E',
+      caption:
+        'A position–time graph of a cart that speeds up from rest for 4 s, moves at a constant 4 m/s for 4 s, slows down to a stop over 4 s and stays at rest for 3 s. Its segment ends are lettered A to E: the line curves upward from A to B, is straight from B to C, curves over from C to D, and is flat from D to E.',
+      settings: { letters: true },
+    },
+    {
+      slug: 'matching-position-velocity-acceleration-time-graphs-stacked',
+      title: 'Matching position–time, velocity–time and acceleration–time graphs',
+      alt: 'Position–time, velocity–time and acceleration–time graphs stacked on one time axis for a cart that goes forward, stops, then goes back, each segment in its own line style, with the segment ends lettered A to F',
+      caption:
+        'Three graphs of one motion stacked on the same time axis: position, velocity and acceleration. The cart speeds up forward from A to B, moves at 4 m/s from B to C, slows to a stop at D, speeds up backward from D to E and slows to a stop again at F. Each segment has its own line style, and the segment ends are lettered A to F on every graph.',
+      settings: {
+        graphs: 'all',
+        letters: true,
+        styles: true,
+        segments: [segment('faster', 4, 2), segment('forward', 4, 3), segment('slower', 0, 2), segment('faster', 4, 2, 'back'), segment('slower', 0, 2)],
+      },
+    },
+    {
+      slug: 'velocity-time-graph-speeding-up-and-slowing-down',
+      title: 'Velocity–time graph of a cart speeding up and slowing down',
+      alt: 'A velocity–time graph of straight lines lettered A to F: flat at zero from A to B, rising gently from B to C, rising more steeply from C to D, level from D to E, and falling back to zero from E to F',
+      caption:
+        'A velocity–time graph made of straight lines, lettered A to F. The cart is at rest from A to B, speeds up to 2 m/s from B to C, speeds up more quickly to 6 m/s from C to D, holds 6 m/s from D to E, and slows to a stop from E to F. The steeper the line, the greater the acceleration.',
+      settings: {
+        graphs: 'vt',
+        letters: true,
+        segments: [segment('rest', 0, 2), segment('faster', 2, 3), segment('faster', 6, 3), segment('forward', 6, 3), segment('slower', 0, 3)],
+      },
+    },
+    {
+      slug: 'position-time-graph-shapes-without-numbers',
+      title: 'Position–time graph shapes without numbers',
+      alt: 'A position–time graph with no numbers or gridlines, lettered A to F: curving upward, straight, curving over, flat, then a straight line sloping down',
+      caption:
+        'A position–time graph on plain axes with no numbers or gridlines, so only the shapes show. From A to B the line curves upward (speeding up), from B to C it is straight (constant velocity), from C to D it curves over (slowing down), from D to E it is flat (at rest), and from E to F it slopes straight down (moving back at a constant velocity).',
+      settings: {
+        numbers: false,
+        gridlines: false,
+        letters: true,
+        segments: [segment('faster', 4, 3), segment('forward', 4, 2), segment('slower', 0, 3), segment('rest', 0, 2), segment('back', 4, 3)],
+      },
+    },
+    {
+      slug: 'position-time-graph-tangent-instantaneous-velocity',
+      title: 'Tangent to a position–time graph for instantaneous velocity',
+      alt: 'A position–time graph curving upward for 6 s, with a dashed tangent line touching the curve at 4 s',
+      caption:
+        'A position–time graph of a cart speeding up steadily from rest for 6 s, so the line curves upward. A dashed tangent line touches the curve at 4 s; its slope is the cart’s instantaneous velocity at that moment.',
+      settings: { segments: [segment('faster', 6, 6)], tangent: true, tangentAt: 4 },
     },
   ]),
 
@@ -360,6 +468,138 @@ export const EXAMPLES: Example[] = [
       caption:
         'Vector subtraction drawn as addition: A, 5 squares to the right, then −B, 3 squares straight down from A’s tip, the opposite of a B pointing up. The dashed resultant from A’s tail to −B’s tip is labeled A − B.',
       settings: { vectors: [vector(5, 0, 'A'), vector(3, 270, '−B')], resultantLabel: text('A − B') },
+    },
+  ]),
+
+  ...examplesOf('waves', [
+    {
+      slug: 'transverse-wave-with-wavelength-and-amplitude-labeled',
+      title: 'Transverse wave with its wavelength and amplitude labeled',
+      alt: 'A transverse wave on a grid of displacement in cm against distance in m, two and a half cycles long, with its wavelength λ marked from crest to crest, its amplitude A from the rest line up to a crest, and a crest and a trough labeled',
+      caption:
+        'A transverse wave two and a half cycles long on numbered axes, displacement in centimeters against distance in meters, with gridlines. Its wavelength λ is marked with an arrow from one crest to the next, its amplitude A from the rest line up to the first crest, and a crest and a trough are labeled.',
+      settings: { cycles: 2.5, crestLabel: text('crest'), troughLabel: text('trough') },
+    },
+    {
+      slug: 'measure-the-wavelength-and-amplitude-of-a-wave',
+      title: 'Measure the wavelength and amplitude of a wave',
+      alt: 'A transverse wave three cycles long on a grid of displacement in cm against distance in m, numbered every meter and centimeter, with nothing marked',
+      caption:
+        'A transverse wave three cycles long on numbered axes with gridlines, displacement in centimeters against distance in meters. Nothing is marked, so students read the wavelength and the amplitude off the axes.',
+      settings: { amplitude: 2, wavelength: 6, cycles: 3, wavelengthMark: false, amplitudeMark: false },
+    },
+    {
+      slug: 'displacement-time-graph-of-a-wave-period-and-frequency',
+      title: 'Displacement–time graph of a wave: period and frequency',
+      alt: 'A transverse wave on axes of displacement in cm against time in s, four cycles over 2 seconds, with tick marks instead of gridlines and its period T marked from crest to crest',
+      caption:
+        'A wave drawn against time instead of distance: four cycles over 2 seconds, on numbered axes with tick marks rather than gridlines. The period T is marked from one crest to the next and the amplitude is left for students, who work out the frequency from the period.',
+      settings: { xAxis: 'time', xTitle: 'Time (s)', amplitude: 4, period: 0.5, cycles: 4, amplitudeMark: false, gridlines: false },
+    },
+    {
+      slug: 'longitudinal-wave-above-a-transverse-wave',
+      title: 'Longitudinal wave above its matching transverse wave',
+      alt: 'A longitudinal wave drawn as vertical lines, bunched at a compression and spread at a rarefaction, above a transverse wave on a displacement–distance grid, the compressions directly over the crests',
+      caption:
+        'A longitudinal wave drawn as a row of vertical lines, above the transverse wave it matches on numbered axes. The lines bunch together at each compression, right above a crest, and spread apart at each rarefaction, above a trough. A compression, a rarefaction, a crest and a trough are labeled, and the wavelength λ and amplitude A are marked.',
+      settings: {
+        wave: 'both',
+        cycles: 2.5,
+        compressionLabel: text('compression'),
+        rarefactionLabel: text('rarefaction'),
+        crestLabel: text('crest'),
+        troughLabel: text('trough'),
+      },
+    },
+    {
+      slug: 'label-the-compression-and-rarefaction-of-a-longitudinal-wave',
+      title: 'Label the compression and rarefaction of a longitudinal wave',
+      alt: 'A longitudinal wave of vertical lines over a distance axis in m, with its wavelength λ marked from one compression to the next and blank lines under a compression and a rarefaction',
+      caption:
+        'A longitudinal wave, like a sound wave, drawn as vertical lines over a numbered distance axis. Its wavelength λ is marked from the middle of one compression to the next. Blank lines under a compression and a rarefaction are for students to name them.',
+      settings: { wave: 'longitudinal', compressionLabel: blank('compression'), rarefactionLabel: blank('rarefaction') },
+    },
+    {
+      slug: 'label-the-parts-of-a-wave-worksheet',
+      title: 'Label the parts of a wave worksheet',
+      alt: 'A transverse wave about a dashed rest line, with no axes, with blank lines for its wavelength, amplitude, a crest and a trough',
+      caption:
+        'A transverse wave two and a half cycles long, drawn about a dashed rest line with no axes. Arrows mark its wavelength and amplitude, and a crest and a trough are pointed out, each with a blank line for students to write what it is.',
+      settings: {
+        axes: false,
+        cycles: 2.5,
+        wavelengthLabel: blank('lambda'),
+        amplitudeLabel: blank('A'),
+        crestLabel: blank('crest'),
+        troughLabel: blank('trough'),
+        },
+      },
+    ]),
+
+  ...examplesOf('circuit-diagram', [
+    {
+      slug: 'series-circuit-three-resistors-ammeter-reading-blank',
+      title: 'Series circuit with three resistors and an ammeter',
+      alt: 'A circuit diagram of a 12 V battery, an ammeter with a blank reading, and resistors R_1 2 Ω, R_2 4 Ω and R_3 6 Ω in series',
+      caption:
+        'A 12 V battery of two cells drives one loop through three resistors in series, R_1 of 2 Ω, R_2 of 4 Ω and R_3 of 6 Ω, and an ammeter. The ammeter’s reading is a blank line for students to work out. Resistors are drawn as US zigzags.',
+      settings: { ammeter: true, ammeterLabel: blank('0.5 A') },
+    },
+    {
+      slug: 'parallel-circuit-two-resistors-with-voltmeter',
+      title: 'Parallel circuit with two resistors and a voltmeter',
+      alt: 'A circuit diagram of a 6 V battery and an ammeter beside it, driving R_1 3 Ω and R_2 6 Ω in parallel, with a voltmeter across R_2 and its reading left blank',
+      caption:
+        'A 6 V battery and an ammeter in the main line, with two resistors in parallel as the rungs of a ladder: R_1 of 3 Ω and R_2 of 6 Ω. A voltmeter is connected across R_2 with a blank reading, and junction dots mark where the branches meet.',
+      settings: {
+        arrangement: 'parallel',
+        loads: [load(text('3 Omega')), load(text('6 Omega'))],
+        sourceValue: text('6 V'),
+        ammeter: true,
+        voltmeter: '2',
+        voltmeterLabel: blank('6 V'),
+      },
+    },
+    {
+      slug: 'gcse-series-circuit-cell-switch-two-lamps-voltmeter',
+      title: 'GCSE series circuit: a cell, a switch and two lamps',
+      alt: 'A circuit diagram in IEC symbols: a cell, a closed switch and two lamps L_1 and L_2 in series, with a voltmeter across L_1',
+      caption:
+        'A circuit drawn in IEC symbols, as UK GCSE uses: one cell, a closed switch and two filament lamps, L_1 and L_2, in series, each lamp a circle with a cross. A voltmeter is connected across L_1. No values are given.',
+      settings: {
+        loads: [load(none('4 Omega'), { kind: 'bulb' }), load(none('4 Omega'), { kind: 'bulb' })],
+        source: 'cell',
+        sourceValue: none('12 V'),
+        switch: 'closed',
+        voltmeter: '1',
+        symbols: 'iec',
+      },
+    },
+    {
+      slug: 'parallel-circuit-three-resistors-find-the-unknown-resistance',
+      title: 'Parallel circuit with three resistors: find the unknown resistance',
+      alt: 'A circuit diagram of a 12 V battery with an ammeter reading 6 A, and three resistors in parallel: R_1 4 Ω, R_2 6 Ω and R_3 x',
+      caption:
+        'A 12 V battery and an ammeter reading 6 A in the main line, with three resistors in parallel: R_1 of 4 Ω, R_2 of 6 Ω and R_3, whose resistance is the unknown x for students to find. The battery’s + and − terminals are marked.',
+      settings: {
+        arrangement: 'parallel',
+        loads: [load(text('4 Omega')), load(text('6 Omega')), load(text('x'))],
+        ammeter: true,
+        ammeterLabel: text('6 A'),
+        polarity: true,
+      },
+    },
+    {
+      slug: 'series-circuit-bulbs-open-switch',
+      title: 'Series circuit with two bulbs and an open switch',
+      alt: 'A circuit diagram of a 3 V battery, an open switch and two bulbs in series',
+      caption:
+        'A 3 V battery, an open switch and two light bulbs in series, the bulbs drawn as circles with a looped filament. With the switch open, no current flows and neither bulb lights.',
+      settings: {
+        loads: [load(none('4 Omega'), { kind: 'bulb' }), load(none('4 Omega'), { kind: 'bulb' })],
+        sourceValue: text('3 V'),
+        switch: 'open',
+      },
     },
   ]),
 ]

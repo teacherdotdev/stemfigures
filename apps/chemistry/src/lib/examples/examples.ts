@@ -77,6 +77,14 @@ export const EXAMPLES: Example[] = [
         'A 250 mL beaker marked every 25 mL and numbered every 50 mL, holding red liquid a little under halfway from the 150 mL mark to the next mark, 175 mL. Beaker marks are coarse, so the volume is estimated to the whole mL: 160 mL. Use it to compare how precisely a beaker and a graduated cylinder measure.',
       settings: { instrument: 'beaker', beaker: 'medium', reading: 160, tint: 'red' },
     },
+    {
+      slug: '25-cm3-graduated-cylinder-reading-18-25-cm3',
+      title: '25 cm³ graduated cylinder reading 18.25 cm³',
+      alt: 'A 25 cm³ graduated cylinder reading 18.25 cm³, with a dotted line from the bottom of the meniscus to the marks and a magnified view',
+      caption:
+        'A 25 cm³ graduated cylinder marked every 0.5 cm³ and numbered every 5 cm³, with the scale printed in cm³ rather than mL. A dotted line runs from the bottom of the meniscus across to the marks, halfway between the 18.0 and 18.5 cm³ marks, so the reading is 18.25 cm³. A magnified circle shows the marks around the meniscus.',
+      settings: { size: '25', unit: 'cm3', reading: 18.25, guide: true },
+    },
   ]),
 
   ...examplesOf('volume-by-displacement', [
@@ -93,7 +101,7 @@ export const EXAMPLES: Example[] = [
       title: 'Volume of 3 marbles by water displacement',
       alt: 'Two 25 mL graduated cylinders: water at 12.00 mL before, and at 15.50 mL after three marbles are added',
       caption:
-        'Two 25 mL graduated cylinders, marked every 0.25 mL. Before, the water is at 12.00 mL; after three marbles are dropped in, it is at 15.50 mL. The three marbles together have a volume of 3.50 mL.',
+        'Two 25 mL graduated cylinders, marked every 0.5 mL and numbered every 5 mL. Before, the water is at 12.00 mL; after three marbles are dropped in, it is at 15.50 mL. The three marbles together have a volume of 3.50 mL.',
       settings: { size: '25', before: 12, after: 15.5, object: 'marbles', marbles: 3 },
     },
     {
@@ -111,6 +119,14 @@ export const EXAMPLES: Example[] = [
       caption:
         'Two 10 mL graduated cylinders, marked every 0.1 mL. The water reads 5.20 mL before and 7.45 mL after a small metal cylinder is added. The metal cylinder’s volume is 2.25 mL, read to the hundredth of a mL.',
       settings: { size: '10', before: 5.2, after: 7.45, object: 'cylinder' },
+    },
+    {
+      slug: 'water-displacement-cube-100-cm3-graduated-cylinder-2-cm3-marks',
+      title: 'Volume of a cube in cm³, on a scale marked every 2 cm³',
+      alt: 'Two 100 cm³ graduated cylinders marked every 2 cm³: water at 46.0 cm³ before, and at 61.0 cm³ after a cube is added',
+      caption:
+        'Two 100 cm³ graduated cylinders, marked every 2 cm³ and numbered every 20 cm³, so students first work out what each mark is worth. Before, the water is at 46.0 cm³; after a cube is dropped in, it is halfway between the 60 and 62 cm³ marks, at 61.0 cm³. The cube’s volume is 15.0 cm³.',
+      settings: { size: '100', marks: '2', numbers: '20', unit: 'cm3', before: 46, after: 61, object: 'cube' },
     },
   ]),
 
@@ -359,6 +375,60 @@ export const EXAMPLES: Example[] = [
     },
   ]),
 
+  ...examplesOf('heating-cooling-curve', [
+    {
+      slug: 'heating-curve-of-water-lettered',
+      title: 'Heating curve of water, lettered A to F',
+      alt: 'Heating curve of water from ice at −20 °C to steam at 120 °C, with plateaus at 0 and 100 °C labeled Melting and Boiling, corners lettered A to F',
+      caption:
+        'The temperature of water heated steadily from ice at −20 °C to steam at 120 °C, against time. The curve rises through the solid, stays flat at 0 °C while the ice melts, rises through the liquid, stays flat at 100 °C while the water boils, then rises through the gas. Its corners are lettered A to F, the sloped segments are labeled with their states and the plateaus with the changes, and dashed lines run from the plateaus to the temperature axis, with 0 °C and 100 °C written by them.',
+      settings: { letters: true },
+    },
+    {
+      slug: 'cooling-curve-of-water',
+      title: 'Cooling curve of water',
+      alt: 'Cooling curve of water from steam at 120 °C to ice at −20 °C, with plateaus labeled Condensing at 100 °C and Freezing at 0 °C',
+      caption:
+        'The temperature of water cooled steadily from steam at 120 °C to ice at −20 °C, against time. The curve falls through the gas, stays flat at 100 °C while the steam condenses, falls through the liquid, stays flat at 0 °C while the water freezes, then falls through the solid. The sloped segments are labeled with their states and the plateaus with the changes, and the temperatures are written by the dashed lines.',
+      settings: { direction: 'cooling', startT: 120, endT: -20 },
+    },
+    {
+      slug: 'heating-curve-of-ethanol',
+      title: 'Heating curve of ethanol',
+      alt: 'Heating curve of ethanol from −140 °C to 100 °C, with plateaus at its melting point, −114.1 °C, and boiling point, 78.3 °C, written by the temperature axis',
+      caption:
+        'The temperature of ethanol heated steadily from −140 °C to 100 °C, against time. It melts at −114.1 °C and boils at 78.3 °C, each written by the temperature axis above the dashed line from its plateau. The sloped segments are labeled with their states and the plateaus with the changes.',
+      settings: { substance: 'ethanol', startT: -140, endT: 100, yFrom: '-140', yTo: '100', yStep: '20', yEvery: 1 },
+    },
+    {
+      slug: 'heating-curve-of-water-to-scale-heat-added',
+      title: 'Heating curve of water to scale, against heat added',
+      alt: 'Heating curve of 100 g of water against heat added in kJ, its boiling plateau much longer than its melting plateau, with blank lines to label each segment',
+      caption:
+        'The temperature of 100 g of water heated from ice at −20 °C to steam at 120 °C, against the heat added in kJ, drawn to scale from water’s specific heats and enthalpies of fusion and vaporization. The boiling plateau at 100 °C is almost seven times as long as the melting plateau at 0 °C, each temperature written by its dashed line. Each segment has a blank line for students to name its state.',
+      settings: { source: 'properties', xQuantity: 'heat', xTo: '320', xStep: '20', xTitle: 'Heat added (kJ)', segmentLabels: 'blank' },
+    },
+    {
+      slug: 'cooling-curve-with-supercooling',
+      title: 'Cooling curve with supercooling',
+      alt: 'Cooling curve of water from 80 °C to −20 °C that dips 5 °C below the freezing point before rising back to 0 °C and freezing, corners lettered A to D',
+      caption:
+        'The temperature of water cooled steadily from 80 °C to −20 °C, against time. The liquid cools past its freezing point to −5 °C before ice starts to form, then the heat given out as it freezes warms it back up to 0 °C, written by the dashed line, where it stays until it has frozen. Its corners are lettered A to D.',
+      settings: { direction: 'cooling', startT: 80, endT: -20, supercool: true, letters: true, xTo: '10', xEvery: 1, yTo: '100' },
+    },
+    {
+      slug: 'heating-curve-worksheet-substance-x',
+      title: 'Heating curve worksheet: label the melting and boiling points',
+      alt: 'Heating curve of an unknown substance from 0 °C to 160 °C, its corners lettered A to F, with blank lines for the segment labels and by the temperature axis at each plateau',
+      caption:
+        'The temperature of an unknown substance, Substance X, heated steadily from 0 °C to 160 °C, against time, with plateaus at 40 °C and 120 °C. Its corners are lettered A to F, and every segment and both plateaus’ dashed lines have blank lines, for students to name each state and change and to mark the melting and boiling points.',
+      settings: {
+        substance: 'x', startT: 0, endT: 160, letters: true, segmentLabels: 'blank', pointLabels: 'blank',
+        yFrom: '0', yTo: '160', yStep: '10',
+      },
+    },
+  ]),
+
   ...examplesOf('particle-diagram', [
     {
       slug: 'particle-diagram-mixture-of-two-elements',
@@ -407,6 +477,42 @@ export const EXAMPLES: Example[] = [
         particles: [
           { count: 4, shape: 'line', look: { size: 'm', shade: 'black', charge: '' }, outer: { size: 'm', shade: 'light', charge: '' } },
           { count: 4, shape: 'pair', look: { size: 'm', shade: 'light', charge: '' }, outer: { size: 'm', shade: 'light', charge: '' } },
+        ],
+      },
+    },
+    {
+      slug: 'particle-diagram-before-and-after-reaction-hydrogen-and-oxygen',
+      title: 'Particle diagram before and after a reaction (hydrogen and oxygen)',
+      alt: 'Two boxes with an arrow between: before, pairs of small white atoms and pairs of gray atoms; after, bent molecules of one gray and two white atoms and one pair of gray atoms left over, with a key naming H₂, O₂ and H₂O',
+      caption:
+        'Two boxes joined by an arrow show a reaction at the particle level. Before: four H₂ molecules (pairs of small white atoms) and three O₂ molecules (pairs of gray atoms). After: four H₂O molecules and one O₂ molecule left over. Every atom before is still there after, so mass is conserved, and O₂ is in excess: H₂ is the limiting reactant.',
+      settings: {
+        seed: 3, boxes: 'two',
+        particles: [
+          { count: 4, after: 0, shape: 'pair', look: { size: 's', shade: 'white', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H_2 molecule' },
+          { count: 3, after: 1, shape: 'pair', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 'm', shade: 'gray', charge: '' }, name: 'O_2 molecule' },
+          { count: 0, after: 4, shape: 'bent', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H_2O molecule' },
+        ],
+        show: 'both',
+      },
+    },
+    {
+      slug: 'particle-diagram-key-of-each-atom-water-and-carbon-dioxide',
+      title: 'Particle diagram with a key of each atom (H₂O and CO₂)',
+      alt: 'A box of bent molecules of one gray and two white atoms and linear molecules of one black and two gray atoms, with a key listing a gray O atom, a white H atom and a black C atom',
+      caption:
+        'A box of four bent molecules, each a gray atom with two small white atoms, and four linear molecules, each a black atom between two gray atoms. The key lists each atom on its own rather than each molecule: gray is O, white is H and black is C, with O listed once though it is in both. Students can write the formulas H₂O and CO₂ from the box.',
+      settings: {
+        seed: 4,
+        particles: [
+          { count: 4, shape: 'bent', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' } },
+          { count: 4, shape: 'line', look: { size: 'm', shade: 'black', charge: '' }, outer: { size: 'm', shade: 'gray', charge: '' } },
+        ],
+        show: 'both', keyList: 'atoms',
+        atomNames: [
+          { look: { size: 'm', shade: 'gray', charge: '' }, name: 'O atom' },
+          { look: { size: 's', shade: 'white', charge: '' }, name: 'H atom' },
+          { look: { size: 'm', shade: 'black', charge: '' }, name: 'C atom' },
         ],
       },
     },
@@ -547,6 +653,14 @@ export const EXAMPLES: Example[] = [
       caption:
         'The Lewis structure of hydrogen cyanide, HCN: hydrogen single-bonded to a central carbon, which is triple-bonded to nitrogen. The nitrogen has one lone pair, for 10 valence electrons in all.',
       settings: { formula: 'HCN' },
+    },
+    {
+      slug: 'lewis-dot-diagram-of-nitride-ion-n3',
+      title: 'Lewis dot diagram of the nitride ion (N³⁻)',
+      alt: 'Lewis dot diagram of the nitride ion: N with a pair of dots on each of its four sides, in square brackets with a 3− charge',
+      caption:
+        'The Lewis dot diagram of the nitride ion, N³⁻. A nitrogen atom has 5 valence electrons and gains 3 to fill its octet, so the symbol has a pair of dots on each of its four sides, 8 electrons in all. It is drawn in square brackets with its 3− charge.',
+      settings: { formula: 'N 3-' },
     },
     {
       slug: 'resonance-structures-of-nitrate-no3',
@@ -750,6 +864,56 @@ export const EXAMPLES: Example[] = [
       caption:
         'The photoelectron spectrum of an iron atom, 1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁶ 4s², on a broken binding energy axis in MJ/mol, each group of nearby peaks given its own stretch. The 3d peak sits just to the left of the 4s peak: although 4s fills first, its electrons are held less tightly, which is why iron loses its 4s electrons first when it forms ions.',
       settings: { z: 26, counts: true, scale: 'broken' },
+    },
+  ]),
+  ...examplesOf('mass-spectrum', [
+    {
+      slug: 'mass-spectrum-of-magnesium',
+      title: 'Mass spectrum of magnesium',
+      alt: 'The mass spectrum of magnesium: three peaks at m/z 24, 25 and 26 labeled 78.99%, 10.00% and 11.01%',
+      caption:
+        'The mass spectrum of magnesium: one peak for each of its three natural isotopes, at m/z 24, 25 and 26, each as tall as its percent abundance and labeled with it. Magnesium-24 makes up nearly four fifths of natural magnesium, which is why its relative atomic mass is close to 24.',
+      settings: { element: 'Mg' },
+    },
+    {
+      slug: 'mass-spectrum-of-chlorine-relative-atomic-mass',
+      title: 'Mass spectrum of chlorine with its relative atomic mass',
+      alt: 'The mass spectrum of chlorine: a peak at m/z 35 labeled 75.76% and a peak at m/z 37 labeled 24.24%, with an answer key under the graph',
+      caption:
+        'The mass spectrum of chlorine, with peaks at m/z 35 and 37 for its two isotopes, chlorine-35 at 75.76% and chlorine-37 at 24.24%, about three to one. The answer key under the graph gives chlorine’s relative atomic mass, the average of the two isotopes’ masses weighted by their abundances.',
+      settings: { element: 'Cl', answerKey: true },
+    },
+    {
+      slug: 'identify-the-element-from-its-mass-spectrum',
+      title: 'Identify the element from its mass spectrum',
+      alt: 'An unnamed element’s mass spectrum with two nearly equal peaks at m/z 79 and 81, labeled 50.69% and 49.31%',
+      caption:
+        'The mass spectrum of an unnamed element, for students to identify: two nearly equal peaks at m/z 79 and 81, labeled with their percent abundances. The weighted average mass is about 79.9, which is bromine.',
+      settings: { element: 'Br', names: false },
+    },
+    {
+      slug: 'draw-the-missing-peak-silicon-mass-spectrum',
+      title: 'Draw the missing peak: silicon mass spectrum',
+      alt: 'The mass spectrum of silicon with peaks at m/z 28 and 30 and the peak at m/z 29 left out, with an answer key under the graph',
+      caption:
+        'The mass spectrum of silicon with its peak at m/z 29 left out, for students to draw in. The peaks at m/z 28 (92.22%) and 30 (3.09%) are shown, so the missing isotope’s abundance is what’s left of 100%. The answer key names the missing peak and gives silicon’s relative atomic mass.',
+      settings: { element: 'Si', leaveOut: 29, answerKey: true },
+    },
+    {
+      slug: 'mass-spectrum-of-a-made-up-element',
+      title: 'Mass spectrum of a made-up element',
+      alt: 'The mass spectrum of Element Q: a peak at m/z 20 labeled 90% and a peak at m/z 22 labeled 10%, with an answer key under the graph',
+      caption:
+        'The mass spectrum of a made-up Element Q with two isotopes typed in by the teacher: mass 20 at 90% and mass 22 at 10%, so students can’t look the answer up. They work out its relative atomic mass, 20 × 0.90 + 22 × 0.10, which the answer key under the graph gives.',
+      settings: { source: 'custom', name: 'Element Q', isotopes: [{ mass: 20, pct: 90 }, { mass: 22, pct: 10 }], answerKey: true },
+    },
+    {
+      slug: 'mass-spectrum-of-zirconium-relative-abundance',
+      title: 'Mass spectrum of zirconium, relative abundance',
+      alt: 'The mass spectrum of zirconium with five peaks from m/z 90 to 96, the tallest at m/z 90 scaled to 100',
+      caption:
+        'The mass spectrum of zirconium, its five natural isotopes from m/z 90 to 96, drawn with the tallest peak, zirconium-90, scaled to 100 and the others against it, as many textbooks and instruments show a spectrum.',
+      settings: { element: 'Zr', scale: 'relative' },
     },
   ]),
 ]
