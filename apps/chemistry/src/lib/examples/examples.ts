@@ -866,6 +866,56 @@ export const EXAMPLES: Example[] = [
       settings: { z: 26, counts: true, scale: 'broken' },
     },
   ]),
+  ...examplesOf('mass-spectrum', [
+    {
+      slug: 'mass-spectrum-of-magnesium',
+      title: 'Mass spectrum of magnesium',
+      alt: 'The mass spectrum of magnesium: three peaks at m/z 24, 25 and 26 labeled 78.99%, 10.00% and 11.01%',
+      caption:
+        'The mass spectrum of magnesium: one peak for each of its three natural isotopes, at m/z 24, 25 and 26, each as tall as its percent abundance and labeled with it. Magnesium-24 makes up nearly four fifths of natural magnesium, which is why its relative atomic mass is close to 24.',
+      settings: { element: 'Mg' },
+    },
+    {
+      slug: 'mass-spectrum-of-chlorine-relative-atomic-mass',
+      title: 'Mass spectrum of chlorine with its relative atomic mass',
+      alt: 'The mass spectrum of chlorine: a peak at m/z 35 labeled 75.76% and a peak at m/z 37 labeled 24.24%, with an answer key under the graph',
+      caption:
+        'The mass spectrum of chlorine, with peaks at m/z 35 and 37 for its two isotopes, chlorine-35 at 75.76% and chlorine-37 at 24.24%, about three to one. The answer key under the graph gives chlorine’s relative atomic mass, the average of the two isotopes’ masses weighted by their abundances.',
+      settings: { element: 'Cl', answerKey: true },
+    },
+    {
+      slug: 'identify-the-element-from-its-mass-spectrum',
+      title: 'Identify the element from its mass spectrum',
+      alt: 'An unnamed element’s mass spectrum with two nearly equal peaks at m/z 79 and 81, labeled 50.69% and 49.31%',
+      caption:
+        'The mass spectrum of an unnamed element, for students to identify: two nearly equal peaks at m/z 79 and 81, labeled with their percent abundances. The weighted average mass is about 79.9, which is bromine.',
+      settings: { element: 'Br', names: false },
+    },
+    {
+      slug: 'draw-the-missing-peak-silicon-mass-spectrum',
+      title: 'Draw the missing peak: silicon mass spectrum',
+      alt: 'The mass spectrum of silicon with peaks at m/z 28 and 30 and the peak at m/z 29 left out, with an answer key under the graph',
+      caption:
+        'The mass spectrum of silicon with its peak at m/z 29 left out, for students to draw in. The peaks at m/z 28 (92.22%) and 30 (3.09%) are shown, so the missing isotope’s abundance is what’s left of 100%. The answer key names the missing peak and gives silicon’s relative atomic mass.',
+      settings: { element: 'Si', leaveOut: 29, answerKey: true },
+    },
+    {
+      slug: 'mass-spectrum-of-a-made-up-element',
+      title: 'Mass spectrum of a made-up element',
+      alt: 'The mass spectrum of Element Q: a peak at m/z 20 labeled 90% and a peak at m/z 22 labeled 10%, with an answer key under the graph',
+      caption:
+        'The mass spectrum of a made-up Element Q with two isotopes typed in by the teacher: mass 20 at 90% and mass 22 at 10%, so students can’t look the answer up. They work out its relative atomic mass, 20 × 0.90 + 22 × 0.10, which the answer key under the graph gives.',
+      settings: { source: 'custom', name: 'Element Q', isotopes: [{ mass: 20, pct: 90 }, { mass: 22, pct: 10 }], answerKey: true },
+    },
+    {
+      slug: 'mass-spectrum-of-zirconium-relative-abundance',
+      title: 'Mass spectrum of zirconium, relative abundance',
+      alt: 'The mass spectrum of zirconium with five peaks from m/z 90 to 96, the tallest at m/z 90 scaled to 100',
+      caption:
+        'The mass spectrum of zirconium, its five natural isotopes from m/z 90 to 96, drawn with the tallest peak, zirconium-90, scaled to 100 and the others against it, as many textbooks and instruments show a spectrum.',
+      settings: { element: 'Zr', scale: 'relative' },
+    },
+  ]),
 ]
 
 /** A generator's examples, in order; the first is its best. */

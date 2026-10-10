@@ -21,6 +21,7 @@ import { answerLines as spectrumAnswer, buildSpectrum } from '$lib/generators/li
 import { spectrumSettings } from '$lib/generators/line-spectrum/settings'
 import { stripName } from '$lib/generators/line-spectrum/strips'
 import { massSettings, answerLine as massAnswer } from '$lib/generators/mass-reading/settings'
+import { answerLines as massSpectrumAnswer, massSpectrumSettings, workingLine } from '$lib/generators/mass-spectrum/settings'
 import { answerLines as orbitalAnswer, orbitalSettings } from '$lib/generators/orbital-diagram/settings'
 import { keyLabel } from '$lib/generators/particle-diagram/key'
 import { plainText } from '$lib/generators/particle-diagram/keyText'
@@ -160,6 +161,12 @@ function pesAnswerKey(s: SettingsById['photoelectron-spectrum']): ExampleDetails
   return { heading: 'Answer key', lines: [...pesAnswer(s), `Peaks (${s.unit}, left to right): ${peaks.join(', ')}`] }
 }
 
+function massSpectrumAnswerKey(s: SettingsById['mass-spectrum']): ExampleDetails['answer'] {
+  const working = workingLine(s)
+  if (!working) throw new Error('The mass spectrum example has no abundances')
+  return { heading: 'Answer key', lines: [...massSpectrumAnswer(s), `Relative atomic mass: ${working}`] }
+}
+
 const GENERATORS: { [G in ExampleGeneratorId]: { definition: Definition<SettingsById[G]>; answer: Answer<SettingsById[G]> } } = {
   'volume-reading': { definition: volumeSettings, answer: (s) => lines(volumeAnswer(s)) },
   'volume-by-displacement': { definition: displacementSettings, answer: (s) => lines(displacementAnswer(s)) },
@@ -176,6 +183,7 @@ const GENERATORS: { [G in ExampleGeneratorId]: { definition: Definition<Settings
   'orbital-diagram': { definition: orbitalSettings, answer: (s) => ({ heading: 'Answer key', lines: orbitalAnswer(s) }) },
   'line-spectrum': { definition: spectrumSettings, answer: lineSpectrumAnswer },
   'photoelectron-spectrum': { definition: pesSettings, answer: pesAnswerKey },
+  'mass-spectrum': { definition: massSpectrumSettings, answer: massSpectrumAnswerKey },
 }
 
 function detailsOf<G extends ExampleGeneratorId>(generator: G, example: Example): ExampleDetails {

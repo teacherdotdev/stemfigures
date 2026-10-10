@@ -14,6 +14,7 @@ import LengthReadingPreview from './length-reading/Preview.svelte'
 import LewisStructuresPreview from './lewis-structures/Preview.svelte'
 import LineSpectrumPreview from './line-spectrum/Preview.svelte'
 import MassReadingPreview from './mass-reading/Preview.svelte'
+import MassSpectrumPreview from './mass-spectrum/Preview.svelte'
 import OrbitalDiagramPreview from './orbital-diagram/Preview.svelte'
 import ParticleDiagramPreview from './particle-diagram/Preview.svelte'
 import PhReadingPreview from './ph-reading/Preview.svelte'
@@ -31,6 +32,7 @@ export const PREVIEWS: Record<string, Component> = {
   'lewis-structures': LewisStructuresPreview,
   'line-spectrum': LineSpectrumPreview,
   'mass-reading': MassReadingPreview,
+  'mass-spectrum': MassSpectrumPreview,
   'orbital-diagram': OrbitalDiagramPreview,
   'particle-diagram': ParticleDiagramPreview,
   'ph-reading': PhReadingPreview,

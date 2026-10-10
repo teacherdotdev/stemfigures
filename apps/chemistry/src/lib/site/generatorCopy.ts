@@ -622,6 +622,45 @@ export const COPY: Record<string, GeneratorCopy> = {
     imageAlt: 'A printable photoelectron spectrum with a peak for each sublevel and binding energy falling from left to right, made with Photoelectron Spectrum',
     educationalLevel: ['High school', 'AP Chemistry'],
   },
+  'mass-spectrum': {
+    heading: 'Mass spectra of elements and their isotopes',
+    intro: [
+      'Mass Spectrum draws the mass spectrum of an element: one peak for each of its naturally occurring isotopes, at its mass number on the mass-to-charge (m/z) axis, as tall as its percent abundance or its abundance against the tallest peak. Pick any element from hydrogen to xenon, or platinum, gold, mercury, lead or uranium, or type up to six isotopes of your own for a made-up element.',
+      'Teachers use it for isotope and average atomic mass questions. Write each peak’s abundance over it or leave it off, hide the element’s name so students identify it from the peaks, or leave one peak out for students to draw in. The answer key prints the element and its relative atomic mass, worked out from the isotopes’ exact masses.',
+    ],
+    settings: [
+      'An element’s natural isotopes, or 1 to 6 isotopes you type, each with its mass and % abundance, and a name such as Element X',
+      'Peak heights as percent abundance, adding up to 100, or relative to the tallest peak as 100',
+      'Each peak’s abundance written over it, or not',
+      'The element’s name shown or hidden, and one peak left out for students to draw',
+      'Chart and axis titles, the x-axis fitted to the peaks or typed, the y-axis range, gridlines and the label size',
+      'An answer key line with the element, its relative atomic mass and the peak left out',
+    ],
+    faqs: [
+      {
+        q: 'How do you find the relative atomic mass from a mass spectrum?',
+        a: 'Multiply each isotope’s mass by its percent abundance, add them up and divide by 100. For magnesium, (24 × 78.99 + 25 × 10.00 + 26 × 11.01) ÷ 100 is about 24.32; with the isotopes’ exact masses it is 24.31, the value on the periodic table. The answer key uses the exact masses.',
+      },
+      {
+        q: 'Why are the peaks at whole numbers?',
+        a: 'The x-axis is the mass-to-charge ratio, and each peak is drawn at its isotope’s mass number, as most school mass spectra show it. The exact isotope masses, such as 34.969 for chlorine-35, are used only to work out the relative atomic mass.',
+      },
+      {
+        q: 'Where does the isotope data come from?',
+        a: 'Abundances are the IUPAC Commission on Isotopic Abundances and Atomic Weights’ representative isotopic compositions (2024). Where IUPAC now gives only a range, as for hydrogen, boron, carbon, chlorine and bromine, the generator uses its 2009 single values, which lie within the range. Isotope masses are from NIST. Every element’s values average to its standard atomic weight.',
+      },
+      {
+        q: 'Can I make a spectrum for a made-up element?',
+        a: 'Yes. Choose Custom isotopes and type up to six masses with their percent abundances, and give the element a name. If the abundances don’t add up to 100%, the page says so and averages them as if they did.',
+      },
+      {
+        q: 'Can it draw the mass spectrum of a molecule?',
+        a: 'Not yet. It draws the isotopes of single elements, so molecules such as Cl₂ and their fragments aren’t drawn.',
+      },
+    ],
+    imageAlt: 'A printable mass spectrum of magnesium with a peak for each isotope and its percent abundance, made with Mass Spectrum',
+    educationalLevel: ['High school', 'AP Chemistry'],
+  },
 }
 
 /** The copy for a generator; every generator on the site has some. */
