@@ -19,9 +19,13 @@
   const SIZE = 22
   const { foot, corner, top } = $derived(fig.ramp)
 
-  const description = $derived(
-    `A ${settings.objects[0].kind} on an inclined plane at ${settings.angle}°${settings.surface === 'rough' ? ' with a rough surface' : ''}`,
+  const COUNT = ['', 'A', 'Two', 'Three']
+  const objects = $derived(
+    settings.objects.length === 1
+      ? `A ${settings.objects[0].kind}`
+      : `${COUNT[settings.objects.length]} objects ${settings.joined === 'touching' ? 'touching' : 'tied together'}`,
   )
+  const description = $derived(`${objects} on an inclined plane at ${settings.angle}°${settings.surface === 'rough' ? ' with a rough surface' : ''}`)
 </script>
 
 <svg
@@ -42,6 +46,7 @@
     {#each fig.hatches as h}<line x1={h.x1} y1={h.y1} x2={h.x2} y2={h.y2} stroke={p.ink} stroke-width="1.3" />{/each}
     <path d={fig.arc} transform="translate({foot.x} {foot.y})" fill="none" stroke={p.ink} stroke-width="1.5" />
 
+    {#each fig.strings as st}<line x1={st.x1} y1={st.y1} x2={st.x2} y2={st.y2} stroke={p.ink} stroke-width="2.2" />{/each}
     {#each fig.objects as o}
       <g transform="translate({o.at.x} {o.at.y}) rotate({o.tilt})">
         <ObjectShape kind={o.kind} size={o.size} fill={p.object} stroke={p.ink} />

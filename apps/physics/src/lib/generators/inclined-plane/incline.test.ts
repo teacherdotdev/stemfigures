@@ -148,6 +148,136 @@ describe('vectors', () => {
   })
 })
 
+describe('a row of objects', () => {
+  type Kind = 'block' | 'ball' | 'cart'
+  /** n objects labeled m_1… from the foot up, of these kinds and sizes. */
+  const row = (n: number, kinds: Kind[] = [], sizes: number[] = []) =>
+    Array.from({ length: n }, (_, i) => ({ label: { mode: 'text' as const, text: `m_${i + 1}` }, kind: kinds[i] ?? 'block', size: sizes[i] ?? 1 }))
+  const makeRow = (n: number, over: Partial<InclineSettings> = {}, kinds?: Kind[], sizes?: number[]) =>
+    buildIncline({ ...inclineSettings.defaults, objects: row(n, kinds, sizes), ...over })
+  const everything = { gravity: true, normal: true, friction: 'up', applied: 'down', tension: true, contact: true, velocity: 'down', acceleration: 'up' } as const
+  /** How far along the slope from the foot a point is, and how far off the slope's line. */
+  const onSlope = (f: ReturnType<typeof make>, p: { x: number; y: number }) => {
+    const { foot, top } = f.ramp
+    const len = Math.hypot(top.x - foot.x, top.y - foot.y)
+    const u = { x: (top.x - foot.x) / len, y: (top.y - foot.y) / len }
+    return { d: (p.x - foot.x) * u.x + (p.y - foot.y) * u.y, off: Math.abs((p.x - foot.x) * u.y - (p.y - foot.y) * u.x), len }
+  }
+  const labels = (f: ReturnType<typeof make>, kind: string) => f.vectors.filter((v) => v.kind === kind).map((v) => v.label.text)
+
+  test('every object rests on the slope, tilted with it, in order from the foot, all of it on the ramp', () => {
+    for (const angle of [5, 30, 60]) {
+      for (const joined of ['string', 'touching'] as const) {
+        for (const n of [2, 3]) {
+          const f = makeRow(n, { angle, joined }, ['block', 'cart', 'ball'], [2, 1, 0.5])
+          let last = -Infinity
+          for (const o of f.objects) {
+            const { d, off, len } = onSlope(f, o.at)
+            expect(off).toBeLessThan(0.05)
+            expect(o.tilt).toBe(-angle)
+            expect(d - o.width / 2).toBeGreaterThan(last - 0.05)
+            expect(d + o.width / 2).toBeLessThan(len)
+            last = d + o.width / 2
+          }
+        }
+      }
+    }
+  })
+
+  test('tied: a string between each pair, parallel to the slope; touching: face to face, no strings', () => {
+    const tied = makeRow(3, { angle: 25 })
+    expect(tied.strings).toHaveLength(2)
+    for (const st of tied.strings) expect((Math.atan2(st.y1 - st.y2, st.x2 - st.x1) * 180) / Math.PI).toBeCloseTo(25, 1)
+    const touching = makeRow(3, { joined: 'touching' })
+    expect(touching.strings).toHaveLength(0)
+    const [a, b] = touching.objects
+    expect(onSlope(touching, b.at).d - b.width / 2).toBeCloseTo(onSlope(touching, a.at).d + a.width / 2, 1)
+  })
+
+  test("the row's middle follows Where on the ramp", () => {
+    expect(onSlope(makeRow(2, { position: 0.8 }), makeRow(2, { position: 0.8 }).objects[0].at).d).toBeGreaterThan(
+      onSlope(makeRow(2, { position: 0.3 }), makeRow(2, { position: 0.3 }).objects[0].at).d,
+    )
+  })
+
+  test('gravity, the normal force and friction on every object, numbered', () => {
+    const f = makeRow(3, everything)
+    expect(labels(f, 'gravity')).toEqual(['F_{g1}', 'F_{g2}', 'F_{g3}'])
+    expect(labels(f, 'normal')).toEqual(['F_{N1}', 'F_{N2}', 'F_{N3}'])
+    expect(labels(f, 'friction')).toEqual(['F_{f1}', 'F_{f2}', 'F_{f3}'])
+    // and one object keeps its labels as they are
+    expect(labels(make({ ...everything }), 'gravity')).toEqual(['F_g'])
+  })
+
+  test('tension at both ends of each string, numbered when there are two', () => {
+    expect(labels(makeRow(2, { tension: true }), 'tension')).toEqual(['T', 'T'])
+    expect(labels(makeRow(3, { tension: true }), 'tension')).toEqual(['T_1', 'T_1', 'T_2', 'T_2'])
+    expect(labels(makeRow(3, { tension: true, joined: 'touching' }), 'tension')).toEqual([])
+    expect(labels(make({ tension: true }), 'tension')).toEqual([])
+    // each pulls its object toward the other
+    const f = makeRow(2, { tension: true, angle: 30 })
+    const [onLower, onUpper] = f.vectors.filter((v) => v.kind === 'tension')
+    expect(onLower.v.y2).toBeLessThan(onLower.v.y1) // up the slope
+    expect(onUpper.v.y2).toBeGreaterThan(onUpper.v.y1) // down it
+  })
+
+  test('contact forces only when touching: a pair at each face, one labeled', () => {
+    expect(labels(makeRow(2, { contact: true }), 'contact')).toEqual([])
+    const f = makeRow(3, { contact: true, joined: 'touching', angle: 30 })
+    expect(f.vectors.filter((v) => v.kind === 'contact').map((v) => v.label.mode === 'none' ? '' : v.label.text)).toEqual(['P_1', '', 'P_2', ''])
+    const [up, down] = f.vectors.filter((v) => v.kind === 'contact')
+    expect(up.v.x1).toBe(down.v.x1)
+    expect(up.v.y2).toBeLessThan(up.v.y1) // pushing the upper one up the slope
+    expect(down.v.y2).toBeGreaterThan(down.v.y1) // and the lower one down it
+  })
+
+  test('the applied force pulls the one in front of a tied row, and pushes the one at the back of a touching row', () => {
+    const tied = makeRow(3, { applied: 'up', angle: 30 })
+    const pull = tied.vectors.find((v) => v.kind === 'applied')!.v
+    expect(onSlope(tied, { x: pull.x1, y: pull.y1 }).d).toBeGreaterThan(onSlope(tied, tied.objects[2].at).d)
+    expect(pull.y2).toBeLessThan(pull.y1)
+    const touching = makeRow(3, { applied: 'up', angle: 30, joined: 'touching' })
+    const push = touching.vectors.find((v) => v.kind === 'applied')!.v
+    const back = touching.objects[0]
+    // its tip at the lowest object's lower face
+    expect(onSlope(touching, { x: push.x2, y: push.y2 }).d).toBeCloseTo(onSlope(touching, back.at).d - back.width / 2, 0)
+    expect(push.y2).toBeLessThan(push.y1)
+  })
+
+  test('touching, the row moves as one: one velocity and one acceleration, over the one in front', () => {
+    const f = makeRow(3, { joined: 'touching', velocity: 'up', acceleration: 'down' })
+    const [v] = f.vectors.filter((x) => x.kind === 'velocity')
+    const [a] = f.vectors.filter((x) => x.kind === 'acceleration')
+    expect(f.vectors.filter((x) => x.kind === 'velocity')).toHaveLength(1)
+    expect(onSlope(f, { x: v.v.x1, y: v.v.y1 }).d).toBeGreaterThan(onSlope(f, f.objects[2].at).d)
+    expect(onSlope(f, { x: a.v.x1, y: a.v.y1 }).d).toBeLessThan(onSlope(f, f.objects[0].at).d)
+    expect(makeRow(3, { velocity: 'up' }).vectors.filter((x) => x.kind === 'velocity')).toHaveLength(3)
+  })
+
+  test('everything fits, steep or shallow, tied or touching, every vector and mark on', () => {
+    for (const angle of [5, 15, 30, 45, 60]) {
+      for (const joined of ['string', 'touching'] as const) {
+        for (const sizes of [[1, 1, 1], [2, 2, 2]]) {
+          for (const position of [0.2, 0.85]) {
+            const f = makeRow(3, { ...everything, angle, joined, position, lengthMark: true, heightMark: true }, ['cart', 'block', 'ball'], sizes)
+            for (const p of f.extent) {
+              expect(p.x).toBeGreaterThanOrEqual(0)
+              expect(p.x).toBeLessThanOrEqual(f.width)
+              expect(p.y).toBeGreaterThanOrEqual(0)
+              expect(p.y).toBeLessThanOrEqual(f.height)
+            }
+          }
+        }
+      }
+    }
+  })
+
+  test('a row too long to fit makes the figure bigger, not the row shorter', () => {
+    const f = makeRow(3, { angle: 60 }, ['cart', 'cart', 'cart'], [2, 2, 2])
+    expect(Math.max(f.width - 640, f.height - 400)).toBeGreaterThan(0)
+  })
+})
+
 describe('links and presets from before the objects were a list', () => {
   test('an old link still loads', () => {
     const s = inclineSettings.fromParams(new URLSearchParams('object=ball&objectLabel=5 kg&objectSize=1.5&angle=40'))
