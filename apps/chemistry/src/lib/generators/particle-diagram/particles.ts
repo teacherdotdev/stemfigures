@@ -73,8 +73,11 @@ const DIRECTIONS: Record<Shape, number[]> = {
 }
 
 export interface ParticleKind {
-  /** how many are drawn in the box */
+  /** how many are drawn in the box, or the before box */
   count: number
+  /** how many are drawn in the after box of a before-and-after figure; kept
+   *  only once set, and the same as count until then */
+  after?: number
   shape: Shape
   /** the center disc, or the only one when the shape is alone */
   look: Look
@@ -89,6 +92,9 @@ export const MAX_COUNT = 60
 export const MAX_NAME = 40
 
 const isJoined = (kind: ParticleKind) => kind.shape !== 'single'
+
+/** How many of a kind the after box has. */
+export const afterCount = (kind: ParticleKind) => kind.after ?? kind.count
 
 /** "Atom" or "Ion" for a lone kind, "Molecule" or "Ion cluster" for a joined
  *  one, from whether any of its drawn discs carry a charge. */
@@ -139,11 +145,14 @@ export function tidyLook(v: unknown, fallback: Look = PLAIN): Look {
   }
 }
 
+const countOf = (n: number) => Math.min(MAX_COUNT, Math.max(0, Math.round(n)))
+
 export function tidyKind(v: unknown): ParticleKind | undefined {
   if (!isObject(v)) return undefined
-  const count = typeof v.count === 'number' && Number.isFinite(v.count) ? Math.round(v.count) : 1
   const kind: ParticleKind = {
-    count: Math.min(MAX_COUNT, Math.max(0, count)),
+    count: typeof v.count === 'number' && Number.isFinite(v.count) ? countOf(v.count) : 1,
+    // kinds from before the after box have no after count
+    ...(typeof v.after === 'number' && Number.isFinite(v.after) ? { after: countOf(v.after) } : {}),
     // kinds from before molecules had no shape or outer look: they stay alone
     shape: oneOf(SHAPES, v.shape, 'single'),
     look: tidyLook(v.look),
@@ -159,6 +168,50 @@ export function tidyKinds(v: unknown): ParticleKind[] | undefined {
   if (!Array.isArray(v)) return undefined
   const kinds = v.map(tidyKind).filter((k): k is ParticleKind => !!k)
   return kinds.length ? kinds.slice(0, MAX_KINDS) : undefined
+}
+
+// A key of each atom -------------------------------------------------------
+
+/** What a key that lists each atom calls one of them. It goes with the look,
+ *  since that is what makes two kinds' atoms the same atom. */
+export interface AtomName {
+  look: Look
+  name: string
+}
+
+/** The most different atoms the kinds can have between them: a center and
+ *  an outer look each. */
+export const MAX_ATOMS = 2 * MAX_KINDS
+
+export const sameLook = (a: Look, b: Look) => a.size === b.size && a.shade === b.shade && a.charge === b.charge
+
+/** Valid atom names, one per look, or undefined when `v` isn't a list. */
+export function tidyAtomNames(v: unknown): AtomName[] | undefined {
+  if (!Array.isArray(v)) return undefined
+  const names: AtomName[] = []
+  for (const item of v) {
+    if (!isObject(item) || !isObject(item.look) || typeof item.name !== 'string' || !item.name.trim()) continue
+    const look = tidyLook(item.look)
+    if (!names.some((n) => sameLook(n.look, look))) names.push({ look, name: item.name.slice(0, MAX_NAME) })
+  }
+  return names.slice(0, MAX_ATOMS)
+}
+
+/** Every different atom or ion the kinds are made of, as lone kinds for a key
+ *  that lists each atom: in the order they first appear (a kind's center
+ *  before its outer discs), each named from `names`. An atom in two kinds is
+ *  listed once, and so is a kind with a count of 0. */
+export function atomKinds(kinds: ParticleKind[], names: AtomName[]): ParticleKind[] {
+  const looks: Look[] = []
+  for (const kind of kinds) {
+    for (const look of isJoined(kind) ? [kind.look, kind.outer] : [kind.look]) {
+      if (!looks.some((l) => sameLook(l, look))) looks.push(look)
+    }
+  }
+  return looks.map((look) => {
+    const name = names.find((n) => sameLook(n.look, look))?.name
+    return { count: 0, shape: 'single', look: { ...look }, outer: { ...DEFAULT_OUTER }, ...(name ? { name } : {}) }
+  })
 }
 
 // Drawing ------------------------------------------------------------------
@@ -198,4 +251,14 @@ export function particleDiscs(kind: ParticleKind, angle = 0): Disc[] {
     return { ...kind.outer, x: distance * Math.cos(a), y: distance * Math.sin(a), r: RADIUS[kind.outer.size] }
   })
   return [...outer, center]
+}
+
+/** How far a drawing's discs reach in each direction. */
+export function discBounds(discs: Disc[]) {
+  return {
+    left: Math.min(...discs.map((d) => d.x - d.r)),
+    right: Math.max(...discs.map((d) => d.x + d.r)),
+    top: Math.min(...discs.map((d) => d.y - d.r)),
+    bottom: Math.max(...discs.map((d) => d.y + d.r)),
+  }
 }
