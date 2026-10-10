@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { figureLayout, keyLayout } from './key'
-import { boxContents, keyKinds, particleSettings } from './settings'
+import { boxContents, boxesSize, keyKinds, particleSettings } from './settings'
 import old from './old-addresses.json'
 
 describe('an address from before these settings', () => {
@@ -22,7 +22,7 @@ describe('an address from before these settings', () => {
       // each name and the note is still one piece, as before subscripts
       for (const line of k.lines) expect(line.spans.length).toBeLessThanOrEqual(1)
       expect(k.note?.spans.length ?? 1).toBe(1)
-      expect(figureLayout(s.show, k, drawn)).toEqual(figure)
+      expect(figureLayout(s.show, k, boxesSize(drawn))).toEqual(figure)
     })
   }
 })

@@ -18,6 +18,7 @@
     MAX_COUNT,
     MAX_KINDS,
     MAX_NAME,
+    afterCount,
     atomKinds,
     describeKind,
     describeLook,
@@ -28,6 +29,7 @@
   } from './particles'
   import {
     BORDERS,
+    BOXES,
     KEY_LISTS,
     LAYOUTS,
     MAX_LATTICE,
@@ -37,6 +39,7 @@
     newSeed,
     particleSettings,
     type Border,
+    type Boxes,
     type KeyList,
     type Layout,
     type Show,
@@ -47,6 +50,7 @@
   let svg = $state<SVGSVGElement>()
 
   const LAYOUT_NAMES: Record<Layout, string> = { scattered: 'In a box', lattice: 'Lattice' }
+  const BOXES_NAMES: Record<Boxes, string> = { one: 'One box', two: 'Before and after' }
   const STATE_NAMES: Record<State, string> = { gas: 'Gas', liquid: 'Liquid', solid: 'Solid' }
   const STATE_NOTES: Record<State, string> = {
     gas: 'Spread out at random, for a gas or the particles in a solution.',
@@ -80,6 +84,11 @@
 
   const box = $derived(boxContents(s))
   const lattice = $derived(s.layout === 'lattice')
+  const two = $derived(s.boxes === 'two')
+  const stateWord = (st: State) => STATE_NAMES[st].toLowerCase()
+  const layoutSummary = $derived(
+    lattice ? LAYOUT_NAMES[s.layout] : two ? `Before and after, ${stateWord(s.state)} to ${stateWord(s.afterState)}` : `${LAYOUT_NAMES[s.layout]}, ${stateWord(s.state)}`,
+  )
   const counted = $derived(s.pattern === 'substitute' || s.pattern === 'interstitial')
   const particlesSummary = $derived(s.particles.map(describeKind).join(', '))
   const atoms = $derived(atomKinds(s.particles, s.atomNames))
@@ -138,9 +147,25 @@
   <button type="button" class="btn-ghost small" onclick={() => (s.seed = newSeed())}><Dices size={17} aria-hidden="true" /> Shuffle</button>
 {/snippet}
 
+{#snippet stateChoice(label: string, value: State, set: (st: State) => void)}
+  <div class="segmented" role="radiogroup" aria-label={label}>
+    {#each STATES as st (st)}
+      <button type="button" role="radio" aria-checked={value === st} class:on={value === st} onclick={() => set(st)}>
+        {STATE_NAMES[st]}
+      </button>
+    {/each}
+  </div>
+{/snippet}
+
+{#snippet missing(n: number, where: string)}
+  <p class="warning" role="status">
+    {n} particle{n === 1 ? ' doesn’t' : 's don’t'} fit in {where}. Try smaller atoms or fewer particles.
+  </p>
+{/snippet}
+
 <GeneratorPage name="Particle Diagram" filename="particle-diagram" settingsWidth={27} {gen} {svg}>
   {#snippet settings()}
-    <Section title="Layout" summary={lattice ? LAYOUT_NAMES[s.layout] : `${LAYOUT_NAMES[s.layout]}, ${STATE_NAMES[s.state].toLowerCase()}`} icon={LayoutGrid} open>
+    <Section title="Layout" summary={layoutSummary} icon={LayoutGrid} open>
       <div class="segmented" role="radiogroup" aria-label="Layout">
         {#each LAYOUTS as layout (layout)}
           <button type="button" role="radio" aria-checked={s.layout === layout} class:on={s.layout === layout} onclick={() => (s.layout = layout)}>
@@ -151,15 +176,25 @@
       {#if lattice}
         <p class="note">Atoms or ions packed in a grid, for a solid.</p>
       {:else}
-        <p class="field-label spaced">State</p>
-        <div class="segmented" role="radiogroup" aria-label="State">
-          {#each STATES as state (state)}
-            <button type="button" role="radio" aria-checked={s.state === state} class:on={s.state === state} onclick={() => (s.state = state)}>
-              {STATE_NAMES[state]}
+        <p class="field-label spaced">Boxes</p>
+        <div class="segmented" role="radiogroup" aria-label="Boxes">
+          {#each BOXES as boxes (boxes)}
+            <button type="button" role="radio" aria-checked={s.boxes === boxes} class:on={s.boxes === boxes} onclick={() => (s.boxes = boxes)}>
+              {BOXES_NAMES[boxes]}
             </button>
           {/each}
         </div>
-        <p class="note">{STATE_NOTES[s.state]}</p>
+        {#if two}
+          <p class="note">The same kinds of particle in both, each with a count before and after, for a reaction or a change of state.</p>
+          <p class="field-label spaced">Before</p>
+          {@render stateChoice('Before state', s.state, (st) => (s.state = st))}
+          <p class="field-label spaced">After</p>
+          {@render stateChoice('After state', s.afterState, (st) => (s.afterState = st))}
+        {:else}
+          <p class="field-label spaced">State</p>
+          {@render stateChoice('State', s.state, (st) => (s.state = st))}
+          <p class="note">{STATE_NOTES[s.state]}</p>
+        {/if}
       {/if}
     </Section>
     {#if lattice}
@@ -207,17 +242,22 @@
           <div class="kind">
             <div class="kind-head">
               <strong>{name}</strong>
-              <label class="number">
-                <span>How many</span>
-                <input
-                  type="number"
-                  min="0"
-                  max={MAX_COUNT}
-                  value={kind.count}
-                  oninput={(e) => setCount(kind, e.currentTarget.valueAsNumber)}
-                  onchange={(e) => (e.currentTarget.value = String(kind.count))}
-                />
-              </label>
+              {#if two}
+                {@render numberField('Before', kind.count, 0, MAX_COUNT, (v) => (kind.count = v))}
+                {@render numberField('After', afterCount(kind), 0, MAX_COUNT, (v) => (kind.after = v))}
+              {:else}
+                <label class="number">
+                  <span>How many</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max={MAX_COUNT}
+                    value={kind.count}
+                    oninput={(e) => setCount(kind, e.currentTarget.valueAsNumber)}
+                    onchange={(e) => (e.currentTarget.value = String(kind.count))}
+                  />
+                </label>
+              {/if}
               {#if s.particles.length > 1}
                 <button type="button" class="icon-btn" aria-label="Remove {name}" data-tip="Remove" onclick={() => s.particles.splice(i, 1)}>
                   <Trash2 size={17} />
@@ -241,10 +281,9 @@
           {/if}
           {@render shuffle()}
         </div>
-        {#if box.missing && s.show !== 'key'}
-          <p class="warning" role="status">
-            {box.missing} particle{box.missing === 1 ? ' doesn’t' : 's don’t'} fit in the box. Try smaller atoms or fewer particles.
-          </p>
+        {#if s.show !== 'key'}
+          {#if box.missing}{@render missing(box.missing, box.after ? 'the before box' : 'the box')}{/if}
+          {#if box.after?.missing}{@render missing(box.after.missing, 'the after box')}{/if}
         {/if}
       </Section>
     {/if}

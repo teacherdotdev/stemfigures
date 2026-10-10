@@ -73,8 +73,11 @@ const DIRECTIONS: Record<Shape, number[]> = {
 }
 
 export interface ParticleKind {
-  /** how many are drawn in the box */
+  /** how many are drawn in the box, or the before box */
   count: number
+  /** how many are drawn in the after box of a before-and-after figure; kept
+   *  only once set, and the same as count until then */
+  after?: number
   shape: Shape
   /** the center disc, or the only one when the shape is alone */
   look: Look
@@ -89,6 +92,9 @@ export const MAX_COUNT = 60
 export const MAX_NAME = 40
 
 const isJoined = (kind: ParticleKind) => kind.shape !== 'single'
+
+/** How many of a kind the after box has. */
+export const afterCount = (kind: ParticleKind) => kind.after ?? kind.count
 
 /** "Atom" or "Ion" for a lone kind, "Molecule" or "Ion cluster" for a joined
  *  one, from whether any of its drawn discs carry a charge. */
@@ -139,11 +145,14 @@ export function tidyLook(v: unknown, fallback: Look = PLAIN): Look {
   }
 }
 
+const countOf = (n: number) => Math.min(MAX_COUNT, Math.max(0, Math.round(n)))
+
 export function tidyKind(v: unknown): ParticleKind | undefined {
   if (!isObject(v)) return undefined
-  const count = typeof v.count === 'number' && Number.isFinite(v.count) ? Math.round(v.count) : 1
   const kind: ParticleKind = {
-    count: Math.min(MAX_COUNT, Math.max(0, count)),
+    count: typeof v.count === 'number' && Number.isFinite(v.count) ? countOf(v.count) : 1,
+    // kinds from before the after box have no after count
+    ...(typeof v.after === 'number' && Number.isFinite(v.after) ? { after: countOf(v.after) } : {}),
     // kinds from before molecules had no shape or outer look: they stay alone
     shape: oneOf(SHAPES, v.shape, 'single'),
     look: tidyLook(v.look),

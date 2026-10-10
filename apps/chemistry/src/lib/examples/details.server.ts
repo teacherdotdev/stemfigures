@@ -20,7 +20,7 @@ import { massSettings, answerLine as massAnswer } from '$lib/generators/mass-rea
 import { answerLines as orbitalAnswer, orbitalSettings } from '$lib/generators/orbital-diagram/settings'
 import { keyLabel } from '$lib/generators/particle-diagram/key'
 import { plainText } from '$lib/generators/particle-diagram/keyText'
-import { describeKind } from '$lib/generators/particle-diagram/particles'
+import { afterCount, describeKind, describeParticle } from '$lib/generators/particle-diagram/particles'
 import { boxContents, keyKinds, particleSettings } from '$lib/generators/particle-diagram/settings'
 import { answerLines as pesAnswer, pesSettings } from '$lib/generators/photoelectron-spectrum/settings'
 import { energyText, peaksOf } from '$lib/generators/photoelectron-spectrum/spectrum'
@@ -99,8 +99,10 @@ function bohrAnswer(s: SettingsById['bohr-model']): ExampleDetails['answer'] {
 
 function particleAnswer(s: SettingsById['particle-diagram']): ExampleDetails['answer'] {
   const box = boxContents(s)
-  if (box.missing) throw new Error(`${box.missing} particles don't fit in the particle diagram example`)
-  const lines = box.kinds.map((k) => `${describeKind(k)}${k.name ? `: ${plainText(k.name)}` : ''}`)
+  if (box.missing || box.after?.missing) throw new Error(`Particles don't fit in the particle diagram example`)
+  const lines = box.after
+    ? box.kinds.map((k) => `${k.name ? `${plainText(k.name)}, ` : ''}${describeParticle(k)}: ${k.count} before, ${afterCount(k)} after`)
+    : box.kinds.map((k) => `${describeKind(k)}${k.name ? `: ${plainText(k.name)}` : ''}`)
   if (s.layout === 'scattered' && s.keyList === 'atoms') lines.push(keyLabel(keyKinds(s, box), ''))
   return { heading: 'What’s in the box', lines }
 }

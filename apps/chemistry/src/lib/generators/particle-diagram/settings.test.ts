@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { RADIUS } from './particles'
-import { BOX_SIDE, boxContents, keyKinds, particleSettings } from './settings'
+import { figureLayout, keyLayout } from './key'
+import { ARROW_GAP, BOX_SIDE, boxContents, boxesSize, keyKinds, particleSettings } from './settings'
 
 describe('key settings in the address', () => {
   it('are left out of the address at their defaults', () => {
@@ -137,5 +138,72 @@ describe('a key that lists each atom', () => {
 
   it('travels in the address', () => {
     expect(particleSettings.fromParams(new URLSearchParams(particleSettings.toQuery(s)))).toEqual(s)
+  })
+})
+
+describe('before and after boxes', () => {
+  const d = particleSettings.defaults
+  const white = { size: 's', shade: 'white', charge: '' } as const
+  const gray = { size: 'm', shade: 'gray', charge: '' } as const
+  // 2 H₂ + O₂ → 2 H₂O, with an O₂ left over
+  const particles = [
+    { count: 4, after: 0, shape: 'pair', look: white, outer: white },
+    { count: 3, after: 1, shape: 'pair', look: gray, outer: gray },
+    { count: 0, after: 4, shape: 'bent', look: gray, outer: white },
+  ] as const
+  const s = { ...d, boxes: 'two' as const, particles: particles.map((k) => ({ ...k })), show: 'both' as const }
+
+  it('draws each kind’s before count in the first box and its after count in the second', () => {
+    const box = boxContents(s)
+    expect(box.discs).toHaveLength(4 * 2 + 3 * 2)
+    expect(box.after!.discs).toHaveLength(1 * 2 + 4 * 3)
+    expect(box.after!.kinds.map((k) => k.count)).toEqual([0, 1, 4])
+    expect([box.missing, box.after!.missing]).toEqual([0, 0])
+  })
+
+  it('keeps both boxes the fixed square, with the arrow’s gap between', () => {
+    const box = boxContents(s)
+    expect([box.width, box.height]).toEqual([BOX_SIDE, BOX_SIDE])
+    expect(boxesSize(box)).toEqual({ width: 2 * BOX_SIDE + ARROW_GAP, height: BOX_SIDE })
+    expect(boxesSize(boxContents(d))).toEqual({ width: BOX_SIDE, height: BOX_SIDE })
+    for (const disc of box.after!.discs) {
+      expect(disc.x - disc.r).toBeGreaterThan(0)
+      expect(disc.x + disc.r).toBeLessThan(BOX_SIDE)
+    }
+  })
+
+  it('puts one key for both to the right of the after box', () => {
+    const box = boxContents(s)
+    const key = keyLayout(keyKinds(s, box), '')
+    expect(key.lines).toHaveLength(3)
+    expect(figureLayout('both', key, boxesSize(box)).key!.x).toBeGreaterThan(2 * BOX_SIDE + ARROW_GAP)
+  })
+
+  it('arranges the after box on its own, in its own state', () => {
+    const same = { ...s, particles: s.particles.map((k) => ({ ...k, after: k.count })) }
+    expect(boxContents(same).after!.discs).not.toEqual(boxContents(same).discs)
+    const frozen = boxContents({ ...s, afterState: 'solid' })
+    expect(frozen.discs).toEqual(boxContents(s).discs)
+    expect(frozen.after!.discs).not.toEqual(boxContents(s).after!.discs)
+  })
+
+  it('has as many after as before until an after count is set, for a change of state', () => {
+    const change = { ...d, boxes: 'two' as const, afterState: 'solid' as const }
+    expect(boxContents(change).after!.discs).toHaveLength(boxContents(change).discs.length)
+  })
+
+  it('counts what doesn’t fit in the after box', () => {
+    const crowd = { ...s, particles: [{ ...s.particles[0], after: 60, look: { ...white, size: 'xl' as const }, outer: { ...white, size: 'xl' as const } }] }
+    expect(boxContents(crowd).after!.missing).toBeGreaterThan(0)
+  })
+
+  it('doesn’t apply to a lattice', () => {
+    expect(boxContents({ ...s, layout: 'lattice' }).after).toBeUndefined()
+  })
+
+  it('travel in the address, and an address without them is one box', () => {
+    const t = { ...s, afterState: 'liquid' as const }
+    expect(particleSettings.fromParams(new URLSearchParams(particleSettings.toQuery(t)))).toEqual(t)
+    expect(boxContents(particleSettings.fromParams(new URLSearchParams('seed=5'))).after).toBeUndefined()
   })
 })

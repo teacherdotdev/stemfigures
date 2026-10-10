@@ -160,7 +160,7 @@ Ions joined together, drawn like a molecule but named honestly, e.g. an Na⁺Cl�
 _Avoid_: Molecule (for joined ions), formula unit
 
 **Layout**:
-How a particle diagram's particles are arranged: in the box, as its state says, or in a lattice.
+How a particle diagram's particles are arranged: in the box, as its state says, in a before box and an after box, or in a lattice.
 _Avoid_: Arrangement, mode
 
 **State**:
@@ -172,8 +172,12 @@ A square grid of touching or evenly spaced atoms or ions, drawn for a solid, in 
 _Avoid_: Grid, crystal (fine in search keywords), array
 
 **Box**:
-The container a particle diagram is drawn in, with a single, double or no border. For particles, in any state, it is always the same square, never sized to the particles, so answer choices made one at a time line up; atom size is what sets how crowded it looks, and particles that don't fit are left out and the settings say so. Around a lattice it just fits the lattice, and has no border unless the teacher adds one. A figure is one box, with an optional chart title but no caption, choice letter or answer key.
+The container a particle diagram is drawn in, with a single, double or no border. For particles, in any state, it is always the same square, never sized to the particles, so answer choices made one at a time line up; atom size is what sets how crowded it looks, and particles that don't fit are left out and the settings say so. Around a lattice it just fits the lattice, and has no border unless the teacher adds one. A figure is one box, or a before box and an after box, with an optional chart title but no caption, choice letter or answer key.
 _Avoid_: Container, vessel, frame
+
+**Before box** / **After box**:
+The two boxes of a before-and-after figure, side by side with an arrow from the first to the second, for a reaction or a change of state. Both hold the same particle kinds, each with a before count and an after count (the same as the before count until the teacher sets one), and share one key; each has its own state and its own arrangement from the seed. Both are the fixed square, so they line up with one-box figures.
+_Avoid_: Reactants box, products box, start/end
 
 **Key**:
 An optional list beside the box: each particle kind drawn exactly as in the box with a name the teacher types ("Any positive ion", "CCl₄ molecule"), and an optional note line ("H₂O molecules are not shown"). A kind with a count of 0 appears only in the key. For particles in a box it can list each atom instead: every different atom or ion in the kinds drawn alone once, with its own name, so students write the formulas (an atom's look is what makes it the same atom in two kinds). Names and the note can have subscripts and superscripts, typed H_2O and SO_4^{2-}. The figure can show the box and key, the box only, or the key only, so four answer choices made one at a time can share one key.

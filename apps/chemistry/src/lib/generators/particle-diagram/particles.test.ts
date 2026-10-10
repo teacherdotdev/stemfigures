@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   RADIUS,
+  afterCount,
   atomKinds,
   chargeText,
   describeKind,
@@ -49,6 +50,16 @@ describe('particle kinds from the address or storage', () => {
   it('keeps a key name, clipped to 40 characters', () => {
     expect(tidyKinds([{ ...ion, name: 'Any negative ion' }])![0].name).toBe('Any negative ion')
     expect(tidyKinds([{ ...ion, name: 'x'.repeat(50) }])![0].name).toBe('x'.repeat(40))
+  })
+
+  it('keeps an after count only once one is given, rounded and limited like a count', () => {
+    expect(tidyKinds([ion])![0]).not.toHaveProperty('after')
+    expect(tidyKinds([{ ...ion, after: 'x' }])![0]).not.toHaveProperty('after')
+    expect(tidyKinds([{ ...ion, after: 2.4 }])![0].after).toBe(2)
+    expect(tidyKinds([{ ...ion, after: 90 }])![0].after).toBe(60)
+    expect(tidyKinds([{ ...ion, after: 0 }])![0].after).toBe(0)
+    expect(afterCount(ion)).toBe(4)
+    expect(afterCount({ ...ion, after: 0 })).toBe(0)
   })
 
   it('leaves out an empty or unusable key name, so kinds without one are unchanged', () => {

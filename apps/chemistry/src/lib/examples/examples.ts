@@ -411,6 +411,22 @@ export const EXAMPLES: Example[] = [
       },
     },
     {
+      slug: 'particle-diagram-before-and-after-reaction-hydrogen-and-oxygen',
+      title: 'Particle diagram before and after a reaction (hydrogen and oxygen)',
+      alt: 'Two boxes with an arrow between: before, pairs of small white atoms and pairs of gray atoms; after, bent molecules of one gray and two white atoms and one pair of gray atoms left over, with a key naming H₂, O₂ and H₂O',
+      caption:
+        'Two boxes joined by an arrow show a reaction at the particle level. Before: four H₂ molecules (pairs of small white atoms) and three O₂ molecules (pairs of gray atoms). After: four H₂O molecules and one O₂ molecule left over. Every atom before is still there after, so mass is conserved, and O₂ is in excess: H₂ is the limiting reactant.',
+      settings: {
+        seed: 3, boxes: 'two',
+        particles: [
+          { count: 4, after: 0, shape: 'pair', look: { size: 's', shade: 'white', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H_2 molecule' },
+          { count: 3, after: 1, shape: 'pair', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 'm', shade: 'gray', charge: '' }, name: 'O_2 molecule' },
+          { count: 0, after: 4, shape: 'bent', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H_2O molecule' },
+        ],
+        show: 'both',
+      },
+    },
+    {
       slug: 'particle-diagram-key-of-each-atom-water-and-carbon-dioxide',
       title: 'Particle diagram with a key of each atom (H₂O and CO₂)',
       alt: 'A box of bent molecules of one gray and two white atoms and linear molecules of one black and two gray atoms, with a key listing a gray O atom, a white H atom and a black C atom',

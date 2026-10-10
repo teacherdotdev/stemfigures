@@ -14,7 +14,7 @@ export const particleLinking = describeLinking(particleSettings, {
   summary:
     'Atoms, ions and molecules drawn as plain discs, either in a fixed square box as a gas, liquid or solid (layout=scattered, from the particles list and state) or packed in a lattice (layout=lattice, from main and second). An optional key beside the box names each kind.',
   notes: [
-    `particles is a URL-encoded JSON array of 1 to ${MAX_KINDS} particle kinds, each {"count":0–${MAX_COUNT},"shape":…,"look":LOOK,"outer":LOOK,"name":"…"}. shape is one of ${SHAPE_WORDS}; look is the center (or only) disc and outer every disc around it. A look is ${LOOK}. A missing count is 1, a missing look is medium white with no charge, a missing outer is small white with no charge, and name (up to ${MAX_NAME} characters) is what the key calls the kind. A kind with count 0 appears only in the key. Particles that don’t fit in the box are left out.`,
+    `particles is a URL-encoded JSON array of 1 to ${MAX_KINDS} particle kinds, each {"count":0–${MAX_COUNT},"after":0–${MAX_COUNT},"shape":…,"look":LOOK,"outer":LOOK,"name":"…"}. shape is one of ${SHAPE_WORDS}; look is the center (or only) disc and outer every disc around it. A look is ${LOOK}. after is how many the after box has when boxes=two (missing, it is the same as count). A missing count is 1, a missing look is medium white with no charge, a missing outer is small white with no charge, and name (up to ${MAX_NAME} characters) is what the key calls the kind. A kind with count 0 appears only in the key. Particles that don’t fit in the box are left out.`,
     'Key names (name, mainName, secondName, atomNames) and keyNote can have subscripts and superscripts: _ before a subscript and ^ before a superscript, with braces around more than one character, so H_2O is H₂O and SO_4^{2-} is SO₄²⁻ (a hyphen in a superscript is drawn as a minus sign).',
     'seed picks the random positions (and, in a lattice, which sites get the second kind); the same seed always gives the same figure.',
     `In a lattice, pattern=pure uses main only; alternate alternates main and second like an ionic solid; substitute swaps secondCount sites for second (room for rows × columns); interstitial puts secondCount second atoms in the gaps between four (room for (rows − 1) × (columns − 1), e.g. ${latticeRoom({ pattern: 'interstitial', rows: 4, columns: 5 })} in a 4 × 5 lattice).`,
@@ -28,6 +28,12 @@ export const particleLinking = describeLinking(particleSettings, {
       when: 'layout=scattered',
       values: 'gas: spread out at random, also for a solution; liquid: close together but jumbled, settled at the bottom; solid: in rows from the bottom up, all turned the same way',
     },
+    boxes: {
+      what: 'One box, or a before box and an after box with an arrow between, both the fixed square and sharing one key.',
+      when: 'layout=scattered',
+      values: 'one: one box; two: before and after, for a reaction or a change of state, each kind drawn count times before and after times after',
+    },
+    afterState: { what: 'How the particles sit in the after box, with the same values as state.', when: 'boxes=two' },
     particles: { what: 'The particle kinds in the box, as JSON (see notes).', when: 'layout=scattered' },
     seed: { what: 'Which random arrangement is drawn. Rounded to a whole number.' },
     border: { what: 'The box’s border.', when: 'layout=scattered' },
@@ -49,11 +55,13 @@ export const particleLinking = describeLinking(particleSettings, {
   },
   examples: [
     {
-      shows: 'A gas mixture: 5 diatomic molecules of dark gray atoms and 4 large white atoms, scattered in a box with a key naming them.',
+      shows: 'A reaction before and after: 4 H₂ and 3 O₂ molecules become 4 H₂O molecules with 1 O₂ left over, with one key for both boxes.',
       settings: {
+        boxes: 'two',
         particles: [
-          { count: 5, shape: 'pair', look: { size: 'm', shade: 'dark', charge: '' }, outer: { size: 'm', shade: 'dark', charge: '' }, name: 'Cl₂ molecule' },
-          { count: 4, shape: 'single', look: { size: 'l', shade: 'white', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'Ar atom' },
+          { count: 4, after: 0, shape: 'pair', look: { size: 's', shade: 'white', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H_2 molecule' },
+          { count: 3, after: 1, shape: 'pair', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 'm', shade: 'gray', charge: '' }, name: 'O_2 molecule' },
+          { count: 0, after: 4, shape: 'bent', look: { size: 'm', shade: 'gray', charge: '' }, outer: { size: 's', shade: 'white', charge: '' }, name: 'H_2O molecule' },
         ],
         show: 'both',
       },
