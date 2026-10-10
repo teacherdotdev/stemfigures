@@ -199,6 +199,14 @@ export const EXAMPLES: Example[] = [
         'A block labeled m pushed up a rough ramp at 30°, its angle marked θ. The applied force F_A points up the slope and friction F_f points down it, opposing the motion; gravity F_g points straight down and the normal force F_N out of the slope. A dashed velocity arrow v points up the slope.',
       settings: { surface: 'rough', gravity: true, normal: true, friction: 'down', applied: 'up', velocity: 'up' },
     },
+    {
+      slug: 'two-blocks-tied-by-a-string-pulled-up-an-incline',
+      title: 'Two blocks tied by a string, pulled up an incline',
+      alt: 'Blocks m_1 and m_2 on a ramp at θ, tied by a string, with F_A pulling m_2 up the slope, tension T at both ends of the string, F_g1 and F_g2 down and F_N1 and F_N2 out of the slope',
+      caption:
+        'Two blocks on a smooth ramp at 30°, its angle marked θ: m_1 lower down and m_2 above it, tied together by a string parallel to the slope. An applied force F_A pulls m_2 up the slope, and tension T is drawn at both ends of the string, pulling each block toward the other. Each block has its own weight, F_g1 and F_g2, straight down, and its own normal force, F_N1 and F_N2, out of the slope.',
+      settings: { objects: [onRamp('m_1'), onRamp('m_2')], tension: true, gravity: true, normal: true, applied: 'up' },
+    },
   ]),
 
   ...examplesOf('pulley', [
@@ -241,6 +249,14 @@ export const EXAMPLES: Example[] = [
       caption:
         'A cart on a smooth table, tied by a string over a pulley at the table’s edge to a block hanging below. Both have a blank line in place of a label, so you can write in the masses for your problem. No forces are drawn.',
       settings: { setup: 'table', objects: [mass(1, { kind: 'cart', label: blank('m_1') }), mass(2, { label: blank('m_2') })] },
+    },
+    {
+      slug: 'atwood-machine-with-three-masses',
+      title: 'Atwood machine with three masses',
+      alt: 'An Atwood machine with m_1 on the left, m_2 on the right and m_3 hanging below m_2 on a second string, with tensions T_1 and T_2, weights m_1 g, m_2 g and m_3 g, and dashed acceleration arrows a',
+      caption:
+        'Blocks m_1 and m_2 hang from one string over a fixed pulley, and a third block, m_3, hangs below m_2 on a second string. Tension T_1 is drawn at both ends of the first string and T_2 at both ends of the second, and the weights m_1 g, m_2 g and m_3 g point straight down. Dashed acceleration arrows a point up beside m_1 and down beside m_2 and m_3.',
+      settings: { objects: [mass(1), mass(2), mass(3)], tension: true, gravity: true, acceleration: 'forward' },
     },
   ]),
 
