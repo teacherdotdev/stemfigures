@@ -75,6 +75,51 @@ describe('shaped structures', () => {
   })
 })
 
+describe('like outer atoms', () => {
+  /** Angles at the central atom between outer atoms of one element. */
+  function likeAngles(text: string, element: string, shape: Shape) {
+    const { s, central } = placed(text, shape)
+    const directions = s.atoms.map((a, i) => (i !== central && a.element === element ? directionTo(s, central, i) : -1)).filter((d) => d >= 0)
+    const angles: number[] = []
+    directions.forEach((a, i) => directions.slice(i + 1).forEach((b) => angles.push(Math.round(apart(a, b)))))
+    return angles.sort((a, b) => a - b)
+  }
+
+  it('sit side by side, not opposite each other', () => {
+    for (const shape of ['flat', 'shaped'] as const) {
+      expect(likeAngles('CH2Cl2', 'Cl', shape), shape).toEqual([90])
+      expect(likeAngles('CH2Cl2', 'H', shape), shape).toEqual([90])
+      expect(likeAngles('SO2Cl2', 'O', shape), shape).toEqual([90])
+    }
+  })
+
+  it('keep the first atoms where they’re written: CH₂Cl₂ has its H atoms left and down, its Cl atoms up and right', () => {
+    const { s } = placed('CH2Cl2')
+    // + 0 so that −0 matches 0
+    const at = (i: number) => [s.atoms[i].x + 0, s.atoms[i].y + 0]
+    expect([at(1), at(2), at(3), at(4)]).toEqual([[-1, 0], [0, 1], [0, -1], [1, 0]])
+  })
+
+  it('take three neighbouring sides when there are three, with the odd one out on the fourth', () => {
+    for (const shape of ['flat', 'shaped'] as const) {
+      expect(likeAngles('CHCl3', 'Cl', shape), shape).toEqual([90, 90, 180])
+      const { s, central } = placed('CHCl3', shape)
+      expect(s.atoms[1]).toMatchObject({ element: 'H', x: -1, y: 0 })
+      expect(s.atoms[central]).toMatchObject({ x: 0, y: 0 })
+    }
+  })
+
+  it('group around a central atom with five, however they’re written', () => {
+    expect(likeAngles('PClFClFCl', 'F', 'flat')).toEqual([72])
+    expect(likeAngles('PClFClFCl', 'Cl', 'flat')).toEqual([72, 72, 144])
+  })
+
+  it('leave atoms that are all alike in the order they’re written', () => {
+    const { s } = placed('CH4')
+    expect(s.atoms.slice(1).map((a) => [a.x + 0, a.y + 0])).toEqual([[-1, 0], [1, 0], [0, -1], [0, 1]])
+  })
+})
+
 describe('electrons on any structure', () => {
   it('place up to four groups around an atom, a lone electron included', () => {
     const { s } = placed('HCl')
